@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html lang="en" style="background: hsl(69, 5%, 30%); overflow-y: scroll;">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Safe Fonts</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<script src="data.js"></script>
+
+<script>
+
+var font_tables = "";
+
+Object.keys(fonts).forEach(k0 => {
+
+    font_tables += `
+
+    <h2>${k0} Fonts</h2>
+
+    <table class="font_table">
+        <tr>
+            <th>font-family</th>
+            <th></th>
+        </tr>
+    `;
+
+    fonts[k0].forEach((v1, k1, arr) => {
+
+        font_tables += `
+    <tr>
+        <td style="font-family: ${v1};">${v1}</td>
+        <td style="font-family: ${v1};">
+            <h3>The quick brown fox jumps over the lazy dog</h3>
+            <p>The quick brown fox jumps over the lazy dog</p>
+            <p>0123456789</p>
+        </td>
+    </tr>
+        `;
+    });
+
+    font_tables += "</table>";
+
+});
+
+document.body.innerHTML = `
+<div id="mainContainerOuter">
+<div id="mainContainerInner">
+
+<h1>Web Safe Fonts</h1>
+
+${font_tables}
+
+</div>
+</div>
+`;
+
+</script>
+
+</body>
+</html>
