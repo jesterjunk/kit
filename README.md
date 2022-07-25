@@ -1,5 +1,6 @@
 # kit
-A place for various tools for a variety of tasks.
+
+This will be a place of tools for a variety of tasks.
 
 
 ## color
