@@ -1,0 +1,104 @@
+p {
+    margin: 1em 0;
+}
+#arc td {
+    padding: 0.5em;
+}
+ul {
+    list-style: none;
+}
+ul ul li {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+#arc {
+    margin: 0;
+    padding: 0;
+}
+#arc input {
+    padding: 0.5em;
+    border: solid 1px black;
+    background: rgb(255, 255, 255);
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+#arc input:focus {
+    background: rgb(205, 255, 205) !important;
+}
+#ratio {
+    font-weight: bold;
+}
+#visual-ratio {
+    position: relative;
+    background: white;
+    border: solid 1px black;
+    width: 200px;
+    height: 150px;
+    line-height: 150px;
+    text-align: center;
+    margin: 1em 0;
+    padding: 0;
+    overflow: hidden;
+}
+#visual-ratio img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 150px;
+}
+#valley-of-the-kings {
+    background: #e0e0e0;
+    border: solid 1px black;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    float: left;
+    margin: 0 1em 1em 0;
+    padding: 0 1em;
+    width: 450px;
+}
+#croptions-example {
+    position: relative;
+    top: 3px;
+    display: inline-block;
+    width: 20px;
+    height: 15px;
+    margin: 0 0.5em -3px 0.1em;
+    padding: 0;
+    background: white url(croptions.png) left top no-repeat;
+    border: solid 2px white;
+}
+#croptions-example.crop {
+    background-position: left bottom;
+}
+#previous-comments {
+    display: none;
+}
+#previous-comments p {
+    margin: 0;
+}
+#previous-comments ul {
+    float: left;
+    width: 40%;
+    margin: 0.5em 1em 0 0;
+    list-style: disc;
+    font: 14px/1.5 helvetica, sans-serif;
+}
+#previous-comments li {
+    margin-bottom: 0.5em;
+}
+#previous-comments em {
+    font-size: 12px;
+    color: #333;
+}
+#previous-comments .positive {
+    color: #060;
+}
+#previous-comments .negative {
+    color: #600;
+}
+.tooltip {
+    border-bottom: dotted 1px #666;
+    cursor: help;
+}

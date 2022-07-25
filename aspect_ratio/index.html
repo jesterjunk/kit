@@ -1,0 +1,119 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Aspect Ratio Calculator (ARC)</title>
+        <meta name="keywords" content="video, widescreen, screen, resolution, monitor, tv, aspect ratio, calculator, pixels, dimensions, ratios, preserve aspect ratio, fraction scaling calculator, fraction scaling, fractions">
+        <meta name="description" content="Calculate the missing value for a particular aspect ratio.">
+        <link rel="canonical" href="https://andrew.hedges.name/experiments/aspect_ratio/">
+        <link rel="stylesheet" href="css/-/styles.css">
+        <link rel="stylesheet" href="css/aspect_ratio/styles.css">
+    </head>
+    <body>
+        <h1>Aspect Ratio Calculator</h1>
+        <p>Use the form below to calculate the missing value for a particular aspect ratio. This is useful, for example, when resizing photos or video.</p>
+        <noscript>
+            <p><strong style="color: #c00;">You must have JavaScript enabled to use this page.</strong></p>
+        </noscript>
+        <div id="valley-of-the-kings">
+            <div id="errors" style="color: #c00;font-weight: bold;position: relative;top: 10px;left: 8px;"></div>
+            <table id="arc">
+                <tr>
+                    <td>
+                        <p>W<sub>1</sub> <input type="text" name="x1" value="1920"></p>
+                        <hr>
+                        <p>H<sub>1</sub> <input type="text" name="y1" value="1080"></p>
+                    </td>
+                    <td>=</td>
+                    <td>
+                        <p data-prompt-id="arc-w2" data-prompt-text="Type a number here" data-prompt-delay="5000" data-prompt-display="once">W<sub>2</sub> <input type="text" name="x2" value=""></p>
+                        <hr>
+                        <p>H<sub>2</sub> <input type="text" name="y2" value=""></p>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td colspan="3">
+                        <label style="margin: 0;padding: 0;">
+                            Common ratios:<br>
+                            <select id="ratios">
+                                <option value="?x?">-- no match --</option>
+                                <option value="7680x4320">7680 x 4320 (8K UHDTV)</option>
+                                <option value="5120x2880">5120 x 2880 (5K, iMac with retina screen)</option>
+                                <option value="3840x2160">3840 × 2160 (4K UHDTV)</option>
+                                <option value="2048x1536">2048 x 1536 (iPad with retina screen)</option>
+                                <option value="1920x1200">1920 x 1200 (Widescreen computer monitor)</option>
+                                <option value="1920x1080" selected="selected">1920 x 1080 (HD TV, iPhone 6 plus)</option>
+                                <option value="1334x750">1334 x 750 (iPhone 6)</option>
+                                <option value="1200x630">1200 x 630 (Facebook)</option>
+                                <option value="1136x640">1136 x 640 (iPhone 5 screen)</option>
+                                <option value="1024x768">1024 x 768 (iPad)</option>
+                                <option value="1024x512">1024 x 512 (Twitter)</option>
+                                <option value="960x640">960 x 640 (iPhone 4 screen)</option>
+                                <option value="800x600">800 x 600</option>
+                                <option value="728x90">728 x 90 (Common web banner ad size)</option>
+                                <option value="720x486">720 x 486 (PAL)</option>
+                                <option value="640x480">640 x 480 (VGA)</option>
+                                <option value="576x486">576 x 486 (NTSC)</option>
+                                <option value="320x480">320 x 480 (HVGA)</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+            <label style="display: block;margin: 1em 0;padding: 0;">
+                <input type="checkbox" name="round" value="1" checked="checked"> Round results to the nearest whole number
+            </label>
+            <p style="margin-top: 0;">Your aspect ratio is: <span id="ratio">? : ?</span></p>
+            <div id="visual-ratio">Example</div>
+            <label style="display: block;margin: 1em 0;padding: 0;">
+                <input type="checkbox" name="sample-display"> <span class="tooltip" title="The natural aspect ratio of the default sample image is 4:3.">Show sample image</span>
+            </label>
+            <fieldset style="display: none;border: solid 1px #ccc;margin: 1em 0;padding: 0 1em;" id="croptions">
+                <legend style="display: none;"></legend>
+                <label style="display: block;margin: 1em 0;padding: 0;">
+                    Image source: <input style="width: 300px;" type="text" name="sample-url" value="img/sample.jpg">
+                </label>
+                <label style="display: block;margin: 1em 0;padding: 0;">
+                    How to handle ratio mismatches:<br>
+                    <label><input type="radio" name="crop" value="letterbox" checked="checked"> <div id="croptions-example" title="Letterbox/Pillarbox"></div></label>
+                    <label><input type="radio" name="crop" value="crop"> <div id="croptions-example" class="crop" title="Crop"></div></label>
+                </label>
+            </fieldset>
+        </div>
+        <div style="margin-left: 485px;">
+            <h2>Instructions</h2>
+            <ol>
+                <li style="width: 90%;">Enter the values for the original width (W<sub>1</sub>) &amp; original height (H<sub>1</sub>) on the left.</li>
+                <li style="width: 90%;">Enter either a new width (W<sub>2</sub>) or new height (H<sub>2</sub>) on the right to calculate the remaining value.</li>
+                <li style="width: 90%;">Change any of the values at any time, or <a class="reset" href="#">reset them</a> to the starting values.</li>
+            </ol>
+            <h2>Formula</h2>
+            <p>Say you have a photo that is 1600 x 1200 pixels, but your blog only has space for a photo 400 pixels wide. To find the new height of your photo&#8212;while preserving the aspect ratio&#8212;you would need to do the following calculation:</p>
+            <pre>(original height / original width) x new width = new height</pre>
+            <pre>(1200 / 1600) x 400 = 300</pre>
+        </div>
+        <p style="clear: both;"><small><em><strong>Note:</strong> this is the new, improved version. You can still use the original <a href="original.html">aspect ratio calculator</a> if you prefer.</em></small></p>
+        <hr>
+        <p class="breadcrumb">
+            <a href="https://andrew.hedges.name/">andrew.hedges.name</a> / <a href="https://andrew.hedges.name/experiments/">experiments</a> / <a href="https://andrew.hedges.name/experiments/aspect_ratio/">Aspect Ratio Calculator</a><br>
+        </p>
+        <!-- recent blog posts -->
+        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+        <script type="text/javascript" id="segdeha-blog" src="js/jquery-recent-blogs.js"></script>
+        <!-- yellow fade -->
+        <script type="text/javascript" src="js/fader.js"></script>
+        <!-- aspect ratio calculator -->
+        <script type="text/javascript" src="js/behaviors.js"></script>
+        <!-- feedback -->
+        <script type="text/javascript" src="js/feedback.js"></script>
+        <!-- prompter -->
+        <script type="text/javascript" src="js/prompter.js"></script>
+        <p class="footer">
+            Copyright &copy; 2003 — <span id="current_year">2015</span>. All rights reserved.
+        </p>
+        <script>
+        document.getElementById('current_year').innerHTML = (new Date()).getFullYear();
+        </script>
+    </body>
+</html>
