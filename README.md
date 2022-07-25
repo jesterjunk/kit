@@ -7,7 +7,7 @@ This is a place of tools for a variety of tasks.
 
 [Color Blender](https://jesterjunk.github.io/kit/color-blend "Color Blender")
 
-[4bit](https://jesterjunk.github.io/kit/4bit "4bit")
+[4bit Terminal Color Scheme Designer](https://jesterjunk.github.io/kit/4bit "4bit Terminal Color Scheme Designer")
 
 
 ## calculation
