@@ -15,6 +15,11 @@ This is a place of tools for a variety of tasks.
 [Aspect Ratio Calculator](https://jesterjunk.github.io/kit/aspect_ratio "Aspect Ratio Calculator")
 
 
+## typography
+
+[Web Safe Fonts](https://jesterjunk.github.io/kit/web-safe-fonts "Web Safe Fonts")
+
+
 ## words
 
 [Dictionary.com](https://www.dictionary.com/ "Dictionary.com")
