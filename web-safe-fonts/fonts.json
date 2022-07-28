@@ -1,4 +1,4 @@
-const fonts = {
+{
     "Serif": [
         "Georgia, serif",
         "'Palatino Linotype', 'Book Antiqua', Palatino, serif",
@@ -18,4 +18,4 @@ const fonts = {
         "'Courier New', Courier, monospace",
         "'Lucida Console', Monaco, monospace"
     ]
-};
+}
