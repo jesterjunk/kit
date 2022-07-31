@@ -19,6 +19,7 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/web-safe-fonts" title="Web Safe Fonts" target="_blank">Web Safe Fonts</a></p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/Empyrion/egs-lcd-symbols" title="Empyrion Galactic Survival: LCD Symbols" target="_blank">Empyrion Galactic Survival: LCD Symbols</a></p>
 
 <h2><a href="#Words" title="Words" target="_blank">Words</a></h2>
 
