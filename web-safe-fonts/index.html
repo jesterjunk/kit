@@ -7,15 +7,21 @@
 </head>
 <body>
 
-<script type="module">
-import fonts from './fonts.json' assert {type: 'json'};
+<script src="js-yaml.min.js"></script>
+
+<script>
+Promise.all([
+    fetch("./fonts.yaml").then(x => x.text())
+]).then(([yaml]) => {
+
+    var fonts = jsyaml.load(yaml);
 
 
-var font_tables = "";
+    var font_tables = "";
 
-Object.keys(fonts).forEach(k0 => {
+    Object.keys(fonts).forEach(k0 => {
 
-    font_tables += `
+        font_tables += `
 
     <h2>${k0} Fonts</h2>
 
@@ -26,9 +32,9 @@ Object.keys(fonts).forEach(k0 => {
         </tr>
     `;
 
-    fonts[k0].forEach((v1, k1, arr) => {
+        fonts[k0].forEach((v1, k1, arr) => {
 
-        font_tables += `
+            font_tables += `
     <tr>
         <td style="font-family: ${v1};">${v1}</td>
         <td style="font-family: ${v1};">
@@ -38,13 +44,13 @@ Object.keys(fonts).forEach(k0 => {
         </td>
     </tr>
         `;
+        });
+
+        font_tables += "</table>";
+
     });
 
-    font_tables += "</table>";
-
-});
-
-document.body.innerHTML = `
+    document.body.innerHTML = `
 <div id="mainContainerOuter">
 <div id="mainContainerInner">
 
@@ -56,6 +62,7 @@ ${font_tables}
 </div>
 `;
 
+});
 </script>
 
 </body>
