@@ -1,0 +1,213 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Empyrion - LCD Symbols</title>
+<meta name="Description" content="Reference list of ALL supported non-standard characters for Empyrion LCD Panels">
+<meta name="Author" content="Frigidman">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Language" content="en-us">
+
+
+
+    <style type="text/css">
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, font, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, thead, tbody, tfoot, tr, th, td {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        font-weight: inherit;
+        font-style: inherit;
+        font-size: 100%;
+        font-family: inherit;
+        vertical-align: baseline;
+        -webkit-text-size-adjust: none; }
+    * { margin: 0; }
+    *:focus { outline: 0; }
+    #wsb-canvas-template-page { padding: 0 !important; }
+    #wsb-canvas-template-footer,
+    #wsb-canvas-template-footer.wsb-canvas-page-footer,
+    #wsb-canvas-template-footer.wsb-canvas-page-footer.footer {
+        display: none !important;
+        }
+    body {
+        background: #343434;
+        font-family: Helvetica, Arial, sans-serif;
+        color: #f1f1f1;
+        font-size: 81.25%;/* 13px */
+        line-height: 1.5;/* 19px */
+        }
+    #wrap {
+        text-align: center;
+        }
+    #content {
+        background: #343434;
+        font-family: Helvetica, Arial, sans-serif;
+        color: #f1f1f1;
+        font-size: 81.25%;/* 13px */
+        line-height: 1.5;/* 19px */
+        margin: 30px auto;
+        width: 960px;
+        text-align: left;
+        }
+    #help {
+        position: relative;
+        margin: 30px 10px;
+        padding: 20px;
+        border: 1ps solid #ccc;
+        border-radius: 7px;
+        -moz-border-radius: 7px;
+        -webkit-border-radius: 7px;
+        box-shadow: 0px 0px 3px 0 rgba(255,255,255,0.5);
+        -moz-box-shadow: 0px 0px 3px 0 rgba(255,255,255,0.5);
+        -webkit-box-shadow: 0px 0px 3px 0 rgba(255,255,255,0.5);
+        background: #393939;
+        font-size: 15px;
+        font-weight: 100;
+        }
+        #help ol {
+            margin: 10px 10px 10px 40px;
+            }
+        #help .note {
+            font-size: 13px;
+            color: #ededed;
+            }
+    a {
+        color: #5da6d8;
+        text-decoration: none;
+        }
+        a:hover {
+            color: #7fbee9;
+            text-decoration: underline;
+            }
+    h1 {
+        font-size: 20px;
+        font-weight: 400;
+        color: #f1f1f1;
+        margin-bottom: 8px;
+        }
+        h1 b {
+            font-family: 'Andale Mono', Helvetica, Arial, Verdana;
+            font-size: 35px;
+            color: #fff;
+            letter-spacing: 0.15em;
+            text-shadow: 0px 0px 2px #fff;
+            }
+    h2 {
+        font-size: 14px;
+        padding-left: 12px;
+        margin-bottom: 10px;
+        }
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        }
+        ul li {
+            position: relative;
+            display: -moz-inline-box; display: inline-block; #display: inline;
+            padding: 10px;
+            margin: 10px;
+            width: 40px;
+            height: 40px;
+            line-height: 45px;
+            border: 1ps solid #ccc;
+            border-radius: 7px;
+            -moz-border-radius: 7px;
+            -webkit-border-radius: 7px;
+            box-shadow: 0px 0px 3px 0 rgba(255,255,255,0.5);
+            -moz-box-shadow: 0px 0px 3px 0 rgba(255,255,255,0.5);
+            -webkit-box-shadow: 0px 0px 3px 0 rgba(255,255,255,0.5);
+            background: #393939;
+            font-size: 30px;
+            font-family: 'Lucida Sans Unicode', 'Arial Unicode MS' !important;
+            overflow: visible;
+            text-align: center;
+            color: #fafafa;
+            cursor: pointer;
+            }
+            ul li:hover {
+                background: #404040;
+                }
+            ul li:hover:after {
+                position: absolute;
+                content: attr(title);
+                left: 0;
+                right: 0;
+                top: 46px;
+                font-family: Helvetica, Arial, sans-serif !important;
+                font-size: 12px;
+                color: #fff;
+                text-align: center;
+                }
+            ul li.break {
+                display:block;
+                width: 100%;
+                height: 10px;
+                border: 0;
+                padding: 0;
+                margin: 0;
+                box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: none;
+                background: transparent;
+                }
+                ul li.break:hover {
+                    background: transparent;
+                    }
+    </style>
+    <script type="text/javascript">
+        // simple function that selects the text for you in any box you click on
+        function selectText() {
+            var node = this;
+            if ( document.selection ) {
+                var range = document.body.createTextRange();
+                range.moveToElementText( node  );
+                range.select();
+            } else if ( window.getSelection ) {
+                var range = document.createRange();
+                range.selectNodeContents( node );
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange( range );
+            }
+        }
+        window.onload = function(){
+            var allsymbols = document.getElementById("symbols").getElementsByTagName('li');
+            for(i=0;i<=(allsymbols.length -1);i++){
+                allsymbols[i].addEventListener('click', selectText, false);
+            }
+        }
+    </script>
+    </head>
+    <div id="wrap"><div id="content">
+        <h1><b>EMPYRION</b> &nbsp; All Supported Extra Symbols on LCD Panels/Signs </h1>
+        <h2><a href="#help">How Do I Use These?</a></h2>
+        <ul id="symbols"><li title="2699">⚙</li><li title="269B">⚛</li><li title="26A0">⚠</li><li title="26A1">⚡</li><li title="26D4">⛔</li><li title="2620">☠</li><li title="2621">☡</li><li title="2622">☢</li><li title="2623">☣</li><li title="262E">☮</li><li title="262F">☯</li><li title="2638">☸</li><li title="2639">☹</li><li title="263A">☺</li><li title="263B">☻</li><li title="263C">☼</li><li title="263D">☽</li><li title="263E">☾</li><li title="2600">☀</li><li title="2601">☁</li><li title="2602">☂</li><li title="2603">☃</li><li title="2604">☄</li><li title="2605">★</li><li title="2606">☆</li><li title="2609">☉</li><li title="260E">☎</li><li title="260F">☏</li><li title="2706">✆</li><li title="2707">✇</li><li title="2708">✈</li><li title="2709">✉</li><li title="2654">♔</li><li title="2655">♕</li><li title="2656">♖</li><li title="2657">♗</li><li title="2658">♘</li><li title="2659">♙</li><li title="265A">♚</li><li title="265B">♛</li><li title="265C">♜</li><li title="265D">♝</li><li title="265E">♞</li><li title="265F">♟</li><li title="2660">♠</li><li title="2661">♡</li><li title="2662">♢</li><li title="2663">♣</li><li title="2664">♤</li><li title="2665">♥</li><li title="2666">♦</li><li title="2667">♧</li><li title="2668">♨</li><li title="2669">♩</li><li title="266A">♪</li><li title="266B">♫</li><li title="266C">♬</li><li title="266D">♭</li><li title="266E">♮</li><li title="266F">♯</li><li class="break"></li><li title="2630">☰</li><li title="2631">☱</li><li title="2632">☲</li><li title="2633">☳</li><li title="2634">☴</li><li title="2635">☵</li><li title="2636">☶</li><li title="2637">☷</li><li title="2624">☤</li><li title="2625">☥</li><li title="2626">☦</li><li title="2627">☧</li><li title="2628">☨</li><li title="2629">☩</li><li title="262A">☪</li><li title="262B">☫</li><li title="262C">☬</li><li title="262D">☭</li><li title="263F">☿</li><li title="2640">♀</li><li title="2641">♁</li><li title="2642">♂</li><li title="2643">♃</li><li title="2644">♄</li><li title="2645">♅</li><li title="2646">♆</li><li title="2647">♇</li><li title="2648">♈</li><li title="2649">♉</li><li title="264A">♊</li><li title="264B">♋</li><li title="264C">♌</li><li title="264D">♍</li><li title="264E">♎</li><li title="264F">♏</li><li title="2650">♐</li><li title="2651">♑</li><li title="2652">♒</li><li title="2653">♓</li><li class="break"></li><li title="261A">☚</li><li title="261B">☛</li><li title="261C">☜</li><li title="261D">☝</li><li title="261E">☞</li><li title="261F">☟</li><li title="2701">✁</li><li title="2702">✂</li><li title="2703">✃</li><li title="2704">✄</li><li title="270C">✌</li><li title="270D">✍</li><li title="270E">✎</li><li title="270F">✏</li><li title="2710">✐</li><li title="2711">✑</li><li title="2712">✒</li><li title="2713">✓</li><li title="2714">✔</li><li title="2715">✕</li><li title="2716">✖</li><li title="2717">✗</li><li title="2718">✘</li><li title="2610">☐</li><li title="2611">☑</li><li title="2612">☒</li><li title="2613">☓</li><li title="2616">☖</li><li title="2617">☗</li><li title="2719">✙</li><li title="271A">✚</li><li title="271B">✛</li><li title="271C">✜</li><li title="271D">✝</li><li title="271E">✞</li><li title="271F">✟</li><li title="2720">✠</li><li title="2721">✡</li><li title="2722">✢</li><li title="2723">✣</li><li title="2724">✤</li><li title="2725">✥</li><li title="2726">✦</li><li title="2727">✧</li><li title="2729">✩</li><li title="272A">✪</li><li title="272B">✫</li><li title="272C">✬</li><li title="272D">✭</li><li title="272E">✮</li><li title="272F">✯</li><li title="2730">✰</li><li title="2731">✱</li><li title="2732">✲</li><li title="2733">✳</li><li title="2734">✴</li><li title="2735">✵</li><li title="2736">✶</li><li title="2737">✷</li><li title="2738">✸</li><li title="2739">✹</li><li title="273A">✺</li><li title="273B">✻</li><li title="273C">✼</li><li title="273D">✽</li><li title="273E">✾</li><li title="273F">✿</li><li title="2740">❀</li><li title="2741">❁</li><li title="2742">❂</li><li title="2743">❃</li><li title="2744">❄</li><li title="2745">❅</li><li title="2746">❆</li><li title="2747">❇</li><li title="2748">❈</li><li title="2749">❉</li><li title="274A">❊</li><li title="274B">❋</li><li title="274C">❌</li><li title="274D">❍</li><li title="274F">❏</li><li title="2750">❐</li><li title="2751">❑</li><li title="2752">❒</li><li title="2756">❖</li><li title="275B">❛</li><li title="275C">❜</li><li title="275D">❝</li><li title="275E">❞</li><li title="2761">❡</li><li title="2762">❢</li><li title="2763">❣</li><li title="2764">❤</li><li title="2765">❥</li><li title="2766">❦</li><li title="2767">❧</li><li title="2770">❰</li><li title="2771">❱</li><li title="2772">❲</li><li title="2773">❳</li><li title="260A">☊</li><li title="260B">☋</li><li title="260C">☌</li><li title="260D">☍</li><li class="break"></li><li title="2776">❶</li><li title="2777">❷</li><li title="2778">❸</li><li title="2779">❹</li><li title="277A">❺</li><li title="277B">❻</li><li title="277C">❼</li><li title="277D">❽</li><li title="277E">❾</li><li title="277F">❿</li><li class="break"></li><li title="2780">➀</li><li title="2781">➁</li><li title="2782">➂</li><li title="2783">➃</li><li title="2784">➄</li><li title="2785">➅</li><li title="2786">➆</li><li title="2787">➇</li><li title="2788">➈</li><li title="2789">➉</li><li class="break"></li><li title="278A">➊</li><li title="278B">➋</li><li title="278C">➌</li><li title="278D">➍</li><li title="278E">➎</li><li title="278F">➏</li><li title="2790">➐</li><li title="2791">➑</li><li title="2792">➒</li><li title="2793">➓</li><li class="break"></li><li title="2190">←</li><li title="2191">↑</li><li title="2192">→</li><li title="2193">↓</li><li title="2794">➔</li><li title="2798">➘</li><li title="2799">➙</li><li title="279A">➚</li><li title="279B">➛</li><li title="279C">➜</li><li title="279D">➝</li><li title="279E">➞</li><li title="279F">➟</li><li title="27A0">➠</li><li title="27A1">➡</li><li title="27A2">➢</li><li title="27A3">➣</li><li title="27A4">➤</li><li title="27A5">➥</li><li title="27A6">➦</li><li title="27A7">➧</li><li title="27A8">➨</li><li title="27A9">➩</li><li title="27AA">➪</li><li title="27AB">➫</li><li title="27AC">➬</li><li title="27AD">➭</li><li title="27AE">➮</li><li title="27AF">➯</li><li title="27B1">➱</li><li title="27B2">➲</li><li title="27B3">➳</li><li title="27B4">➴</li><li title="27B5">➵</li><li title="27B6">➶</li><li title="27B7">➷</li><li title="27B8">➸</li><li title="27B9">➹</li><li title="27BA">➺</li><li title="27BB">➻</li><li title="27BC">➼</li><li title="27BD">➽</li><li title="27BE">➾</li><li class="break"></li><li title="2581">▁</li><li title="2582">▂</li><li title="2583">▃</li><li title="2584">▄</li><li title="2585">▅</li><li title="2586">▆</li><li title="2587">▇</li><li title="2588">█</li><li title="2589">▉</li><li title="258A">▊</li><li title="258B">▋</li><li title="258C">▌</li><li title="258D">▍</li><li title="258E">▎</li><li title="258F">▏</li><li title="2580">▀</li><li title="2590">▐</li><li title="2594">▔</li><li title="2595">▕</li><li title="2758">❘</li><li title="2759">❙</li><li title="275A">❚</li><li title="2591">░</li><li title="2592">▒</li><li title="2593">▓</li><li title="25A0">■</li><li title="25A1">□</li><li title="25A2">▢</li><li title="25A3">▣</li><li title="25A4">▤</li><li title="25A5">▥</li><li title="25A6">▦</li><li title="25A7">▧</li><li title="25A8">▨</li><li title="25A9">▩</li><li title="25AA">▪</li><li title="25AB">▫</li><li title="25AC">▬</li><li title="25AD">▭</li><li title="25AE">▮</li><li title="25AF">▯</li><li title="25B0">▰</li><li title="25B1">▱</li><li title="25B2">▲</li><li title="25B3">△</li><li title="25B4">▴</li><li title="25B5">▵</li><li title="25B6">▶</li><li title="25B7">▷</li><li title="25B8">▸</li><li title="25B9">▹</li><li title="25BA">►</li><li title="25BB">▻</li><li title="25BC">▼</li><li title="25BD">▽</li><li title="25BE">▾</li><li title="25BF">▿</li><li title="25C0">◀</li><li title="25C1">◁</li><li title="25C2">◂</li><li title="25C3">◃</li><li title="25C4">◄</li><li title="25C5">◅</li><li title="25C6">◆</li><li title="25C7">◇</li><li title="25C8">◈</li><li title="25C9">◉</li><li title="25CA">◊</li><li title="25CB">○</li><li title="25CC">◌</li><li title="25CD">◍</li><li title="25CE">◎</li><li title="25CF">●</li><li title="25D0">◐</li><li title="25D1">◑</li><li title="25D2">◒</li><li title="25D3">◓</li><li title="25D4">◔</li><li title="25D5">◕</li><li title="25D6">◖</li><li title="25D7">◗</li><li title="25D8">◘</li><li title="25D9">◙</li><li title="25DA">◚</li><li title="25DB">◛</li><li title="25DC">◜</li><li title="25DD">◝</li><li title="25DE">◞</li><li title="25DF">◟</li><li title="25E0">◠</li><li title="25E1">◡</li><li title="25E2">◢</li><li title="25E3">◣</li><li title="25E4">◤</li><li title="25E5">◥</li><li title="25E6">◦</li><li title="25E7">◧</li><li title="25E8">◨</li><li title="25E9">◩</li><li title="25EA">◪</li><li title="25EB">◫</li><li title="25EC">◬</li><li title="25ED">◭</li><li title="25EE">◮</li><li title="25EF">◯</li><li class="break"></li><li title="2500">─</li><li title="2501">━</li><li title="2502">│</li><li title="2503">┃</li><li title="2504">┄</li><li title="2505">┅</li><li title="2506">┆</li><li title="2507">┇</li><li title="2508">┈</li><li title="2509">┉</li><li title="250A">┊</li><li title="250B">┋</li><li title="250C">┌</li><li title="250D">┍</li><li title="250E">┎</li><li title="250F">┏</li><li title="2510">┐</li><li title="2511">┑</li><li title="2512">┒</li><li title="2513">┓</li><li title="2514">└</li><li title="2515">┕</li><li title="2516">┖</li><li title="2517">┗</li><li title="2518">┘</li><li title="2519">┙</li><li title="251A">┚</li><li title="251B">┛</li><li title="251C">├</li><li title="251D">┝</li><li title="251E">┞</li><li title="251F">┟</li><li title="2520">┠</li><li title="2521">┡</li><li title="2522">┢</li><li title="2523">┣</li><li title="2524">┤</li><li title="2525">┥</li><li title="2526">┦</li><li title="2527">┧</li><li title="2528">┨</li><li title="2529">┩</li><li title="252A">┪</li><li title="252B">┫</li><li title="252C">┬</li><li title="252D">┭</li><li title="252E">┮</li><li title="252F">┯</li><li title="2530">┰</li><li title="2531">┱</li><li title="2532">┲</li><li title="2533">┳</li><li title="2534">┴</li><li title="2535">┵</li><li title="2536">┶</li><li title="2537">┷</li><li title="2538">┸</li><li title="2539">┹</li><li title="253A">┺</li><li title="253B">┻</li><li title="253C">┼</li><li title="253D">┽</li><li title="253E">┾</li><li title="253F">┿</li><li title="2540">╀</li><li title="2541">╁</li><li title="2542">╂</li><li title="2543">╃</li><li title="2544">╄</li><li title="2545">╅</li><li title="2546">╆</li><li title="2547">╇</li><li title="2548">╈</li><li title="2549">╉</li><li title="254A">╊</li><li title="254B">╋</li><li title="254C">╌</li><li title="254D">╍</li><li title="254E">╎</li><li title="254F">╏</li><li title="2550">═</li><li title="2551">║</li><li title="2552">╒</li><li title="2553">╓</li><li title="2554">╔</li><li title="2555">╕</li><li title="2556">╖</li><li title="2557">╗</li><li title="2558">╘</li><li title="2559">╙</li><li title="255A">╚</li><li title="255B">╛</li><li title="255C">╜</li><li title="255D">╝</li><li title="255E">╞</li><li title="255F">╟</li><li title="2560">╠</li><li title="2561">╡</li><li title="2562">╢</li><li title="2563">╣</li><li title="2564">╤</li><li title="2565">╥</li><li title="2566">╦</li><li title="2567">╧</li><li title="2568">╨</li><li title="2569">╩</li><li title="256A">╪</li><li title="256B">╫</li><li title="256C">╬</li><li title="256D">╭</li><li title="256E">╮</li><li title="256F">╯</li><li title="2570">╰</li><li title="2571">╱</li><li title="2572">╲</li><li title="2573">╳</li><li title="2574">╴</li><li title="2575">╵</li><li title="2576">╶</li><li title="2577">╷</li><li title="2578">╸</li><li title="2579">╹</li><li title="257A">╺</li><li title="257B">╻</li><li title="257C">╼</li><li title="257D">╽</li><li title="257E">╾</li><li title="257F">╿</li></ul>
+        <div id="help">
+            To use these symbols in the game, it is as simple as copy paste!<br>
+            <ol>
+                <li>In-game: Locate the LCD and press "f" to edit it (or access it from the control panel).</li>
+                <li>Alt-Tab out to your web browser and view this page.</li>
+                <li>Simply click on a symbol, and it will highlight for you.</li>
+                <li>Do CTRL-C to Copy.</li>
+                <li>Alt-Tab back to the game.</li>
+                <li>Do CTRL-V to Paste into the LCD Panel Edit Box.</li>
+                <li>Done! Rinse Repeat for other symbols.</li>
+            </ol>
+            <div class="note">* Some symbols may not look exactly the same in-game as they are here.</div>
+            <div class="note">* If you are not seeing certain symbols, your web browser may be out of date.</div>
+            <div class="note">* The code displayed on hover is the unicode number. Which is only for <a href="https://unicode-table.com/en/">reference</a>, and not for typing into the game.</div>
+            <div class="note">&dagger; This page is User Content for the game Empyrion Galactic Survival. Eleon Game Studios is under no obligation to screen or monitor User Content.</div>
+            <div class="note">&ddagger; Contributed by Frigidman&trade;</div>
+        </div>
+    </div></div>
+
+
+
+</body>
+</html>
