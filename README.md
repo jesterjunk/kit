@@ -21,8 +21,14 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/Empyrion/egs-lcd-symbols" title="Empyrion - Galactic Survival: Supported Extra Symbols on LCD Panels/Signs" target="_blank">Empyrion - Galactic Survival: Supported Extra Symbols on LCD Panels/Signs</a></p>
 
+
 <h2><a href="#Words" title="Words" target="_blank">Words</a></h2>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://www.dictionary.com/" title="Dictionary.com" target="_blank">Dictionary.com</a></p>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://www.thesaurus.com/" title="Thesaurus.com" target="_blank">Thesaurus.com</a></p>
+
+
+<h2><a href="#Code" title="Code" target="_blank">Code</a></h2>
+
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/bookmarkleter" title="Bookmarkleter" target="_blank">Bookmarkleter</a></p>
