@@ -1,5 +1,3 @@
-<h1><a href="#kit" title="kit" target="_blank">kit</a></h1>
-
 <p>‌‌ ‌‌ ‌‌ ‌‌ This is a place of tools for a variety of tasks.</p>
 
 
