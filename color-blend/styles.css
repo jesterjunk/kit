@@ -75,15 +75,15 @@ input,
     margin: 5px 4px;
 }
 #grid td {
-    height: 11px;
-    width: 11px;
+    height: 19px;
+    width: 19px;
     padding: 0;
     line-height: 11px;
 }
 #grid td a {
     display: block;
-    height: 10px;
-    width: 10px;
+    height: 18px;
+    width: 18px;
     line-height: 10px;
     border: 1px solid black;
     border-width: 1px 0 0 1px;

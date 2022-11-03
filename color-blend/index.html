@@ -141,7 +141,7 @@ function mixPalette() {
 		var b = (ends[0].b + (step[2] * i));
 			palette[i] = new Color(r,g,b);
 	}
-	for (j = count + 1; j < 12; j++) {
+	for (j = count + 1; j < 24; j++) {
 		palette[j].text = '';
 		palette[j].bg = 'white';
 	}
@@ -150,7 +150,7 @@ function mixPalette() {
 function drawPalette() {
 	stepCalc();
 	mixPalette();
-	for (i = 0; i < 12; i++) {
+	for (i = 0; i < 24; i++) {
 		colorPour('pal',i);
 	}		
 	updateHash();
@@ -209,7 +209,7 @@ function init(inp) {
 		document.getElementById('col'+i).value = '';
 		document.getElementById('c'+i).style.background = 'white';
 	}
-	for (j = 0; j < 12; j++) {
+	for (j = 0; j < 24; j++) {
 		palette[j] = new Color;
 		document.getElementById('pal'+j).value = '';
 		document.getElementById('p'+j).style.background = 'white';
@@ -278,6 +278,18 @@ function init(inp) {
 <option value="8">8</option>
 <option value="9">9</option>
 <option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option value="22">22</option>
 </select>
 </td>
 </tr>
@@ -349,6 +361,66 @@ function init(inp) {
 <td></td>
 <td class="text"><input type="text" id="pal11" size="19" /></td>
 <td class="pal" id="p11">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal12" size="19" /></td>
+<td class="pal" id="p12">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal13" size="19" /></td>
+<td class="pal" id="p13">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal14" size="19" /></td>
+<td class="pal" id="p14">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal15" size="19" /></td>
+<td class="pal" id="p15">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal16" size="19" /></td>
+<td class="pal" id="p16">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal17" size="19" /></td>
+<td class="pal" id="p17">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal18" size="19" /></td>
+<td class="pal" id="p18">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal19" size="19" /></td>
+<td class="pal" id="p19">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal20" size="19" /></td>
+<td class="pal" id="p20">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal21" size="19" /></td>
+<td class="pal" id="p21">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal22" size="19" /></td>
+<td class="pal" id="p22">&nbsp;</td>
+</tr>
+<tr>
+<td></td>
+<td class="text"><input type="text" id="pal23" size="19" /></td>
+<td class="pal" id="p23">&nbsp;</td>
 </tr>
 </table>
 
