@@ -11822,7 +11822,7 @@
                     };
                     else if (p.documentElement.addBehavior) {
                         var f, h;
-                        try { h = new ActiveXObject("htmlfile"), h.open(), h.write('<script>document.w=window</script><iframe src="favicon.ico"></iframe>'), h.close(), f = h.w.frames[0].document, d = f.createElement("div") } catch (g) { d = p.createElement("div"), f = p.body }
+                        try { h = new ActiveXObject("htmlfile"), h.open(), h.write('<script>document.w=window</script><iframe src="./favicon.ico"></iframe>'), h.close(), f = h.w.frames[0].document, d = f.createElement("div") } catch (g) { d = p.createElement("div"), f = p.body }
                         var y = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g");
                         s.set = i(function(t, e, o) { return e = r(e), void 0 === o ? s.remove(e) : (t.setAttribute(e, s.serialize(o)), t.save(u), o) }), s.get = i(function(t, e) { return e = r(e), s.deserialize(t.getAttribute(e)) }), s.remove = i(function(t, e) { e = r(e), t.removeAttribute(e), t.save(u) }), s.clear = i(function(t) {
                             var e = t.XMLDocument.documentElement.attributes;
