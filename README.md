@@ -12,6 +12,8 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/color-blend" title="Color Blender" target="_blank">Color Blender</a></p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/discord-colored-text-generator/" title="Rebane's Discord Colored Text Generator">Rebane's Discord Colored Text Generator</a></p>
+
 
 <h2><a href="#Typography" title="Typography" target="_blank">Typography</a></h2>
 
