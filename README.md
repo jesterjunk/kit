@@ -1,6 +1,3 @@
-<p>‌‌ ‌‌ ‌‌ ‌‌ This is a place of tools for a variety of tasks.</p>
-
-
 <h2><a href="#Calculation" title="Calculation" target="_blank">Calculation</a></h2>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/aspect_ratio" title="Aspect Ratio Calculator" target="_blank">Aspect Ratio Calculator</a></p>
