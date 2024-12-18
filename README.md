@@ -30,6 +30,8 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/bookmarkleter" title="Bookmarkleter" target="_blank">Bookmarkleter</a></p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/htmledit" title="Real-time HTML Editor" target="_blank">Real-time HTML Editor</a></p>
+
 
 <h2><a href="#YouTube" title="YouTube" target="_blank">YouTube</a></h2>
 
