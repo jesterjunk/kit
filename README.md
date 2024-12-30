@@ -36,3 +36,7 @@
 <h2><a href="#YouTube" title="YouTube" target="_blank">YouTube</a></h2>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/stretch.site" title="stretch.site" target="_blank">stretch.site</a></p>
+
+<h2>Puzzle Solver</h2>
+
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/nonograms/web/solver.html" title="nonogram solver" target="_blank">nonogram solver</a></p>
