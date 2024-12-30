@@ -1,0 +1,398 @@
+<html>
+<head>
+  <title>Nonogram solver</title>
+  <style>
+    table {
+      border-spacing: 0;
+    }
+    table tr td {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    table tr td.label:hover, table tr td.inside:hover, table tr td.button:hover {
+      background-color: lightgray;
+      cursor: pointer;
+    }
+
+    #status {
+      font-weight : bold;
+    }
+  </style>
+  <script src = "solver.js"></script>
+  <script>
+    function keydown(e) {
+      if (e.code == 'ArrowRight' || e.code == 'ArrowLeft' || e.code == 'ArrowUp' || e.code == 'ArrowDown' || e.code == 'Enter' || e.code == 'Escape') {
+        var tbl = document.getElementById('grid')
+        if (tbl != null) {
+          if (e.code == 'Escape') unselect_cell()
+          else if (tbl.selected_row === undefined || tbl.selected_column === undefined) {
+            select_cell(1+tbl.top_rows, 1)
+          } else {
+            var cur_row = tbl.selected_row
+            var cur_col = tbl.selected_column
+            var ox = 0, oy = 0
+
+            if (e.code == 'ArrowRight') {ox = 1; oy = 0;}
+            else if (e.code == 'ArrowLeft') {ox = -1; oy = 0;}
+            else if (e.code == 'ArrowDown' || e.code == 'Enter') {ox = 0; oy = 1;}
+            else if (e.code == 'ArrowUp') {ox = 0; oy = -1;}
+
+            if (cur_row == 1 + tbl.top_rows && oy == 1) {
+              ox -= 1
+            } else if (cur_row == 1 + tbl.top_rows + 1 && oy == -1) {
+              ox += 1
+            }
+
+            var y = cur_row + oy
+            var x = cur_col + ox
+
+            if (0 <= y && y < tbl.rows.length) {
+              if (0 <= x && x < tbl.rows[y].cells.length) {
+                if (tbl.rows[y].cells[x].className == 'label' || tbl.rows[y].cells[x].className == 'inside') {
+                  select_cell(y, x)
+                }
+              }
+            }
+          }
+          e.preventDefault()
+        }
+      }
+    }
+
+    function click(e) {
+      if (e.target.closest('table') !== null) {
+        var cell = e.target.closest('td')
+        var x = cell.cellIndex
+        var y = cell.parentNode.rowIndex
+        var tbl = document.getElementById('grid')
+        if (tbl.selected_column !== undefined && tbl.selected_row !== undefined && x == tbl.selected_column && y == tbl.selected_row) return true;
+        if (tbl.rows[y].cells[x].className == 'label' || tbl.rows[y].cells[x].className == 'inside') {
+          select_cell(y, x)
+        }
+      } else {
+        unselect_cell()
+      }
+      return false
+    }
+
+    function add_row() {
+      unselect_cell()
+      var tbl = document.getElementById('grid')
+      var row = tbl.insertRow(1);
+      for (var x = 0; x < 1 + tbl.left_columns; x++) {
+        row.insertCell()
+      }
+      for (var x = 0; x < tbl.grid_width; x++) {
+        var cell = row.insertCell()
+        cell.className = 'label'
+        cell.style.borderLeft = (x%5 == 0 ? '3px solid black' : '')
+        cell.style.borderRight = (x == tbl.grid_width-1 ? '3px solid black' : (x%5 == 4 ? '' : '1px solid black'))
+        cell.style.borderBottom = '1px solid black'
+        cell.style.borderTop = '3px solid black'
+        cell.style.height = '24px'
+      }
+      for (var x = 0; x < tbl.grid_width; x++) {
+        tbl.rows[2].cells[1+tbl.left_columns+x].style.borderTop = ''
+      }
+
+      tbl.top_rows++
+    }
+
+    function add_column() {
+      unselect_cell()
+      var tbl = document.getElementById('grid')
+
+      for (var y = 0; y < 1 + tbl.top_rows; y++) {
+        tbl.rows[y].insertCell(0)
+      }
+      for (var y = 0; y < tbl.grid_height; y++) {
+        var row = tbl.rows[1+tbl.top_rows+y]
+        var cell = row.insertCell((y==0 ? 1 : 0))
+        cell.className = 'label'
+        cell.style.borderLeft = '3px solid black'
+        cell.style.borderRight = '1px solid black'
+        cell.style.borderTop = (y%5 == 0 ? '3px solid black' : '')
+        cell.style.borderBottom = (y == tbl.grid_height-1 ? '3px solid black' : (y%5 == 4 ? '' : '1px solid black'))
+        cell.style.height = (y == tbl.grid_height-1 && y%5 == 0 ? '26px' : (y == tbl.grid_height-1 ? '23px' : (y%5 == 0 ? '24px' : (y%5 == 4 ? '20px' : '21px'))))
+        tbl.rows[1+tbl.top_rows+y].cells[(y==0 ? 2 : 1)].style.borderLeft = ''
+      }
+
+      tbl.left_columns++
+    }
+
+    function unselect_cell() {
+      var tbl = document.getElementById('grid')
+      if (tbl !== null) {
+        if (tbl.selected_column !== undefined && tbl.selected_row !== undefined) {
+          var cell = tbl.rows[tbl.selected_row].cells[tbl.selected_column]
+          cell.innerHTML = (cell.firstChild !== null ? cell.firstChild.value : '')
+          cell.style.background = ''
+        }
+        tbl.selected_column = undefined
+        tbl.selected_row = undefined
+      }
+      update_pattern()
+    }
+
+    function select_cell(y,x) {
+      unselect_cell()
+
+      var tbl = document.getElementById('grid')
+      tbl.selected_row = y
+      tbl.selected_column = x
+
+      if (tbl.rows[y].cells[x].className == 'label') {
+        var cell = tbl.rows[y].cells[x]
+        var txt = cell.innerHTML
+        cell.innerHTML = ''
+
+        var input = document.createElement('textarea')
+        input.setAttribute('rows', 1)
+        input.setAttribute('cols', 1)
+        input.value = txt
+        cell.appendChild(input)
+        input.focus()
+      } else {
+        tbl.rows[y].cells[x].style.background = 'lightblue'
+      }
+    }
+
+    function generate_grid(height = null, width = null, top_rows = null, left_columns = null) {
+      var tbl = document.createElement('table')
+      tbl.id = 'grid'
+
+      height = (height != null ? height : parseInt(document.getElementById('height').value))
+      width = (width != null ? width : parseInt(document.getElementById('width').value))
+      tbl.top_rows = (top_rows != null ? top_rows : Math.min(Math.floor((height+1)/2), 3 + Math.floor(height/4)))
+      tbl.left_columns = (left_columns != null ? left_columns : Math.min(Math.floor((height+1)/2), 3 + Math.floor(height/4)))
+      tbl.grid_width = width
+      tbl.grid_height = height
+
+      var row = tbl.insertRow()
+      for (var x = 0; x < 1 + tbl.left_columns; x++) {
+        var cell = row.insertCell()
+      }
+      var cell = row.insertCell();
+      cell.setAttribute('colspan', width)
+      cell.innerHTML = 'Add extra space'
+      cell.className = 'button'
+      cell.setAttribute('onclick', 'add_row()')
+
+      for (var y = 0; y < tbl.top_rows; y++) {
+        var row = tbl.insertRow()
+        for (var x = 0; x < 1 + tbl.left_columns; x++) {
+          row.insertCell()
+        }
+        for (var x = 0; x < width; x++) {
+          var cell = row.insertCell()
+          cell.className = 'label'
+          cell.style.borderTop = (y == 0 ? '3px solid black' : '')
+          cell.style.borderBottom = (y == tbl.top_rows-1 ? '' : '1px solid black')
+          cell.style.borderLeft = (x%5 == 0 ? '3px solid black' : '')
+          cell.style.borderRight = (x == width-1 ? '3px solid black' : (x%5 == 4 ? '' : '1px solid black'))
+          cell.style.height = (y == 0 ? '24px' : (y == tbl.top_rows-1 ? '20px' : '21px'))
+        }
+      }
+
+      for (var y = 0; y < height; y++) {
+        var row = tbl.insertRow()
+        if (y == 0) {
+          var cell = row.insertCell()
+          cell.setAttribute('rowspan', height)
+          cell.innerHTML = 'Add extra space'
+          cell.style.writingMode = 'vertical-lr'
+          cell.className = 'button'
+          cell.setAttribute('onclick', 'add_column()')
+        }
+        for (var x = 0; x < tbl.left_columns; x++) {
+          var cell = row.insertCell()
+          cell.className = 'label'
+          cell.style.borderTop = (y%5 == 0 ? '3px solid black' : '')
+          cell.style.borderBottom = (y == height-1 ? '3px solid black' : (y%5 == 4 ? '' : '1px solid black'))
+          cell.style.borderLeft = (x == 0 ? '3px solid black' : '')
+          cell.style.borderRight = (x == tbl.left_columns-1 ? '' : '1px solid black')
+          cell.style.height = (y == height-1 && y%5 == 0 ? '26px' : (y == height-1 ? '23px' : (y%5 == 0 ? '24px' : (y%5 == 4 ? '20px' : '21px'))))
+        }
+        for (var x = 0; x < width; x++) {
+          var cell = row.insertCell()
+          cell.className = 'inside'
+          cell.style.borderTop = (y%5 == 0 ? '3px solid black' : '')
+          cell.style.borderBottom = (y == height-1 ? '3px solid black' : (y%5 == 4 ? '' : '1px solid black'))
+          cell.style.borderLeft = (x%5 == 0 ? '3px solid black' : '')
+          cell.style.borderRight = (x == width-1 ? '3px solid black' : (x%5 == 4 ? '' : '1px solid black'))
+        }
+      }
+
+      document.getElementById('grid_div').innerHTML = ''
+      document.getElementById('grid_div').appendChild(tbl)
+
+      document.getElementById('status').style.color = ''
+      document.getElementById('status').innerHTML = 'Enter the numbers and click "Solve"!'
+
+      return tbl
+    }
+
+    function solve_wrapper() {
+      var tbl = document.getElementById('grid')
+      if (tbl != null) {
+        unselect_cell()
+
+        document.getElementById('status').style.color = ''
+        document.getElementById('status').innerHTML = 'Computing...'
+
+        var height = tbl.grid_height
+        var width = tbl.grid_width
+
+        var hor_blocks = Array()
+        for (var y = 0; y < height; y++) {
+          var block = Array()
+          for (var x = 0; x < tbl.left_columns; x++) {
+            var lbl = +tbl.rows[1 + tbl.top_rows + y].cells[(y == 0 ? 1 : 0) + x].innerHTML
+            if (lbl != 0) block.push(lbl)
+          }
+          hor_blocks.push(block)
+        }
+
+        var ver_blocks = Array()
+        for (var x = 0; x < width; x++) {
+          var block = Array()
+          for (var y = 0; y < tbl.top_rows; y++) {
+            var lbl = +tbl.rows[1+y].cells[1 + tbl.left_columns + x].innerHTML
+            if (lbl != 0) block.push(lbl)
+          }
+          ver_blocks.push(block)
+        }
+
+        try {
+          var res = solve_puzzle(hor_blocks, ver_blocks)
+        } catch(e) {
+          document.getElementById('status').style.color = 'red'
+          document.getElementById('status').innerHTML = e
+          return
+        }
+
+        for (const [y,row] of res.entries()) {
+          for (const [x,c] of row.entries()) {
+            if (c == 1) tbl.rows[1 + tbl.top_rows + y].cells[(y == 0 ? 1 : 0) + tbl.left_columns + x].style.background = 'gray'
+          }
+        }
+
+        document.getElementById('status').style.color = 'green'
+        document.getElementById('status').innerHTML = 'Found the solution!'
+      }
+    }
+
+    function load_pattern() {
+      var pattern = document.getElementById('pattern').value
+      if (pattern == "") {
+        document.getElementById('status').innerHTML = 'Empty pattern specified.'
+        document.getElementById('status').style.color = 'red'
+        return
+      }
+
+      if (pattern.split(':').length != 2) {
+        document.getElementById('status').innerHTML = 'Invalid pattern supplied.'
+        document.getElementById('status').style.color = 'red'
+        return
+      }
+      [size,numbers] = pattern.split(':')
+
+      if (size.split('x').length != 2) {
+        document.getElementById('status').innerHTML = 'Invalid pattern supplied.'
+        document.getElementById('status').style.color = 'red'
+        return
+      }
+      [h,w] = size.split('x').map(x => +x)
+
+      if (numbers.split('/').length != h+w) {
+        document.getElementById('status').innerHTML = 'Invalid pattern supplied.'
+        document.getElementById('status').style.color = 'red'
+        return
+      }
+      var hor_blocks = numbers.split('/').slice(0,h).map(x => x.split(',').map(x => +x))
+      var ver_blocks = numbers.split('/').slice(h,h+w).map(x => x.split(',').map(x => +x))
+
+      var max_hor_length = Math.max(...hor_blocks.map(x => x.length))
+      var max_ver_length = Math.max(...ver_blocks.map(x => x.length))
+
+      var tbl = generate_grid(h, w, max_ver_length, max_hor_length)
+
+      for (const [j,blk] of hor_blocks.entries()) {
+        for (const [k,num] of blk.entries()) {
+          tbl.rows[tbl.top_rows + j + 1].cells[tbl.left_columns - blk.length + k + (j == 0 ? 1 : 0)].innerHTML = num.toString()
+        }
+      }
+
+      for (const [j,blk] of ver_blocks.entries()) {
+        for (const [k,num] of blk.entries()) {
+          tbl.rows[tbl.top_rows - blk.length + k + 1].cells[tbl.left_columns + j + 1].innerHTML = num.toString()
+        }
+      }
+
+      update_pattern()
+
+      document.getElementById('status').innerHTML = 'Pattern loaded, solve the puzzle by pressing "Solve"!'
+      document.getElementById('status').style.color = 'black'
+    }
+
+    function update_pattern() {
+      var tbl = document.getElementById('grid')
+      if (tbl != null) {
+        var h = tbl.rows.length - tbl.top_rows - 1
+        var w = tbl.rows[1].cells.length - tbl.left_columns - 1
+        var res = h + 'x' + w + ':'
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < tbl.left_columns; x++) {
+            var s = tbl.rows[tbl.top_rows + y + 1].cells[x + (y == 0 ? 1 : 0)].innerHTML
+            if (s != "") {
+              if (res.slice(-1) != '/' && res.slice(-1) != ':') {res += ','}
+              res += s
+            }
+          }
+          res += '/'
+        }
+        for (var x = 0; x < w; x++) {
+          for (var y = 0; y < tbl.top_rows; y++) {
+            var s = tbl.rows[y + 1].cells[tbl.left_columns + 1 + x].innerHTML
+            if (s != "") {
+              if (res.slice(-1) != '/') {res += ','}
+              res += s
+            }
+          }
+          res += '/'
+        }
+        document.getElementById('pattern').value = res.slice(0,-1)
+      }
+    }
+  </script>
+</head>
+<body>
+  <center>
+    <h1>Nonogram Solver</h1>
+    <p>
+      <p>
+        <i>Enter the dimensions and press "Generate grid"!</i><br/>
+        <input id = 'height' placeholder = 'Height'/>
+        <input id = 'width' placeholder = 'Width'/>
+        <button onclick = 'generate_grid()'>Generate grid</button>
+        </p>
+      <p>
+        <i>Or paste a pattern and press "Load pattern"!</i><br/>
+        <input id = 'pattern' placeholder = 'Pattern' size = "100"/>
+        <button onclick = 'load_pattern()'>Load pattern</button>
+      </p>
+    </p>
+    <hr/>
+    <div id = 'grid_div'></div>
+    <div id = 'status'></div>
+    <button onclick = 'solve_wrapper()'>Solve</button>
+  </center>
+</body>
+<script>
+  window.addEventListener('keydown', keydown)
+  window.addEventListener('click', click)
+</script>
+</html>
