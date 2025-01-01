@@ -41,4 +41,5 @@
 
 <h2><a href="#puzzle-solver" title="Puzzle Solver" target="_blank">Puzzle Solver</a></h2>
 
-<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/nonograms/web/solver.html" title="nonogram solver" target="_blank">nonogram solver</a> credit: <a href="https://github.com/arriopolis/nonograms">https://github.com/arriopolis/nonograms</a></p>
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/nonogram/solvers/arriopolis/nonograms/web/solver.html" title="nonogram solver" target="_blank">nonogram solver</a> credit: <a href="https://github.com/arriopolis/nonograms">https://github.com/arriopolis/nonograms</a></p>
+
