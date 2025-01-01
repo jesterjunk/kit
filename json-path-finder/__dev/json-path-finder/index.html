@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="JSON Path Finder" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="theme-color"
+      content="#004C8C"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#639dda"
+      media="(prefers-color-scheme: dark)"
+    />
+    <title>JSON Path Finder</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto:300,400"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"
+    />
+    <!-- <link rel="stylesheet" href="assets/css/style.2.0.1.css" /> -->
+  </head>
+
+  <body>
+    <!-- main vue app -->
+    <div id="app">
+      <!-- title bar -->
+      <div id="title-bar">
+        <div>
+          <h2 class="title-bar-item">JSON Path Finder</h2>
+        </div>
+        <div class="title-bar-item">
+          <button
+            id="dark-mode-button"
+            style="background-color: transparent; height: auto; width: auto"
+            title="Dark Mode"
+          >
+            <img
+              width="30"
+              height="30"
+              src="./images/contrast-icon.png"
+              alt="toggle dark mode"
+            />
+          </button>
+        </div>
+      </div>
+
+      <!-- text editor holder -->
+      <div id="editor-box" class="big-box">
+        <div id="editor-button-row">
+          <button id="load-sample" class="editor-button-row-button">
+            Sample
+          </button>
+          <button id="beautify" class="editor-button-row-button">
+            Beautify
+          </button>
+          <button id="minify" class="editor-button-row-button">Minify</button>
+        </div>
+        <!-- ace editor -->
+        <div id="editor"></div>
+      </div>
+
+      <!-- json reader holder -->
+      <div id="reader-box" class="big-box">
+        <!-- path bar -->
+        <div id="reader-path-bar-holder">
+          <div id="reader-path-bar">
+            <div id="reader-path-bar-label" class="reader-path-bar-item">
+              Path:
+            </div>
+            <input
+              id="reader-path-bar-input"
+              class="reader-path-bar-item"
+              readonly
+            />
+            <button disabled id="reader-path-bar-copy">Copy</button>
+          </div>
+        </div>
+
+        <div id="json-reader">
+          <div class="json-reader-tree">
+            <div>
+              <details open="">
+                <!-- prettier-ignore -->
+                <summary class="json-reader-tree-parent" data-path="x.instructions">instructions:</summary>
+                <div class="json-reader-tree-subtree">
+                  <button
+                    class="json-reader-tree-property"
+                    data-path="x.instructions[0]"
+                  >
+                    <span>0:</span>
+                    <span class="json-reader-tree-property-value"
+                      >Enter your JSON in the editor.</span
+                    ></button
+                  ><button
+                    class="json-reader-tree-property"
+                    data-path="x.instructions[1]"
+                  >
+                    <span>1:</span
+                    ><span class="json-reader-tree-property-value"
+                      >Select an item to view its path.</span
+                    ></button
+                  ><button
+                    class="json-reader-tree-property"
+                    data-path="x.instructions[2]"
+                  >
+                    <span>2:</span
+                    ><span class="json-reader-tree-property-value"
+                      >Replace 'x' with the name of your variable.</span
+                    >
+                  </button>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <footer class="row primary">
+      <span id="footer-credit">
+        <a
+          href="https://github.com/joebeachjoebeach/json-path-finder"
+          class="text-white text-underline"
+          target="_blank"
+          >View this on GitHub</a
+        ></span
+      >
+    </footer>
+
+    <!-- overlay -->
+    <div class="overlay-mask" id="v2-overlay-mask">
+      <div
+        class="overlay-container"
+        role="dialog"
+        aria-labelledby="v2-overlay-heading"
+        aria-describedby="v2-overlay-content"
+      >
+        <div class="overlay-header">
+          <h1 class="overlay-heading" id="v2-overlay-heading">
+            JSON Path Finder v2.0.0
+          </h1>
+          <button
+            class="overlay-close close-overlay-button"
+            aria-label="close dialog"
+          >
+            ×
+          </button>
+        </div>
+        <div class="overlay-body">
+          <p>
+            I've done a full rewrite and cleanup of JSON Path Finder. As a
+            result, its size has shrunk by ~450kB (raw, ungzipped). The rewrite
+            will also make it easier for myself and other contributors to add
+            new features.
+          </p>
+          <p>
+            You shouldn't notice anything different now; it's meant to be a
+            no-op. All preexisting features have been preserved, and no new ones
+            have been added. If you <strong>do</strong> encounter a bug, please
+            <a
+              href="https://github.com/joebeachjoebeach/json-path-finder/issues"
+              class="text-blue"
+              target="_blank"
+              >file an issue on GitHub</a
+            >.
+          </p>
+          <p>Thanks for continuing to use this thing.</p>
+        </div>
+        <div class="overlay-footer">
+          <button
+            class="overlay-footer-button close-overlay-button"
+            aria-label="close dialog"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+    <script
+      src="/assets/lib/ace/ace.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,128 @@
+#pageContainer {
+	margin: auto;
+	min-width: 300px;
+}
+
+.pageTitle {
+	text-align: center;
+}
+
+.nonogramDataCell {
+	border: 1px solid grey;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	vertical-align: center;
+	font-size: 15px;
+}
+
+.nonogramTable {
+	border-collapse: collapse;
+	border: 2px solid grey;
+	margin: auto;
+}
+
+.nonogramColClueCell {
+	border: 2px solid grey;
+	text-align: center;
+	vertical-align: bottom;
+	height: 20px;
+}
+
+.nonogramColClue {
+	font-size: 20px;
+	color: black;
+}
+
+.nonogramRowClueCell {
+	border: 2px solid grey;
+	text-align: right;
+	vertical-align: center;
+	width: 20;
+}
+
+.nonogramRowClue {
+	font-size: 20px;
+	color: black;
+	margin: 7px;
+}
+
+.nonogramPalSelBlock {
+	width: 60px;
+	height: 60px;
+	border-style: solid;
+	border-width: 2px;
+	border-color: grey;
+	display: inline-block;
+}
+
+#paletteAddRemoveSpan {
+	display: inline-block;
+	width: 40;
+}
+
+.nonogramPalSelBlockPad {
+	margin: 3px;
+}
+
+.nonogramPalSelButtonSpan {
+	float: left;
+	display: block;
+}
+
+.nonogramPalButton {
+	width: 25;
+	height: 25;
+	margin: 3px;
+}
+
+#paletteSelectorContainer {
+	display: none;
+	margin-bottom: 20px;
+}
+
+#resizeContainer {
+	display: none;
+	margin: 20px;
+}
+
+.resizeButtonDiv {
+	margin: 5px;
+}
+
+#generateContainer {
+	display: none;
+	margin: 10px;
+}
+
+#generatePuzzleContainer {
+	margin: 10px;
+}
+
+#generateLinkContainer {
+	display: none;
+}
+
+#solveContainer {
+	display: none;
+	margin: 10px;
+}
+
+#solutionsHeader {
+	display: none;
+	margin: 15px;
+}
+
+.solutionDiv {
+	margin: 10px;
+}
+
+.pageBlurbContainer {
+	margin: 20px;
+}
+
+.pageBlurb {
+	display: none;
+	width: 400px;
+}
+
