@@ -1,3 +1,5 @@
+[credit.txt](https://jesterjunk.github.io/kit/nonogram/solvers/arriopolis/nonograms/credit.txt)
+
 Nonogram solver
 ===============
 
