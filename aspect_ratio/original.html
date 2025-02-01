@@ -1,0 +1,151 @@
+<!doctype html public "☮">
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Aspect Ratio Calculator</title>
+	<meta name="keywords" content="aspect ratio, calculator, pixels">
+	<link rel="stylesheet" href="./css/-/styles.css">
+	<style type="text/css">
+
+	body {
+		margin: 1em 2em;
+		font: 12px/1.2em Helvetica, Sans-Serif;
+	}
+
+	.widget-ad {
+		float: right;
+		margin: 0 0 1em 1em;
+	}
+
+	</style>
+</head>
+<body>
+
+<h1>Aspect Ratio Calculator</h1>
+
+<p>
+	Use the form below to calculate the missing value for a particular aspect ratio. This is useful when resizing photos.
+</p>
+
+<p>
+	For example, say you have a photo that is 1600 x 1200 pixels, but your blog only has space for a photo 400 pixels wide. To find the new height of your photo, preserving the aspect ratio, you do the following calculation:
+</p>
+
+<pre>height = 1200 / 1600 x 400
+
+height = 300</pre>
+
+<p>
+	<strong>Instructions:</strong> Fill in both values on the left side of the equation and one of the two values on the right side then click &quot;calculate&quot;.
+</p>
+
+<form>
+
+<table cellpadding="2" cellspacing="0" border="0">
+<tr align="center">
+	<td><input type="text" size="5" name="num1" value="4" tabindex="1"></td>
+	<td><br></td>
+	<td><input type="text" size="5" name="num2" tabindex="3"></td>
+	<td rowspan="99">&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	<td rowspan="99">
+		<a href="#" onclick="fob.num1.value=4;fob.den1.value=3;return false">4:3</a><br><br>
+		<a href="#" onclick="fob.num1.value=1600;fob.den1.value=1200;return false">1600:1200</a><br>
+		<a href="#" onclick="fob.num1.value=1024;fob.den1.value=768;return false">1024:768</a><br>
+		<a href="#" onclick="fob.num1.value=800;fob.den1.value=600;return false">800:600</a><br>
+		<a href="#" onclick="fob.num1.value=640;fob.den1.value=480;return false">640:480</a><br><br>
+		<a href="#" onclick="fob.num1.value=760;fob.den1.value=500;return false">760:500</a><br>
+	</td>
+</tr>
+<tr align="center">
+	<td><hr></td>
+	<td>&nbsp;=&nbsp;</td>
+	<td><hr></td>
+</tr>
+<tr align="center">
+	<td><input type="text" size="5" name="den1" value="3" tabindex="2"></td>
+	<td><br></td>
+	<td><input type="text" size="5" name="den2" tabindex="4"></td>
+</tr>
+<tr>
+	<td colspan="3" align="center">
+		<input type="button" onclick="calc()" value=" calculate ">
+	</td>
+</tr>
+</table>
+
+</form>
+
+<script type="text/javascript">
+
+fob = document.forms[0];
+
+function calc()
+{
+	n1 = fob.num1.value;
+	n2 = fob.num2.value;
+	d1 = fob.den1.value;
+	d2 = fob.den2.value;
+
+	err = false;
+
+	if (n1 == "" || d1 == "")
+	{
+		err=true;
+		alert("Both values on the left side of the equation need to have values.");
+	}
+
+	if (n2 == "" && d2 == "")
+	{
+		err=true;
+		alert("Only one of the values on the right side of the equation can have a value.");
+	}
+
+	if (!err)
+	{
+		if (n2 == "")
+		{
+			fob.num2.value = Math.round(d2 * n1 / d1);
+		}
+
+		if (d2 == "")
+		{
+			fob.den2.value = Math.round(d1 * n2 / n1);
+		}
+	}
+}
+
+</script>
+
+<div id="feedback" style="margin: 1em 0;border: solid 1px black;background: #ccc;padding: 1em;">
+	<form id="feedback-vote" action="/common/feedback.php" method="POST">
+		<div>Was this page useful to you? <img style="display: none;" src="./img/ajax-arrows.gif" alt="Loading..."></div>
+		<label><input type="radio" name="vote" value="yes"> Yes</label>
+		<label><input type="radio" name="vote" value="no"> No</label>
+	</form>
+	<form id="feedback-comment" style="display: none;" action="/common/feedback.php" method="POST">
+		<input type="hidden" name="id" value="0">
+		<div>Briefly describe what you tried to accomplish on this page.</div>
+		<label><textarea style="width: 300px;height: 150px;" name="comment"></textarea></label>
+		<div><input type="submit" value="Send Feedback"> <img style="display: none;" src="./img/ajax-arrows.gif" alt="Loading..."></div>
+	</form>
+</div>
+
+<hr>
+
+<p class="breadcrumb">
+	<a href="https://andrew.hedges.name/">andrew.hedges.name</a> / <a href="https://andrew.hedges.name/experiments/">experiments</a> / Aspect Ratio Calculator<br>
+</p>
+
+<!-- recent blog posts -->
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript" id="segdeha-blog" src="./js/jquery-recent-blogs.js"></script>
+
+<!-- feedback -->
+<script type="text/javascript" src="./js/feedback.js"></script>
+
+<p class="footer">
+	Copyright &copy; 2003. All rights reserved.
+</p>
+
+</body>
+</html>
