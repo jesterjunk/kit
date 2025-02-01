@@ -30,7 +30,7 @@
 		this.text      = parent.dataset.promptText
 		this.delay     = parent.dataset.promptDelay || 2000 // default to showing after 2s
 		this.hideDelay = parent.dataset.promptHideDelay
-		this.display   = parent.dataset.promptDisplay || 'once' // enum: 'once', 'always', [another prompt’s id]
+		this.display   = parent.dataset.promptDisplay || 'once' // enum: 'once', 'always', [another promptâ€™s id]
 
 		parent.classList.add( 'prompt-parent' )
 
@@ -111,7 +111,7 @@
 		var link = document.createElement( 'link' )
 		link.onload = callback
 		link.rel = 'stylesheet'
-		link.href = 'http://segdeha.com/assets/css/prompter.css'
+		link.href = './css/aspect_ratio/prompter.css'
 		document.getElementsByTagName( 'head' )[ 0 ].appendChild( link )
 	}
 

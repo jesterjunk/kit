@@ -27,10 +27,10 @@
      * Reduce a numerator and denominator to it's smallest, integer ratio using Euclid's Algorithm
      */
     function reduceRatio(numerator, denominator) {
-        var gcd, temp, divisor;
+        var gcd, temp, divisor, left, right;
 
         // from: http://pages.pacificcoast.net/~cazelais/euclid.html
-        gcd = function (a, b) { 
+        gcd = function (a, b) {
             if (b === 0) return a;
             return gcd(b, a % b);
         }
@@ -47,7 +47,22 @@
 
         divisor = gcd(+numerator, +denominator);
 
-        return 'undefined' === typeof temp ? (numerator / divisor) + ' : ' + (denominator / divisor) : (denominator / divisor) + ' : ' + (numerator / divisor);
+        if ('undefined' === typeof temp) {
+            left = numerator / divisor;
+            right = denominator / divisor;
+        }
+        else {
+            left = denominator / divisor;
+            right = numerator / divisor;
+        }
+
+        // handle special cases
+        if (8 === left && 5 === right) {
+            left = 16;
+            right = 10;
+        }
+
+        return `${left} : ${right}`;
     }
 
     function ratio2css(numerator, denominator) {
@@ -100,7 +115,7 @@
             return round() ? Math.round(height * (numerator / denominator)) : height * (numerator / denominator);
         }
         else {
-	        return undefined;
+            return undefined;
         }
     }
 
@@ -118,39 +133,39 @@
         x2 = $('#arc input[name=x2]');
         y2 = $('#arc input[name=y2]');
 
-		x1vr = x1.val();
-		y1vr = y1.val();
+        x1vr = x1.val();
+        y1vr = y1.val();
 
         x1v = parseFloat(x1vr);
         y1v = parseFloat(y1vr);
 
-		x2vr = x2.val();
-		y2vr = y2.val();
+        x2vr = x2.val();
+        y2vr = y2.val();
 
         x2v = parseFloat(x2vr);
         y2v = parseFloat(y2vr);
 
-		if (isNaN(x1v) || isNaN(y1v) || (isNaN(x2v) && '' !== x2vr) || (isNaN(y2v) && '' !== y2vr)) {
+        if (isNaN(x1v) || isNaN(y1v) || (isNaN(x2v) && '' !== x2vr) || (isNaN(y2v) && '' !== y2vr)) {
             document.getElementById('errors').innerHTML = 'Please enter only numbers.';
-	        return;
-		}
-		else {
-			document.getElementById('errors').innerHTML = '';
-		}
+            return;
+        }
+        else {
+            document.getElementById('errors').innerHTML = '';
+        }
 
-		// make the select list match the values in the lefthand boxes
-		// if a preset is present that matches
-		var optVal = x1v + 'x' + y1v;
-		$('#ratios option').each(function () {
-			if (this.value === optVal) {
-				this.selected = true
-				return
-			}
-		})
+        // make the select list match the values in the lefthand boxes
+        // if a preset is present that matches
+        var optVal = x1v + 'x' + y1v;
+        $('#ratios option').each(function () {
+            if (this.value === optVal) {
+                this.selected = true
+                return
+            }
+        })
 
-		// save current entry in localStorage
-		window.localStorage.setItem('x1v', x1v);
-		window.localStorage.setItem('y1v', y1v);
+        // save current entry in localStorage
+        window.localStorage.setItem('x1v', x1v);
+        window.localStorage.setItem('y1v', y1v);
 
         var stop = 0;
         var maxIterations = 10;
@@ -290,9 +305,9 @@
         setRatio(vals[0], vals[1]);
     })
 
-	// get the initial values from localStorage (defaults to 1920x1080)
-	// also calls `onKeyup({});` to get things in the right state
-	reset();
+    // get the initial values from localStorage (defaults to 1920x1080)
+    // also calls `onKeyup({});` to get things in the right state
+    reset();
 
 }(this, this.document, jQuery));
 
