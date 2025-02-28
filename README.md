@@ -1,6 +1,7 @@
 <h2><a href="#Calculation" title="Calculation" target="_blank">Calculation</a></h2>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/aspect_ratio" title="Aspect Ratio Calculator" target="_blank">Aspect Ratio Calculator</a> credit: <a href="https://andrew.hedges.name/experiments/aspect_ratio/" title="https://andrew.hedges.name/experiments/aspect_ratio/" target="_blank">https://andrew.hedges.name/experiments/aspect_ratio/</a></p>
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/aspect_ratio_list_calculator" title="Aspect Ratio List Calculator" target="_blank">Aspect Ratio List Calculator</a>
 
 
 <h2><a href="#Color" title="Color" target="_blank">Color</a></h2>
