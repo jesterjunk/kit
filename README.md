@@ -45,3 +45,5 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/nonogram/solvers/CrispyConductor/nonogrammer/web/index.html" title="CrispyConductor's nonogram solver" target="_blank">CrispyConductor's nonogram solver</a> credit: <a href="https://github.com/CrispyConductor/nonogrammer">https://github.com/CrispyConductor/nonogrammer</a></p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌ <a href="https://jesterjunk.github.io/kit/nonogram/solvers/tsionyx/nono/index.html" title="tsionyx's nonogram solver" target="_blank">tsionyx's nonogram solver</a> credit: <a href="https://github.com/tsionyx/nonogrid">https://github.com/tsionyx/nonogrid</a></p>
+
