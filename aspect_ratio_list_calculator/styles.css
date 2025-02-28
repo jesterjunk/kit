@@ -1,0 +1,167 @@
+/* CSS Variables for easy theme management */
+:root {
+    /* Color Variables (Monokai Extended Bright Inspired) */
+    --bg-color: #272822;           /* Main background color */
+    --text-color: #F8F8F2;         /* Main text color */
+    --secondary-bg: #3E3D32;       /* Secondary background for elements */
+    --border-color: rgba(248, 248, 242, 0.5); /* Semi-transparent text color for borders */
+    --scrollbar-thumb: rgba(248, 248, 242, 0.5); /* Scrollbar thumb color */
+    --scrollbar-track: #3E3D32;    /* Scrollbar track color */
+    --hover-opacity: 0.8;
+    --row-even-bg: #3E3D32;
+
+    /* Size Variables */
+    --padding: 10px;
+    --padding-large: 20px;
+    --font-size: 16px;
+    --button-padding: 5px 10px;
+    --scrollbar-width: 10px;
+}
+
+/* Ensure full viewport height without main scrollbar */
+html, body {
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Overall page styling */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: var(--font-size);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header and Controls */
+.header, .controls {
+    padding: var(--padding) var(--padding-large);
+    text-align: left;
+    flex-shrink: 0;
+}
+.header h1 {
+    margin: 0 0 var(--padding);
+    opacity: 0.69;
+}
+.header p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.88;
+}
+.controls button {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    border: none;
+    padding: var(--button-padding);
+    font-size: var(--font-size);
+    cursor: pointer;
+}
+.controls button:hover {
+    opacity: var(--hover-opacity);
+}
+
+/* Container for main content fills remaining space */
+.container {
+    flex: 1;
+    display: flex;
+    gap: var(--padding);
+    padding: 0 var(--padding-large) var(--padding-large);
+    box-sizing: border-box;
+    min-height: 0;
+}
+
+/* Left (input) and right (results) sections */
+.input-section, .results-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.results-section {
+    flex: 1;
+}
+
+/* Textarea and results area fill their parent and scroll internally */
+textarea {
+    outline: none;
+}
+.input-section textarea,
+.results-section #results {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    font-size: var(--font-size);
+    box-sizing: border-box;
+}
+.input-section textarea {
+    padding: var(--padding);
+    resize: none;
+}
+
+/* Custom Scrollbar Styling */
+
+/* Firefox */
+.input-section textarea,
+.results-section #results {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* WebKit browsers */
+.input-section textarea::-webkit-scrollbar,
+.results-section #results::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+}
+.input-section textarea::-webkit-scrollbar-track,
+.results-section #results::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+.input-section textarea::-webkit-scrollbar-thumb,
+.results-section #results::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 5px;
+    border: 2px solid var(--scrollbar-track);
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid var(--border-color);
+    padding: var(--padding);
+    text-align: center;
+    cursor: pointer;
+}
+th:nth-child(1),
+td:nth-child(1) {
+    border-left: none;
+}
+tr:last-of-type td {
+    border-bottom: none;
+}
+th {
+    background-color: var(--secondary-bg);
+    /* Sticky header settings */
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-top: none;
+}
+tr:nth-child(even) {
+    background-color: var(--row-even-bg);
+}
+
+/* Responsive design: Stack columns on smaller screens */
+@media (max-width: 840px) {
+    .container {
+        flex-direction: column;
+    }
+    textarea {
+        min-height: 180px;
+    }
+}
