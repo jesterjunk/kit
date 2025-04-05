@@ -35,6 +35,12 @@ body {
     flex-direction: column;
 }
 
+/*  URL styling  */
+a:link,
+a:visited {color: hsl(190, 81%, 67%); text-decoration: none; outline: none;}
+a:hover {color: hsl(80, 76%, 53%);}
+a:active {color: hsl(40, 93%, 51%);}
+
 /* Header and Controls */
 .header, .controls {
     padding: var(--padding) var(--padding-large);
