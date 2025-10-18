@@ -209,21 +209,10 @@ function loadPuzzle(sourceUrl, id) {
     }
 }
 // ========================= RENDERING =========================
-// ========================= RENDERING =========================
 var CELL_SIZE = 20; // px
-
-// Turn grid/dots off for pure pixel art
-var SHOW_GRID = false;
-var SHOW_WHITE_DOTS = false;
-
 var GRID_COLOR = '#000000';
+// const BLANK_COLOR = '#FFFFFF'
 var ALMOST_ZERO = 5;
-
-// Derived layout values (no gaps when SHOW_GRID = false)
-var GAP = SHOW_GRID ? 1 : 0;
-var STEP = CELL_SIZE + GAP;
-var OFFSET = SHOW_GRID ? 1 : 0;
-
 function closeToBlack(intColor) {
     var r = intColor >> 16;
     var gb = intColor % (1 << 16);
@@ -231,7 +220,6 @@ function closeToBlack(intColor) {
     var b = gb % (1 << 8);
     return ((r <= ALMOST_ZERO) && (g <= ALMOST_ZERO) && (b <= ALMOST_ZERO));
 }
-
 function renderBlock(ctx, value, intColor, x, y) {
     var verticalOffset = CELL_SIZE * 0.8;
     var horizontalOffset = CELL_SIZE * 0.15;
@@ -241,43 +229,29 @@ function renderBlock(ctx, value, intColor, x, y) {
         blockColor = '#cccccc';
     }
     ctx.fillStyle = blockColor;
-    ctx.fillRect(x * STEP + OFFSET, y * STEP + OFFSET, CELL_SIZE, CELL_SIZE);
-
+    ctx.fillRect(x * (CELL_SIZE + 1) + 1, y * (CELL_SIZE + 1) + 1, CELL_SIZE, CELL_SIZE);
     var textColor = 'black';
     if (closeToBlack(intColor)) {
         textColor = 'white';
     }
     ctx.fillStyle = textColor;
-    ctx.fillText(value, x * STEP + OFFSET + horizontalOffset, y * STEP + OFFSET + verticalOffset);
+    ctx.fillText(value, x * (CELL_SIZE + 1) + horizontalOffset, y * (CELL_SIZE + 1) + verticalOffset);
 }
-
 function renderPuzzleDesc(desc) {
     var height = desc.fullHeight;
     var width = desc.fullWidth;
     var canvas = document.querySelector('#nonoCanvas');
-
-    // No extra border; size exactly to the grid in use
-    canvas.height = STEP * height;
-    canvas.width = STEP * width;
-
+    canvas.height = (CELL_SIZE + 1) * height + 3;
+    canvas.width = (CELL_SIZE + 1) * width + 3;
     var ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-
     var rowsNumber = desc.rows.length;
     var colsNumber = desc.cols.length;
     var rowsSideSize = width - colsNumber;
     var colsHeaderSize = height - rowsNumber;
-
-    // Skip drawing the grid for pure pixel art
-    if (SHOW_GRID) {
-        drawGrid(ctx, rowsSideSize, colsHeaderSize, width, height);
-    }
-
+    drawGrid(ctx, rowsSideSize, colsHeaderSize, width, height);
     ctx.beginPath();
     var fontSize = CELL_SIZE * 0.7;
     ctx.font = fontSize + 'px Verdana';
-
-    // Row clues
     for (var i = 0; i < rowsNumber; i++) {
         var row = desc.rows[i];
         var rowColors = desc.rowsColors[i];
@@ -288,21 +262,18 @@ function renderPuzzleDesc(desc) {
             renderBlock(ctx, row[j], rowColors[j], colIndex, rowIndex);
         }
     }
-
-    // Column clues
-    for (var k = 0; k < colsNumber; k++) {
-        var col = desc.cols[k];
-        var colColors = desc.colsColors[k];
+    for (var i = 0; i < colsNumber; i++) {
+        var col = desc.cols[i];
+        var colColors = desc.colsColors[i];
         var colOffset = colsHeaderSize - col.length;
-        var colIndex = rowsSideSize + k;
-        for (var m = 0; m < col.length; m++) {
-            var rowIndex = colOffset + m;
-            renderBlock(ctx, col[m], colColors[m], colIndex, rowIndex);
+        var colIndex = rowsSideSize + i;
+        for (var j = 0; j < col.length; j++) {
+            var rowIndex = colOffset + j;
+            renderBlock(ctx, col[j], colColors[j], colIndex, rowIndex);
         }
     }
-    // No ctx.stroke() — avoids any unintended outlines
+    ctx.stroke();
 }
-
 function renderPuzzleCells(desc) {
     var height = desc.fullHeight;
     var width = desc.fullWidth;
@@ -311,14 +282,12 @@ function renderPuzzleCells(desc) {
     var rowsSideSize = width - colsNumber;
     var colsHeaderSize = height - rowsNumber;
     var cells = desc.cellsAsColors;
-
+    var whiteDotSize = CELL_SIZE / 10;
+    var whiteDotOffset = (CELL_SIZE - whiteDotSize) / 2;
     var whiteColorCode = desc.whiteColorCode;
-
     var canvas = document.querySelector('#nonoCanvas');
     var ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-
-    // Draw only filled pixels; no grid, no dots
+    ctx.beginPath();
     for (var i = 0; i < rowsNumber; i++) {
         var rowStartIndex = i * colsNumber;
         var y = colsHeaderSize + i;
@@ -326,51 +295,48 @@ function renderPuzzleCells(desc) {
             var index = rowStartIndex + j;
             var intColor = cells[index];
             var x = rowsSideSize + j;
-
             if (intColor >= 0) {
                 var blockColor = '#' + intColor.toString(16).padStart(6, '0');
                 ctx.fillStyle = blockColor;
-                ctx.fillRect(x * STEP + OFFSET, y * STEP + OFFSET, CELL_SIZE, CELL_SIZE);
-            } else if (intColor === whiteColorCode) {
-                // In pure pixel mode, do NOTHING for empty/white cells.
-                if (SHOW_WHITE_DOTS) {
-                    // (kept for optional fallback)
-                    var whiteDotSize = CELL_SIZE / 10;
-                    var whiteDotOffset = (CELL_SIZE - whiteDotSize) / 2;
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(x * STEP + OFFSET + whiteDotOffset, y * STEP + OFFSET + whiteDotOffset, whiteDotSize, whiteDotSize);
-                }
+                ctx.fillRect(x * (CELL_SIZE + 1) + 1, y * (CELL_SIZE + 1) + 1, CELL_SIZE, CELL_SIZE);
             }
-            // Any other negative sentinel values are also ignored (stay transparent)
+            else if (intColor === whiteColorCode) {
+                ctx.fillStyle = 'black';
+                // ctx.arc(
+                //     x * (CELL_SIZE + 1) + 1 + CELL_SIZE / 2,
+                //     y * (CELL_SIZE + 1) + 1  + CELL_SIZE / 2,
+                //     whiteDotSize,
+                //     0, 2 * Math.PI
+                // );
+                // ctx.fill();
+                // ctx.closePath();
+                ctx.fillRect(x * (CELL_SIZE + 1) + 1 + whiteDotOffset, y * (CELL_SIZE + 1) + 1 + whiteDotOffset, whiteDotSize, whiteDotSize);
+            }
         }
     }
-    // No ctx.stroke()
+    ctx.stroke();
 }
-
 function drawGrid(ctx, xStart, yStart, width, height) {
-    if (!SHOW_GRID) return; // short-circuit when disabled
-
     ctx.beginPath();
     ctx.strokeStyle = GRID_COLOR;
-    var lastX = width * STEP + OFFSET;
-    var lastY = height * STEP + OFFSET;
-
+    var lastX = width * (CELL_SIZE + 1) + 1;
+    var lastY = height * (CELL_SIZE + 1) + 1;
     // Vertical lines.
     for (var i = xStart; i <= width; i++) {
-        var currentX = i * STEP + OFFSET;
+        var currentX = i * (CELL_SIZE + 1) + 1;
         ctx.moveTo(currentX, 0);
         ctx.lineTo(currentX, lastY);
-        if ((i - xStart) % 5 === 0 && GAP === 1) {
+        if ((i - xStart) % 5 === 0) {
             ctx.moveTo(currentX + 1, 0);
             ctx.lineTo(currentX + 1, lastY);
         }
     }
     // Horizontal lines.
     for (var j = yStart; j <= height; j++) {
-        var currentY = j * STEP + OFFSET;
+        var currentY = j * (CELL_SIZE + 1) + 1;
         ctx.moveTo(0, currentY);
         ctx.lineTo(lastX, currentY);
-        if ((j - yStart) % 5 === 0 && GAP === 1) {
+        if ((j - yStart) % 5 === 0) {
             ctx.moveTo(0, currentY + 1);
             ctx.lineTo(lastX, currentY + 1);
         }

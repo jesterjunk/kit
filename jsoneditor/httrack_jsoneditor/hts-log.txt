@@ -1,0 +1,12 @@
+HTTrack3.49-2+htsswf+htsjava launched on Sat, 26 Apr 2025 03:06:16 at https://jsoneditoronline.org/ +*/_astro/*.js +*.js +*.css +*.json +*.svg +*.webp
+("D:\Downloads\2025 04\httrack\httrack_x64-noinst-3.49.2\httrack\httrack.exe" https://jsoneditoronline.org/ -O D:\xampp\htdocs\git\jesterjunk\kit\jsoneditor\httrack_jsoneditor -%P -n -K0 -s0 -c8 -R3 -%! -F "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" -%a text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7 -%l en-US,en;q=0.9 -%X "cache-control: no-cache" -%X "pragma: no-cache" -%X "upgrade-insecure-requests: 1" -%X sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135" -%X "sec-ch-ua-mobile: ?0" -%X sec-ch-ua-platform: "Windows" -%X "sec-fetch-dest: document" -%X "sec-fetch-mode: navigate" -%X "sec-fetch-site: none" -%X "sec-fetch-user: ?1" +*/_astro/*.js +*.js +*.css +*.json +*.svg +*.webp -r11 )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+03:06:16	Warning: 	* security warning: !!! BYPASSING SECURITY LIMITS - MONITOR THIS SESSION WITH EXTREME CARE !!!
+
+HTTrack Website Copier/3.49-2 mirror complete in 1 minutes 27 seconds : 294 links scanned, 294 files written (26729192 bytes overall) [17788103 bytes received at 204460 bytes/sec], 11387630 bytes transferred using HTTP compression in 127 files, ratio 19%, 21.0 requests per connection
+(No errors, 1 warnings, 0 messages)

@@ -1,0 +1,8 @@
+https://jsoneditoronline.org/ -O "D:\\xampp\\htdocs\\git\\jesterjunk\\kit\\jsoneditor\\httrack_jsoneditor" -%P -n -K0 -s0 -c8 -R3 -%! -F "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" -%a text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7 -%l en-US,en;q=0.9 -%X "cache-control: no-cache" -%X "pragma: no-cache" -%X "upgrade-insecure-requests: 1" -%X "sec-ch-ua: \"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"" -%X "sec-ch-ua-mobile: ?0" -%X "sec-ch-ua-platform: \"Windows\"" -%X "sec-fetch-dest: document" -%X "sec-fetch-mode: navigate" -%X "sec-fetch-site: none" -%X "sec-fetch-user: ?1" +*/_astro/*.js +*.js +*.css +*.json +*.svg +*.webp -r11
+File generated automatically on Sat, 26 Apr 2025 03:06:16, do NOT edit
+
+To update a mirror, just launch httrack without any parameters
+The existing cache will be used (and modified)
+To have other options, retype all parameters and launch HTTrack
+To continue an interrupted mirror, just launch httrack without any parameters
+
