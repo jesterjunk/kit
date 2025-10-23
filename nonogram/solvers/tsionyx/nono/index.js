@@ -224,17 +224,18 @@ var GAP = SHOW_GRID ? 1 : 0;
 var STEP = CELL_SIZE + GAP;
 var OFFSET = SHOW_GRID ? 1 : 0;
 
-function closeToBlack(intColor) {
-    var r = intColor >> 16;
-    var gb = intColor % (1 << 16);
-    var g = gb >> 8;
-    var b = gb % (1 << 8);
-    return ((r <= ALMOST_ZERO) && (g <= ALMOST_ZERO) && (b <= ALMOST_ZERO));
+// Add this helper (anywhere above renderBlock is fine)
+function getContrastYIQ(r, g, b) {
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return yiq >= 128 ? 'hsl(0, 0%, 5%)' : 'hsl(0, 0%, 95%)';
 }
 
+// Replace your current renderBlock with this version
 function renderBlock(ctx, value, intColor, x, y) {
     var verticalOffset = CELL_SIZE * 0.8;
     var horizontalOffset = CELL_SIZE * 0.15;
+
+    // Fill the block
     var blockColor = '#' + intColor.toString(16).padStart(6, '0');
     if (blockColor === '#ffffff') {
         // for more visual attention
@@ -243,10 +244,12 @@ function renderBlock(ctx, value, intColor, x, y) {
     ctx.fillStyle = blockColor;
     ctx.fillRect(x * STEP + OFFSET, y * STEP + OFFSET, CELL_SIZE, CELL_SIZE);
 
-    var textColor = 'black';
-    if (closeToBlack(intColor)) {
-        textColor = 'white';
-    }
+    // Compute high-contrast text color using YIQ
+    var r = (intColor >> 16) & 0xff;
+    var g = (intColor >> 8) & 0xff;
+    var b = intColor & 0xff;
+    var textColor = getContrastYIQ(r, g, b);
+
     ctx.fillStyle = textColor;
     ctx.fillText(value, x * STEP + OFFSET + horizontalOffset, y * STEP + OFFSET + verticalOffset);
 }
