@@ -36,7 +36,200 @@ function initPage() {
         if (event.ctrlKey && event.keyCode === 13) {
             $solveButton.click();
         }
+
+        // ===== NEW: +/- keys adjust pixel size (main keyboard and numpad) =====
+        var key = event.key;
+        var code = event.keyCode || event.which;
+
+        // main '+': key === '+', code 187 with shift (US); numpad '+': code 107
+        var isPlus = (key === '+') || (code === 107) || (code === 187 && event.shiftKey);
+        // main '-': key === '-', code 189; numpad '-': code 109
+        var isMinus = (key === '-') || (code === 109) || (code === 189);
+
+        if (isPlus || isMinus) {
+            event.preventDefault();
+            var delta = isPlus ? 1 : -1;
+            var newSize = Math.max(2, Math.min(200, CELL_SIZE + delta));
+            if (newSize !== CELL_SIZE) {
+                CELL_SIZE = newSize;
+                var inputEl = document.getElementById('pixelSizeInput');
+                if (inputEl) inputEl.value = String(CELL_SIZE);
+                recomputeLayout();
+                rerender();
+                saveSettingsIfNeeded(); // <<< NEW
+            }
+        }
     });
+
+    // ===== NEW: load saved settings before building UI =====
+    loadSavedSettings();
+
+    // ===== NEW: add simple on-page checkboxes for solution / clues / grid + pixel size =====
+    (function addViewToggles() {
+        var container = document.createElement('div');
+        container.id = 'viewToggles';
+        container.style.margin = '8px 0';
+        container.style.display = 'flex';
+        container.style.gap = '12px';
+        container.style.flexWrap = 'wrap';
+
+        function mk(label, checked, onChange) {
+            var wrap = document.createElement('label');
+            wrap.style.display = 'inline-flex';
+            wrap.style.alignItems = 'center';
+            wrap.style.gap = '6px';
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.checked = checked;
+            input.addEventListener('change', function (e) { onChange(e.target.checked); saveSettingsIfNeeded(); }); // <<< NEW save
+            var span = document.createElement('span');
+            span.textContent = label;
+            wrap.appendChild(input); wrap.appendChild(span);
+            return wrap;
+        }
+
+        container.appendChild(mk('Show solution', SHOW_SOLUTION, function (v) { SHOW_SOLUTION = v; rerender(); }));
+        container.appendChild(mk('Show clues',    SHOW_CLUES,    function (v) { SHOW_CLUES = v; rerender(); }));
+        container.appendChild(mk('Show grid',     SHOW_GRID,     function (v) { SHOW_GRID = v; recomputeLayout(); rerender(); }));
+
+        // ===== NEW: Pixel size number input (default 20) + Canvas size label =====
+        (function mkPixelSize() {
+            var wrap = document.createElement('label');
+            wrap.style.display = 'inline-flex';
+            wrap.style.alignItems = 'center';
+            wrap.style.gap = '6px';
+            var span = document.createElement('span');
+            span.textContent = 'Pixel size';
+            var input = document.createElement('input');
+            input.type = 'number';
+            input.min = '1';
+            input.max = '160';
+            input.step = '1';
+            input.value = String(CELL_SIZE); // default 20 or loaded
+            input.id = 'pixelSizeInput'; // so keyboard handler can sync this
+            input.style.width = '5rem';
+            input.addEventListener('change', function (e) {
+                var v = parseInt(e.target.value, 10);
+                if (!isNaN(v) && v > 0) {
+                    CELL_SIZE = v;
+                    recomputeLayout();
+                    rerender();
+                    saveSettingsIfNeeded(); // <<< NEW
+                } else {
+                    // reset invalid value back to current CELL_SIZE
+                    e.target.value = String(CELL_SIZE);
+                }
+            });
+
+            var sizeLabel = document.createElement('span'); // canvas resolution label
+            sizeLabel.id = 'canvasSizeLabel';
+            sizeLabel.style.marginLeft = '8px';
+            sizeLabel.textContent = ' Canvas size 0x0';
+
+            wrap.appendChild(span);
+            wrap.appendChild(input);
+            wrap.appendChild(sizeLabel); // show to the right of the Pixel size input
+            container.appendChild(wrap);
+
+            // initialize label based on current canvas (if any)
+            updateCanvasSizeLabel();
+        })();
+
+        // ===== NEW: Background color picker + contrast-aware UI text =====
+        (function mkBackgroundPicker() {
+            var wrap = document.createElement('label');
+            wrap.style.display = 'inline-flex';
+            wrap.style.alignItems = 'center';
+            wrap.style.gap = '6px';
+            var span = document.createElement('span');
+            span.textContent = 'Background';
+            var input = document.createElement('input');
+            input.type = 'color';
+            input.value = BG_COLOR; // <<< NEW: use loaded/default bg
+            input.addEventListener('input', function (e) {
+                var hex = e.target.value;
+                BG_COLOR = hex; // <<< NEW
+                document.body.style.backgroundColor = hex;
+                var rgb = hexToRgb(hex);
+                var textColor = getContrastYIQ(rgb.r, rgb.g, rgb.b);
+                // Apply contrast color to interface text
+                document.body.style.color = textColor;
+                container.style.color = textColor;
+                saveSettingsIfNeeded(); // <<< NEW
+            });
+            // Apply defaults immediately
+            document.body.style.backgroundColor = input.value;
+            (function initTextColor() {
+                var rgb = hexToRgb(input.value);
+                var textColor = getContrastYIQ(rgb.r, rgb.g, rgb.b);
+                document.body.style.color = textColor;
+                container.style.color = textColor;
+            })();
+
+            wrap.appendChild(span);
+            wrap.appendChild(input);
+            container.appendChild(wrap);
+        })();
+
+        // ===== NEW: Remember/Reset settings controls =====
+        (function mkPersistenceControls() {
+            // Remember settings checkbox
+            var wrap = document.createElement('label');
+            wrap.style.display = 'inline-flex';
+            wrap.style.alignItems = 'center';
+            wrap.style.gap = '6px';
+            var span = document.createElement('span');
+            span.textContent = 'Remember settings';
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = 'rememberSettings';
+            input.checked = REMEMBER_SETTINGS;
+            input.addEventListener('change', function (e) {
+                REMEMBER_SETTINGS = !!e.target.checked;
+                if (REMEMBER_SETTINGS) {
+                    saveSettingsIfNeeded();
+                }
+            });
+            wrap.appendChild(input);
+            wrap.appendChild(span);
+            container.appendChild(wrap);
+
+            // Reset settings button
+            var resetBtn = document.createElement('button');
+            resetBtn.type = 'button';
+            resetBtn.textContent = 'Reset settings';
+            resetBtn.addEventListener('click', function () {
+                resetSettings();
+            });
+            container.appendChild(resetBtn);
+        })();
+
+        var canvas = document.querySelector('#nonoCanvas');
+        if (canvas && canvas.parentNode) {
+            canvas.parentNode.insertBefore(container, canvas);
+        } else {
+            document.body.insertBefore(container, document.body.firstChild || null);
+        }
+    })();
+
+    // ===== NEW (minimal): place the time message below the Share and Solve buttons =====
+    (function placeTimeMsgBelowButtons() {
+        var timeEl = document.querySelector('#timeToSolve');
+        var shareBtn = document.querySelector('#share');
+        var solveBtn = document.querySelector('#solve');
+        if (!timeEl) return;
+
+        // Pick whichever button appears LAST in DOM order, then insert after it.
+        var anchor = null;
+        if (shareBtn && solveBtn) {
+            anchor = (solveBtn.compareDocumentPosition(shareBtn) & Node.DOCUMENT_POSITION_FOLLOWING) ? shareBtn : solveBtn;
+        } else {
+            anchor = shareBtn || solveBtn;
+        }
+        if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(timeEl, anchor.nextSibling);
+        }
+    })();
 }
 function setKeyHandlerForLoading(input) {
     input.addEventListener('keypress', function (event) {
@@ -102,10 +295,14 @@ function workerCallback(e) {
             break;
         }
         case 'renderDescriptions':
-            renderPuzzleDesc(data.obj);
+            // ===== CHANGED: store and re-render based on toggles =====
+            LAST_DESC = data.obj;
+            rerender();
             break;
         case 'renderCells':
-            renderPuzzleCells(data.obj);
+            // ===== CHANGED: store and re-render based on toggles =====
+            LAST_CELLS = data.obj;
+            rerender();
             break;
         case 'solvePuzzle': {
             var timeMs = +data.time.toFixed(2);
@@ -113,7 +310,9 @@ function workerCallback(e) {
             if (timeMs > 1000) {
                 timeAsStr = (timeMs / 1000.0).toFixed(3) + ' seconds';
             }
-            var msg = 'Time to solve the puzzle with hash ' + hash + ': ' + timeAsStr;
+            var msg = `Puzzle hash: ${hash}<br><br>`
+                    + `&nbsp;&nbsp;`
+                    + `Solve time: ${timeAsStr}`;
             document.querySelector('#timeToSolve').innerHTML = msg;
             worker.postMessage({
                 cmd: 'renderCells',
@@ -219,10 +418,28 @@ var SHOW_WHITE_DOTS = false;
 var GRID_COLOR = '#000000';
 var ALMOST_ZERO = 5;
 
+// ===== NEW: runtime view toggles & last-known data =====
+var SHOW_SOLUTION = true;
+var SHOW_CLUES = true;
+var LAST_DESC = null;
+var LAST_CELLS = null;
+
+// ===== NEW: persistence state & bg color =====
+var REMEMBER_SETTINGS = false;
+var BG_COLOR = '#ffffff';
+var LS_KEY = 'nonoSettingsV1';
+
 // Derived layout values (no gaps when SHOW_GRID = false)
 var GAP = SHOW_GRID ? 1 : 0;
 var STEP = CELL_SIZE + GAP;
 var OFFSET = SHOW_GRID ? 1 : 0;
+
+// ===== NEW: recompute when SHOW_GRID changes =====
+function recomputeLayout() {
+    GAP = SHOW_GRID ? 1 : 0;
+    STEP = CELL_SIZE + GAP;
+    OFFSET = SHOW_GRID ? 1 : 0;
+}
 
 // Add this helper (anywhere above renderBlock is fine)
 function getContrastYIQ(r, g, b) {
@@ -255,6 +472,8 @@ function renderBlock(ctx, value, intColor, x, y) {
 }
 
 function renderPuzzleDesc(desc) {
+    if (!SHOW_CLUES) return; // ===== NEW: allow hiding clues =====
+
     var height = desc.fullHeight;
     var width = desc.fullWidth;
     var canvas = document.querySelector('#nonoCanvas');
@@ -311,8 +530,11 @@ function renderPuzzleCells(desc) {
     var width = desc.fullWidth;
     var rowsNumber = desc.rowsNumber;
     var colsNumber = desc.colsNumber;
-    var rowsSideSize = width - colsNumber;
-    var colsHeaderSize = height - rowsNumber;
+
+    // ===== CHANGED: offsets depend on whether clues are shown =====
+    var rowsSideSize = SHOW_CLUES ? (width - colsNumber) : 0;
+    var colsHeaderSize = SHOW_CLUES ? (height - rowsNumber) : 0;
+
     var cells = desc.cellsAsColors;
 
     var whiteColorCode = desc.whiteColorCode;
@@ -380,6 +602,120 @@ function drawGrid(ctx, xStart, yStart, width, height) {
     }
     ctx.stroke();
 }
+
+// ===== NEW: central re-render based on toggles, including canvas resize rules =====
+function rerender() {
+    recomputeLayout();
+
+    var canvas = document.querySelector('#nonoCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+
+    // Decide canvas size
+    if (SHOW_SOLUTION && !SHOW_CLUES && LAST_CELLS) {
+        // Solution-only => size exactly to the solution image
+        canvas.width = STEP * LAST_CELLS.colsNumber;
+        canvas.height = STEP * LAST_CELLS.rowsNumber;
+    } else {
+        // With clues (or no cells yet) => use full puzzle size if we know it
+        var basis = LAST_DESC || LAST_CELLS;
+        if (basis) {
+            canvas.width = STEP * basis.fullWidth;
+            canvas.height = STEP * basis.fullHeight;
+        }
+    }
+
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grid for the current geometry when clues are hidden
+    if (SHOW_GRID) {
+        if (SHOW_SOLUTION && !SHOW_CLUES && LAST_CELLS) {
+            drawGrid(ctx, 0, 0, LAST_CELLS.colsNumber, LAST_CELLS.rowsNumber);
+        }
+    }
+
+    // Draw clues (also handles grid when SHOW_CLUES is true)
+    if (SHOW_CLUES && LAST_DESC) {
+        renderPuzzleDesc(LAST_DESC);
+    }
+
+    // Draw solution
+    if (SHOW_SOLUTION && LAST_CELLS) {
+        renderPuzzleCells(LAST_CELLS);
+    }
+
+    // update canvas size label
+    updateCanvasSizeLabel();
+}
+
+// small helper to sync the "Canvas size WxH" label
+function updateCanvasSizeLabel() {
+    var label = document.getElementById('canvasSizeLabel');
+    if (!label) return;
+    var canvas = document.querySelector('#nonoCanvas');
+    if (!canvas) {
+        label.textContent = ' Canvas size 0x0';
+        return;
+    }
+    label.textContent = ` Canvas size ${canvas.width}x${canvas.height}`;
+}
+
+// ===== NEW: hex -> rgb helper for background picker =====
+function hexToRgb(hex) {
+    var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!m) return { r: 255, g: 255, b: 255 };
+    return {
+        r: parseInt(m[1], 16),
+        g: parseInt(m[2], 16),
+        b: parseInt(m[3], 16)
+    };
+}
+
+// ===== NEW: settings persistence helpers =====
+function currentSettings() {
+    return {
+        remember: REMEMBER_SETTINGS,
+        cellSize: CELL_SIZE,
+        showSolution: SHOW_SOLUTION,
+        showClues: SHOW_CLUES,
+        showGrid: SHOW_GRID,
+        background: BG_COLOR
+    };
+}
+function saveSettingsIfNeeded() {
+    if (!REMEMBER_SETTINGS) return;
+    try {
+        localStorage.setItem(LS_KEY, JSON.stringify(currentSettings()));
+    } catch (e) {
+        console.warn('Failed to save settings:', e);
+    }
+}
+function loadSavedSettings() {
+    try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        var s = JSON.parse(raw);
+        REMEMBER_SETTINGS = !!s.remember;
+        if (!REMEMBER_SETTINGS) return; // don't apply if user opted out
+        if (typeof s.cellSize === 'number' && s.cellSize > 0) CELL_SIZE = s.cellSize;
+        if (typeof s.showSolution === 'boolean') SHOW_SOLUTION = s.showSolution;
+        if (typeof s.showClues === 'boolean') SHOW_CLUES = s.showClues;
+        if (typeof s.showGrid === 'boolean') SHOW_GRID = s.showGrid;
+        if (typeof s.background === 'string') BG_COLOR = s.background;
+        recomputeLayout();
+    } catch (e) {
+        console.warn('Failed to load settings:', e);
+    }
+}
+function resetSettings() {
+    try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    REMEMBER_SETTINGS = false;
+    var rem = document.getElementById('rememberSettings');
+    if (rem) rem.checked = false;
+    // (intentionally do not change current UI state; only clear stored data)
+}
+
 // ========================= HELPERS =========================
 function searchParams() {
     return new URL(window.location.href).searchParams;
