@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>teal nonogram solver</title>
+
+<style type="text/css">@import "main.css";</style>
+<style type="text/css">
+.nonogram-text {
+    font-family: Arial;
+    dominant-baseline: central;
+    text-anchor: middle;
+}
+.nonogram-selector {
+    fill: rgba(0, 0, 0, 0.01);
+    stroke: none;
+}
+.nonogram-selector:hover {
+    fill: rgba(0, 0, 0, 0.1);
+    stroke: none;
+}
+.nonogram-dialog {
+    position: absolute;
+    padding: 15px;
+    border: 1px #bbb solid;
+    font-style: normal;
+    background-color: #eee;
+    border-radius: 3px;
+    display: none;
+}
+</style>
+
+<script type="text/javascript" src="teal.js"></script>
+<script type="text/javascript" src="teal.svg.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
+</head>
+
+<body style="margin: 0" onload="initialize()">
+    <div id="status" style="padding: 15px; padding-bottom: 0px">
+        <h6><img src="favicon.ico" style="vertical-align: middle"></img> <a href="..">teal</a> nonogram solver</h6>
+        <p>Specify size (<input type="text" style="width: 24px" id="width"/> x
+            <input type="text" style="width: 24px" id="height"/>)
+        of the <a href="http://en.wikipedia.org/wiki/Nonogram">nonogram</a>
+        and click  <button id="reset">Reset</button> button to prepare the grid.<br/>
+        Click on a row or a column header to open corresponded line edit dialog.<br/>
+        The <button id="solve">Solve</button> button does a magic to uncover the puzzle.</p>
+        <p>You may also use <button id="save">Save</button> button to serialize your puzzle
+        to string, and <button id="load">Load</button> to restore it.</p>
+        <p>WARNING: solving huge grids may take significant time and make your browser unresponsive.</p>
+        <p><a href="http://www.teall.info/2013/03/online-nonogram-solver.html">More info and discussion.</a></p>
+        <p id="solve_status"></p>
+    </div>
+    <div id="svg" style="display: block;"></div>
+    <div id="nonogram_dialog" class="nonogram-dialog">
+        Digits of the line (use space to separate):<br/>
+        <input id="selector_text" type="text" style="width: 100%"/><br/>
+        <button id="selector_ok">OK</button>
+        <button id="selector_cancel">Cancel</button>
+    </div>
+</body>
+</html>

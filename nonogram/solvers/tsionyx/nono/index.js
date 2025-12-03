@@ -303,6 +303,8 @@ function workerCallback(e) {
             // ===== CHANGED: store and re-render based on toggles =====
             LAST_CELLS = data.obj;
             rerender();
+            // ===== NEW: update the textarea with rows,cols,bits for two-color puzzles =====
+            updateBinaryTextarea(LAST_CELLS);
             break;
         case 'solvePuzzle': {
             var timeMs = +data.time.toFixed(2);
@@ -714,6 +716,61 @@ function resetSettings() {
     var rem = document.getElementById('rememberSettings');
     if (rem) rem.checked = false;
     // (intentionally do not change current UI state; only clear stored data)
+}
+
+// ===== NEW (two-color export): constants + helpers =====
+var BINARY_TEXTAREA_ID = 'binaryOutput';
+
+function ensureBinaryTextarea() {
+    var area = document.getElementById(BINARY_TEXTAREA_ID);
+    if (!area) {
+        area = document.createElement('textarea');
+        area.id = BINARY_TEXTAREA_ID;
+        area.readOnly = true;
+        area.rows = 4;
+        area.style.width = '100%';
+        area.style.boxSizing = 'border-box';
+        area.style.marginTop = '8px';
+        var timeEl = document.querySelector('#timeToSolve');
+        if (timeEl && timeEl.parentNode) {
+            timeEl.parentNode.insertBefore(area, timeEl.nextSibling);
+        } else {
+            document.body.appendChild(area);
+        }
+    }
+    return area;
+}
+
+function updateBinaryTextarea(cellsDesc) {
+    if (!cellsDesc || !cellsDesc.cellsAsColors) return;
+
+    var rows = cellsDesc.rowsNumber;
+    var cols = cellsDesc.colsNumber;
+    var cells = cellsDesc.cellsAsColors;
+
+    // Count unique non-white filled colors
+    var uniq = new Set();
+    for (var i = 0; i < cells.length; i++) {
+        var v = cells[i];
+        if (v >= 0) uniq.add(v);
+        if (uniq.size > 1) break;
+    }
+
+    // Only output for two-color puzzles
+    if (uniq.size > 1) return;
+
+    var bits = new Array(rows * cols);
+    var k = 0;
+    for (var r = 0; r < rows; r++) {
+        var base = r * cols;
+        for (var c = 0; c < cols; c++, k++) {
+            var val = cells[base + c];
+            bits[k] = (val >= 0) ? '1' : '0';
+        }
+    }
+
+    var area = ensureBinaryTextarea();
+    area.value = rows + ',' + cols + ',' + bits.join('');
 }
 
 // ========================= HELPERS =========================
