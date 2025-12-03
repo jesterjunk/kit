@@ -5,4 +5,8 @@ Collect files to rehost for kit on github
 
 https://web.archive.org/web/20230527023551if_/http://a.teall.info/nonogram/
 
-https://sites.google.com/site/tealyatina/share/nonogram.zip  >>  https://web.archive.org/web/20201102014453id_/https://157070d6-a-62cb3a1a-s-sites.googlegroups.com/site/tealyatina/share/nonogram.zip?attachauth=ANoY7cpC6U-cvKg9jzYUZ8z5jh-u5TmDY9bRhiKzcAAf8qOu7nrOby3JtPs0Hgev5vxvv7IgSv-n-9pS7Znb7Pj-wj7dZRjAWw2K5ve3kn-yHbqYX_6trPX4ftoIwRshvgobvGjTjMATddRc07YPxC4q6FnWxbNN_H_SH5iw9I_5Q6zQjgLGxU68mWjXXRf_2ZvLO0VHlRc_A0iZsuJt0FHHo3zHXYJnow%3D%3D&attredirects=0
+https://web.archive.org/web/20230314181511if_/http://www.teall.info/2013/03/online-nonogram-solver.html
+
+This is an older version that is not working as well as the main version hosted a couple directories up.  Provided mostly for historical value.
+nonogram.zip
+https://web.archive.org/web/20201102014453id_/https://157070d6-a-62cb3a1a-s-sites.googlegroups.com/site/tealyatina/share/nonogram.zip?attachauth=ANoY7cpC6U-cvKg9jzYUZ8z5jh-u5TmDY9bRhiKzcAAf8qOu7nrOby3JtPs0Hgev5vxvv7IgSv-n-9pS7Znb7Pj-wj7dZRjAWw2K5ve3kn-yHbqYX_6trPX4ftoIwRshvgobvGjTjMATddRc07YPxC4q6FnWxbNN_H_SH5iw9I_5Q6zQjgLGxU68mWjXXRf_2ZvLO0VHlRc_A0iZsuJt0FHHo3zHXYJnow%3D%3D&attredirects=0
