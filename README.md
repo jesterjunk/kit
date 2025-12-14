@@ -1,3 +1,11 @@
+<h2><a href="#AI_Text_To_Image" title="Calculation" target="_blank">AI Text To Image</a></h2>
+
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/aspect_ratio" title="f-stop | Professional AI Scene & Prompt Director" target="_blank">f-stop | Professional AI Scene & Prompt Director</a>
+    credit: <a href="https://f-stop.vercel.app/" title="https://f-stop.vercel.app/" target="_blank">https://f-stop.vercel.app/</a>
+</p>
+
+
 <h2><a href="#Calculation" title="Calculation" target="_blank">Calculation</a></h2>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ 
@@ -7,7 +15,7 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ 
             <a href="https://jesterjunk.github.io/kit/aspect_ratio_list_calculator" title="Aspect Ratio List Calculator" target="_blank">Aspect Ratio List Calculator</a>
-        </p>
+</p>
 
 
 <h2><a href="#Color" title="Color" target="_blank">Color</a></h2>
