@@ -1,0 +1,5 @@
+#pbar { margin-top:6px; padding:0;  margin-left:auto; margin-right:auto; text-align:center; display:block;}
+#progressBarWrapper { width:900px;height:6px;border:1px solid gray;margin-bottom:5px; padding-bottom:1px; display:inline-block; }
+#progressBar { width:0px;height:6px;background-color:#A0A0A0;position:absolute; }
+#progressBar { border-top:1px solid white; border-left:1px solid white; }
+#progressBar { border-bottom:1px solid black; border-right:1px solid black; }

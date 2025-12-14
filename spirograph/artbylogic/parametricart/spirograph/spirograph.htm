@@ -1,0 +1,561 @@
+<!DOCTYPE html>  
+<html lang="en">
+<!--
+	/************************************************************************/
+	/*                                                                      */
+	/* Copyright 2011 - 2025 by Stan Reckard     (www.artbylogic.com)       */
+	/*                                                                      */
+	/* This file and its contents are copyrighted by Stan Reckard.  All     */
+	/* rights reserved. No content, programming code or images may be sold, */
+	/* published or distributed without express permission from the author. */
+	/* Do not remove copyright notices.  By violating these terms you may   */
+	/* be held liable for any resulting loss or damage.                     */
+	/*                                                                      */
+	/* No support, guarantee or warranty is offered or implied. By using    */
+	/* any of this code you assume full risk and responsibility for that    */
+	/* use.  Written permission must be obtained before any use.            */
+	/*                                                                      */
+	/************************************************************************/
+-->
+  <head>
+    <title>Spirograph Art Creator | Art by Logic</title>
+	
+	<!-- (c) 2011-2025 Art by Logic. All rights reserved. -->
+	<meta name="title" content="Spirograph Art Creator | Art by Logic">
+	<meta name="description" content="Create your own spirograph art!  Have fun with hypotrochoids and epitrochoids in the spirograph playground.">
+	<meta name="keywords" content="art, spirograph, epitrochoid, hypotrochoid, playground, create art, spirograph art, interactive spirograph creator">
+	<meta name="author" content="Stan Reckard, Art by Logic">
+	<meta name="copyright" content="2011-2025 Art by Logic. All rights reserved.">
+	<meta charset="UTF-8">
+	<meta name="ROBOTS" content="INDEX,FOLLOW">
+	<meta name="revisit-after" content="15 days">
+	<link rel="stylesheet" type="text/css" href="css/progressBar.css"/>
+	<link rel="stylesheet" type="text/css" href="css/lightbox.css"/>
+	<link rel="stylesheet" type="text/css" href="css/spiro.css"/>
+	<link rel="stylesheet" type="text/css" href="css/abl_menusDark.css"/>
+	
+<style>#can { width:900px; height:900px; background-color:black;}#progressBarWrapper { width:900px;}</style>
+	
+	
+<!-- Win7 Pinned Sites MetaTags -->
+<meta name="application-name" content="Spirograph Art">
+<meta name="msapplication-tooltip" content="Start Spirograph Art in Site Mode">
+<meta name="msapplication-starturl" content="http://www.artbylogic.com/spirographart/spirograph.htm">
+<!-- end Win7 -->
+
+<!-- Win8 Tile MetaTags -->
+<meta name="msapplication-TileColor" content="#FFFFFF"/>
+
+<!-- meta name="application-name" content="Axce Auction"/ -->
+<!-- meta name="msapplication-TileColor" content="#ffffff"/ -->
+<!-- end Win8 Tile -->
+  </head>
+  <body>
+  
+  
+  		<input id="btnRandom" title="random image" type="button" onclick="createRandomImage();" value="Random">
+
+    <h1 class="centerMe">Spirograph Art</h1>
+	<a id="oldSpiro" href="http://www.artbylogic.com/parametricart/spirographOld/spirograph.htm?a=1">Old Spirograph Art</a>
+    
+    <p class="centerMe">For more information about spirographs see <a href="http://en.wikipedia.org/wiki/Spirograph">Wikipedia</a>.</p>
+	<a id="openInstructions" href="#" onclick=openInstructions();return false;">Instructions</a>
+	<canvas class="centerMe" id="can"></canvas>
+	
+		
+	
+	<form name="spiro">
+	<div id="mainCtrls">
+	Presets: <select id="basicPresets" onchange="selectPreset(this)">
+		<option value="0"></option><!-- for no selection -->
+<option value="1">Preset #1</option>
+<option value="2">Preset #2</option>
+<option value="3">Preset #3</option>
+<option value="4">Preset #4</option>
+<option value="5">Preset #5</option>
+<option value="6">Preset #6</option>
+<option value="7">Preset #7</option>
+<option value="8">Preset #8</option>
+<option value="9">Preset #9</option>
+<option value="10">Preset #10</option>
+		
+	</select>
+	<br>
+	<input type="checkbox" onchange="toggleAdvanced(this)" name="advanced" id="input_advanced" value="0" />Advanced Controls 
+	<br>
+
+	<div id="advPresets">
+		Advanced Presets: <select id="advancedPresets" onchange="selectPreset(this)">
+			<option value="0"></option><!-- for no selection -->
+<option value="1">Preset #1</option>
+<option value="2">Preset #2</option>
+<option value="3">Preset #3</option>
+<option value="4">Preset #4</option>
+<option value="5">Preset #5</option>
+<option value="6">Preset #6</option>
+<option value="7">Preset #7</option>
+<option value="8">Preset #8</option>
+<option value="9">Preset #9</option>
+<option value="10">Preset #10</option>
+<option value="11">Preset #11</option>
+<option value="12">Preset #12</option>
+<option value="13">Preset #13</option>
+<option value="14">Preset #14</option>
+<option value="15">Preset #15</option>
+<option value="16">Preset #16</option>
+<option value="17">Preset #17</option>
+<option value="18">Preset #18</option>
+<option value="19">Preset #19</option>
+<option value="20">Preset #20</option>
+<option value="21">Preset #21</option>
+<option value="22">Preset #22</option>
+<option value="23">Preset #23</option>
+<option value="24">Preset #24</option>
+<option value="25">Preset #25</option>
+<option value="26">Preset #26</option>
+<option value="27">Preset #27</option>
+<option value="28">Preset #28</option>
+<option value="29">Preset #29</option>
+<option value="30">Preset #30</option>
+<option value="31">Preset #31</option>
+<option value="32">Preset #32</option>
+<option value="33">Preset #33</option>
+<option value="34">Preset #34</option>
+<option value="35">Preset #35</option>
+<option value="36">Preset #36</option>
+<option value="37">Preset #37</option>
+<option value="38">Preset #38</option>
+<option value="39">Preset #39</option>
+<option value="40">Preset #40</option>
+<option value="41">Preset #41</option>
+<option value="42">Preset #42</option>
+<option value="43">Preset #43</option>
+<option value="44">Preset #44</option>
+<option value="45">Preset #45</option>
+		
+		</select>
+		<br>
+		<input type="checkbox" name="clrDraw" id="input_clrDraw" value="0" />Clear &amp; Draw on preset change 
+	</div>
+
+	</div><!-- mainCtrls -->
+	
+	<div id="pbar">
+		<div id="progressBarWrapper" class="centerMe"><div id="progressBar"></div></div>
+	</div>
+	
+	<div class="settings centerMe">	
+		<div class="settingsBlock">
+			<input name="trochoid" id="hypotrochoid" onclick="updateControl(this)" checked="checked" type="radio" value="0"><span onmouseout="hidetooltip('hypo')" onmouseover="showtooltip('hypo')" text="circle of radius r rolls inside circle of radius R">Hypotrochoid</span>
+			<div id="hypo">A hypotrochoid is formed by tracing a point attached to a circle of radius r rolling around the inside of a fixed circle of radius R, where the point is a distance d from the center of the interior circle.</div>
+			<br id="br1">
+			
+			<input name="trochoid" id="epitrochoid" onclick="updateControl(this)" type="radio" value="1"><span onmouseout="hidetooltip('epi')" onmouseover="showtooltip('epi')" text="circle of radius r rolls outside circle of radius R">Epitrochoid</span>
+			<div id="epi">A epitrochoid is formed by tracing a point attached to a circle of radius r rolling around the outside of a fixed circle of radius R, where the point is a distance d from the center of the exterior circle.</div>
+			<br id="br3">		
+			<br>
+			
+			<input id="btnDraw" title="draw the image" type="button" onclick="draw();" value="Draw">
+			<input id="btnPause" title="pause drawing" type="button" onclick="pause();" value="||">
+			<input id="btnClear" title="erase the image" type="button" onclick="clearImage();" value="Clear">
+			<input id="btnReset" title="reset" type="button" onclick="resetImage();" value="|<"><!--like rewind to start on music player -->
+			<input id="btnSave" title="save the image" type="button" onclick="saveImage();" value="save">
+		</div>
+		<div id="settingsBlockSimple">
+			r: <input title="radius of rolling circle" id="input_r" type="text" value="46" onchange="updateControl(this);"><br>
+			R: <input title="radius of fixed circle" id="input_R" type="text" value="90" onchange="updateControl(this);"><br>
+			d: <input title="distance from center of rolling circle to drawing point" id="input_d" type="text" value="37" onchange="updateControl(this);"><br>
+		</div>
+		<div id="settingsLissajousSimple">
+			A: <input title="Horizontal Amplitude" id="input_hA" type="text" value="100" onchange="updateControl(this);"><br>
+			B: <input title="Vertical Amplitude" id="input_vB" type="text" value="90" onchange="updateControl(this);"><br>
+			a: <input title="Horizontal Frequency" id="input_ha" type="text" value="3" onchange="updateControl(this);"><br>
+			b: <input title="Vertical Frequency" id="input_vb" type="text" value="2" onchange="updateControl(this);"><br>
+			p: <input title="Horizontal Phase" id="input_hp" type="text" value="0" onchange="updateControl(this);"><br>
+		</div>
+		<div id="settingsBlock_r">
+			r Amplitude: <input id="input_rAmp" type="text" value="0" onchange="updateControl(this);"><br>
+			r Frequency: <input id="input_rFreq" type="text" value="1" onchange="updateControl(this);"><br>
+			r: <input title="radius of rolling circle" id="input_rOff" type="text" value="46" onchange="updateControl(this);">
+			<div id="curr_r"></div>
+			<br>
+			r Inc: <input id="input_rInc" type="text" value="0" onchange="updateControl(this);">
+			r Phase: <input id="input_rPhase" type="text" value="0" onchange="updateControl(this);">
+		</div>
+		<div id="settingsBlock_R">
+			R Amplitude: <input id="input_RAmp" type="text" value="0" onchange="updateControl(this);"><br>
+			R Frequency: <input id="input_RFreq" type="text" value="1" onchange="updateControl(this);"><br>
+			R: <input title="radius of fixed circle" id="input_ROff" type="text" value="90" onchange="updateControl(this);">
+			<div id="curr_R"></div>
+			<br>
+			R Inc: <input id="input_RInc" type="text" value="0" onchange="updateControl(this);">
+			R Phase: <input id="input_RPhase" type="text" value="0" onchange="updateControl(this);">
+		</div>
+		<div id="settingsBlock_d">
+			d Amplitude: <input id="input_dAmp" type="text" value="10" onchange="updateControl(this);"><br>
+			d Frequency: <input id="input_dFreq" type="text" value="1" onchange="updateControl(this);"><br>
+			d: <input title="distance from center of rolling circle to drawing point" id="input_dOff" type="text" value="37" onchange="updateControl(this);">
+			<div id="curr_d"></div>
+			<br>
+			d Inc: <input id="input_dInc" type="text" value="0" onchange="updateControl(this);">
+			d Phase: <input id="input_dPhase" type="text" value="0" onchange="updateControl(this);">
+		</div>
+	</div><!-- settings -->
+		
+		
+	<div class="settings centerMe">
+		<div class="settingsBlock2">
+			line width: <input id="input_lineW" type="text" value="2" onchange="updateControl(this);">
+			<span id="lbl_lineWinc">line width inc: </span><input id="input_lineWinc" type="text" value="0" onchange="updateControl(this);">
+
+			<br>
+			line height: <input id="input_lineH" type="text" value="2" onchange="updateControl(this);">
+			<span id="lbl_lineHinc">line height inc: </span><input id="input_lineHinc" type="text" value="0" onchange="updateControl(this);"><br>			
+			
+			cycles: <input title="number of complete images to draw" id="input_loops" type="text" value="23" onchange="updateControl(this);">
+			<div id="currLoops"></div>
+			<br>
+			loops/cusps: <input title="number of loops/cusps" id="input_loopsCusps" type="text" onchange="updateControl(this)"><br>
+			speed/line continuity: <input title="speed of drawing" id="input_speed" type="text" value="10" onchange="updateControl(this);">
+		</div>
+		<div class="settingsBlock2">
+			x factor: <input title="magnification factor in the x direction" id="input_factorX" type="text" value="2.5" onchange="updateControl(this);">
+			<span id="lbl_factorXInc">x factor Inc: </span><input id="input_factorXInc" type="text" value="0" onchange="updateControl(this);"><br>
+			
+			y factor: <input title="magnification factor in the y direction" id="input_factorY" type="text" value="2.5" onchange="updateControl(this);">
+			<span id="lbl_factorYInc">y factor Inc: </span><input id="input_factorYInc" type="text" value="0" onchange="updateControl(this);"><br>
+			<br>
+			center X: <input title="x coordinate of center" id="input_centerX" type="text" value="0" onchange="updateControl(this);"> 
+			center Y: <input title="y coordinate of center" id="input_centerY" type="text" value="0" onchange="updateControl(this);">
+			<br>
+			image rotation: <input title="image rotation in degrees" id="input_rotate" type="text" value="0" onchange="updateControl(this)"> degrees
+			<div id="rotateInc"><span id="lbl_rotateInc">rotation inc: </span><input id="input_rotateInc" type="text" value="0" onchange="updateControl(this);"> degrees</div>			
+		</div>
+	</div>
+	
+	<div class="settings centerMe">		
+		<div class="settingsBlockClrType">
+			<div id="clrtype">
+				Coloring Type: <select id="coloring_type" onchange="changeColoringType(this)">
+					<option value="1">{other}</option><!-- configurable coloring -->
+					<option value="0">Dotted</option>
+					<option value="2">GrayScale</option>
+					<option value="5">Black</option>
+					<option value="6">White</option>
+					<option value="11">Reds</option>
+					<option value="12">Greens</option>
+					<option value="14">Blues</option>
+					<option value="13">Yellows</option>
+					<option value="15">Cyans</option>
+					<option value="16">Magentas</option>
+					<option selected="selected" value="4">Gold/Blues</option>
+					<option value="7">Light Purple/Green</option>
+					<option value="8">Blue/Brown</option>
+					<option value="9">Purple/Green</option>
+					<option value="10">Purple/Pink</option>
+					<option value="3">Blues #2</option>
+					<option value="17">Dotted #2</option>
+					<option value="18">YOP</option>
+					<option value="19">CLRS1</option>
+					<option value="20">CLRS2</option>
+					<option value="21">CLRS3</option>
+					<option value="22">HSV Custom #1</option>
+					<option value="23">HSV Custom #2</option>
+					<option value="24">HSV Custom #3</option>
+					<option value="25">HSV Custom #4</option>
+				</select>
+				color scale: <input title="color scale" id="input_colorScale" type="text" value="1.0" onchange="updateControl(this);">			
+			</div>
+			
+			<!-- the following are only used if Configurable Coloring {other} is set -->
+			<div id="redStuff">
+				min red: <input id="input_redMin" type="text" value="40" onchange="updateControl(this);"><br>
+				max red: <input id="input_redMax" type="text" value="220" onchange="updateControl(this);"><br>
+				init red: <input id="input_redBase" type="text" value="40" onchange="updateControl(this);"><br>
+				red inc: <input id="input_redInc" type="text" value="0.016" onchange="updateControl(this);">
+			</div>
+			
+			<div id="greenStuff">
+				min green: <input id="input_greenMin" type="text" value="40" onchange="updateControl(this);"><br>
+				max green: <input id="input_greenMax" type="text" value="220" onchange="updateControl(this);"><br>
+				init green: <input id="input_greenBase" type="text" value="80" onchange="updateControl(this);"><br> 
+				green inc: <input id="input_greenInc" type="text" value="0.016" onchange="updateControl(this);">
+			</div>
+			
+			<div id="blueStuff">
+				min blue: <input id="input_blueMin" type="text" value="40" onchange="updateControl(this);"><br>
+				max blue: <input id="input_blueMax" type="text" value="220" onchange="updateControl(this);"><br>
+				init blue: <input id="input_blueBase" type="text" value="100" onchange="updateControl(this);"><br> 
+				blue inc: <input id="input_blueInc" type="text" value="0.016" onchange="updateControl(this);">
+			</div>
+			
+			<div id="colorInc">
+				Inc: 
+				<select id="colorIncHandling" onchange="changeColorIncHandling(this, true)">
+					<option selected="selected" value="0">Auto</option>
+					<option value="1">Manual</option>
+				</select>
+			</div>			
+		</div>
+		
+		<!-- HSV used only for colorType 22 -->
+		<div id="hsvColoringType">
+			* These only apply to the HSV<br> Custom coloring types:<br><br>
+			Hue Min Percent: <input disabled id="input_hueMinPct" type="text" value="0" onchange="updateControl(this);"><br>
+			Hue Max Percent: <input disabled id="input_hueMaxPct" type="text" value="100" onchange="updateControl(this);"><br>
+			Value Min Percent: <input disabled id="input_valueMinPct" type="text" value="15" onchange="updateControl(this);"><br>
+			Value Max Percent: <input disabled id="input_valueMaxPct" type="text" value="85" onchange="updateControl(this);"><br>
+		</div>
+		
+
+		<div class="settingsBlockBackClr">
+			Background Color:
+			<select id="backClr" onchange="pickBackClr(this)">
+				<option value="white">White</option>
+				<option selected="selected" value="black">Black</option>
+				<option value="gray">Gray</option>
+				<option value="{other}">{other}</option>
+			</select>
+			<!-- TO DO: put a set button here -->
+			<br>
+			<div id="backgroundColors">
+				<span id="lbl_backClrR">red:</span><input id="input_backClrR" type="text" value="255" ><br>
+				<span id="lbl_backClrG">green:</span><input id="input_backClrG" type="text" value="255" ><br>
+				<span id="lbl_backClrB">blue:</span><input id="input_backClrB" type="text" value="255" >
+			</div>
+		</div>
+	</div>
+	
+	<div class="settings centerMe">
+		<div class="settingsBlockAdv">
+			<span id="lblT">t:</span><input id="input_t" type="text" value="0" onchange="updateControl(this);"><br>
+			<span id="lblMaxT">max t:</span><div id="maxT"></div>
+		</div>	
+		
+		<div class="settings">
+			<input type="checkbox" id="drawUndrawCycle" name="drawUndrawCycle" value="0">
+			<label for="drawUndrawCycle">Draw/Undraw Cycle</label>		
+		</div>	
+		
+	</div>
+	
+	</form>
+	<br/>
+	<div id="noCanvasSupport">
+		This interactive spirograph art playground requires a browser that supports the HTML5 canvas element.  Your browser does not support this.
+	</div>
+	
+	<div id="lb_blanket"></div>
+	<div id="instructions">				
+		<!-- set onmousedown and onselectstart to return false to prevent the text from being selectable by the mouse -->
+		<div id="lb_closeBtn" onclick="closeInstructions(); return false;" onselectstart="return false" onmousedown="return false;">X</div>
+		<div id="instructions_hdr" class="mo_move">
+			<h3>Spirograph Instructions</h3>
+		</div>
+		<div id="instructions_helpContents">
+		
+			Create your own spirograph art!  This page can be used as a playground or learning tool to see how changing basic parameters affects
+            the generated images.  Or it can be used to create and save your own spirograph artwork.<br><br>
+			
+			Spirograph Art Creator/Playground only works in browsers that support the HTML5 canvas tag.  Unfortunately versions of Internet Explorer older
+			than version 9 do not support this.  Other browsers tend to have a longer support history.<br><br>
+			
+            Spirograph curves are part of a family of curves known as epitrochoids and hypotrochoids. 
+            This site draws both epitrochoid and hypotrochoid curves as well as other variations based on these curves.<br><br>
+ 
+            A hypotrochoid is formed by tracing a point attached to a circle of radius r rolling around the inside of a fixed circle of radius R,
+            where the point is a distance d from the center of the interior circle.<br><br>
+			
+			Hypotrochoid curves are created from plotting the following parametric equations:<br>
+			<div style="display:inline;margin-left:15px"></div>	x = (R - r) * cos(t) + d * cos((R-r)*t/r)<br>
+			<div style="display:inline;margin-left:15px"></div>	y = (R - r) * sin(t) - d * sin((R-r)*t/r)<br>
+			where R, r, and d are as described above, and t is the parametric variable.<br><br>
+			<br>
+			
+            A epitrochoid is formed by tracing a point attached to a circle of radius r rolling around the outside of a fixed circle of radius R,
+            where the point is a distance d from the center of the exterior circle.<br><br>
+			
+			Epitrochoid curves are created from plotting the following parametric equations:<br>
+			<div style="display:inline;margin-left:15px"></div>	x = (R + r) * cos(t) - d * cos((R+r)*t/r)<br>
+			<div style="display:inline;margin-left:15px"></div>	y = (R + r) * sin(t) - d * sin((R+r)*t/r)<br>
+			where R, r, and d are as described above, and t is the parametric variable.<br><br>
+			<br>
+			
+            A complement of 10 basic preset images and 43 advanced preset images are available to generate by picking them from the drop downs at the
+            top left of the page.  Each preset chosen populates the controls below the image so that you can see how they are generated or
+            tweak them to your liking.
+            <br><br>
+			
+            You can combine multiple spirograph designs, but only in advanced mode.  Advanced mode is initiated by checking the "Advanced Controls"
+            checkbox at the top left of the page.  Advanced mode enables the additional presets and it allows you to change more
+            parameters for a greater variety of image generation.<br><br>
+
+			By default, basic mode clears the image first when a new preset is chosen.
+            In advanced mode, the default is not to clear the image first when a new preset is chosen.  In advanced mode there is a 
+			"Clear &amp; Draw on preset change" checkbox that can be used to alter the default behavior while in advanced mode.
+		
+			<br><br>
+		</div><!-- helpContents -->
+		<!-- a id="closeInstructions" href="#" onclick=closeInstructions();return false;">Close</a -->
+	</div>
+	
+	
+<script src="js/progressBar.js" type="text/javascript"></script>
+<script src="js/sr_utils.js" type="text/javascript"></script>
+<script src="js/mo_move.js" type="text/javascript"></script>
+<script src="js/lightbox.js" type="text/javascript"></script>
+<script src="js/saveFromCanvas.js" type="text/javascript"></script>
+<script src="js/spiro_js.php_v=18.js" type="text/javascript"></script>
+<script src="js/pm_popmenuXYsmc.js" type="text/javascript"></script>
+<div id="fixedNavBar" class="fixed">
+<div class="maxH">
+<!-- table class="navBarTable" border="0" cellspacing="0" cellpadding="0" width="100%" -->
+<table class="navBarTable">
+<tr>
+<td class="td2"><a title="Home Page" class="navBar" href="https://www.artbylogic.com">&nbsp;&nbsp;&nbsp;Home&nbsp;</a></td>
+<td class="td2"><a id="menu3Link" title="Art" class="navBar" href="https://www.artbylogic.com/ABL_Gallery.php?ic=X">&nbsp;Art</a></td>
+<td class="td2"><a id="menu2Link" title="Logic Puzzles &amp; Games" class="navBar" href="https://www.artbylogic.com/puzzles/ABL_PuzzlesMain.htm">&nbsp;Logic Puzzles &amp; Games&nbsp;</a></td>
+<td class="td2"><a id="menu6Link" title="Math" class="navBar" href="https://www.artbylogic.com/math/ABL_Math.htm">&nbsp;Math&nbsp;</a></td>
+<td class="td2"><a id="menu5Link" title="Odds &amp; Ends" class="navBar" href="https://www.artbylogic.com/oddsEnds/ABL_OddsEnds.htm">&nbsp;Odds &amp; Ends</a></td>
+<td class="td2"><a id="menu4Link" title="Information" class="navBar" href="https://www.artbylogic.com/ABL_AboutUs.htm">&nbsp;Info&nbsp;</a></td>
+</tr>
+</table>
+</div>
+</div><!-- fixed -->
+
+
+<div id="menu5" class="menu5">
+<!-- div class="PopMenuWord">
+<a title="Internet Links" class="PopMenu" href="https://www.artbylogic.com/dailyweblinks/weblinks.php">Web Links</a>
+</div -->
+<div class="PopMenuWord">
+<a title="Daily Bible Verse" class="PopMenu" href="https://www.artbylogic.com/oddsEnds/bible/votd.htm">Daily Bible Verse</a>
+</div>
+<div class="PopMenuWord">
+<a title="Monthly Calendar" class="PopMenu" href="https://www.artbylogic.com/oddsEnds/calendar/calendar.htm?moon=4">Monthly Calendar</a>
+</div>
+<div class="PopMenuWord">
+<a title="YouTube Kaleidoscope Videos" class="PopMenu" href="https://www.artbylogic.com/ABL_YouTubeVideo.htm">Kaleidoscope Videos</a>
+</div>
+<div class="PopMenuWord">
+<a title="Free Tiled Backgrounds" class="PopMenu" href="https://www.artbylogic.com/free/backgrounds/freebackgrounds.htm">Free Backgrounds</a>
+</div>
+<div style="margin-bottom:10px" class="PopMenuWord">
+<a title="Color Station" class="PopMenu" href="https://www.artbylogic.com/oddsEnds/colorStation/colorStation.htm">Color Station</a>
+</div>
+</div><!-- menu5 -->
+
+
+<div id="menu4" class="menu4">
+<div class="PopMenuWord">
+<a title="Learn about us" class="PopMenu" href="https://www.artbylogic.com/ABL_AboutUs.htm">About Us</a>
+</div>
+<div class="PopMenuWord">
+<a title="Contact Us" class="PopMenu" href="https://www.artbylogic.com/ABL_Contact.htm">Contact</a>
+</div>
+</div><!-- menu4 -->
+
+
+<div id="menu6" class="menu6">
+<div class="PopMenuWord">
+<a title="Non-Deterministic Random Number Generator" class="PopMenu" href="https://www.ndrng.artbylogic.com/">NDRNG</a>
+</div>
+<div class="PopMenuWord">
+<a title="Flip a Coin!" class="PopMenu" href="https://www.artbylogic.com/math/coinToss/coinToss.htm">Coin Toss</a>
+</div>
+<div class="PopMenuWord">
+<a title="Math Worksheets" class="PopMenu" href="https://www.artbylogic.com/math/mathWorksheet/genWorksheet.htm">Math Worksheets</a>
+</div>
+<div class="PopMenuWord">
+<a title="Grade Calculator" class="PopMenu" href="https://www.artbylogic.com/math/education/gradecalc.htm">Grade Calculator</a>
+</div>
+</div><!-- menu6 -->
+
+
+<div id="menu3" class="menu3">
+
+<div class="PopMenuWord">
+<a title="Prints for Sale" href="https://stan-reckard.artistwebsites.com" class="PopMenu">Buy Art Prints</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Art Gallery" href="https://www.artbylogic.com/ABL_Gallery.php?ic=X" class="PopMenu">Art Gallery</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Moving Art - art in motion" href="https://www.artbylogic.com/dailyart/artmotion/artmotion.htm" class="PopMenu">Moving Art</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Hourly Art - a new image every hour" class="PopMenu" href="https://www.artbylogic.com/hourlyart/hourlyart.htm">Hourly Art</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Active Art - Rapidly Changing Art" class="PopMenu" href="https://www.artbylogic.com/ca">Active Art</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Free desktop wallpaper" class="PopMenu" href="https://www.artbylogic.com/ABL_FreeWallpaper.htm">Free Wallpaper</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Create Your Own Spirograph Art!" class="PopMenu" href="https://www.artbylogic.com/parametricart/spirograph/spirograph.htm">Spirograph Art</a>
+</div>
+
+<div class="PopMenuWord">
+<a title="Create Your Own Lissajous Art!" class="PopMenu" href="https://www.artbylogic.com/parametricart/lissajous/lissajous.htm">Lissajous Art</a>
+</div>
+
+</div><!-- menu3 -->
+
+
+<div id="menu1" class="menu1">
+<div class="PopMenuWord">
+<a title="Abstract Computer art" href="https://www.artbylogic.com/ABL_Gallery.php?ic=A" class="PopMenu">Abstract Art</a>
+</div>
+<div class="PopMenuWord">
+<a title="Photographic art" href="https://www.artbylogic.com/ABL_Gallery.php?ic=FM" class="PopMenu">Photographs</a>
+</div>
+</div><!-- menu1 -->
+
+
+<div id="menu2" class="menu2">
+<div class="PopMenuWord">
+<a title="Number Slider" href="https://www.artbylogic.com/puzzles/numSlider/numberShuffle.htm" class="PopMenu">Number Slider</a>
+</div>
+<div class="PopMenuWord">
+<a title="Image Slider" href="https://www.artbylogic.com/puzzles/imgSlider/imageShuffle.htm" class="PopMenu">Image Slider</a>
+</div>
+<div class="PopMenuWord">
+<a title="Daily Sudoku" href="https://www.artbylogic.com/puzzles/sudoku/dailySudoku.htm" class="PopMenu">Daily Sudoku</a>
+</div>
+<div class="PopMenuWord">
+<a title="Mental Stretch - a Mastermind clone" href="https://www.artbylogic.com/puzzles/mentalstretch/mentalstretch.htm" class="PopMenu">Mental Stretch</a>
+</div>
+<div class="PopMenuWord">
+<a title="Mental Stretch 2D - two dimensional Mental Stretch" href="https://www.artbylogic.com/puzzles/mentalstretch2D/mentalstretch2D.htm" class="PopMenu">Mental Stretch 2D</a>
+</div>
+<div class="PopMenuWord">
+<a title="Grid Lights - a LightsOut clone" href="https://www.artbylogic.com/puzzles/gridLights/gridLights.htm" class="PopMenu">Grid Lights</a>
+</div>
+<div class="PopMenuWord">
+<a title="Grid Lines - an original puzzle" href="https://www.artbylogic.com/puzzles/gridLines/gridLines.htm" class="PopMenu">Grid Lines</a>
+</div>
+<div class="PopMenuWord">
+<a title="Button Swap - an original puzzle" href="https://www.artbylogic.com/puzzles/buttonSwap/buttonSwap.htm" class="PopMenu">Button Swap</a>
+
+<br><br>
+<div class="PopMenuWord">
+<a title="Gomoku" href="https://www.artbylogic.com/games/gomoku/gomoku.htm" class="PopMenu">Gomoku</a>
+</div>
+<div class="PopMenuWord">
+<a title="Tic-Tac-Toe" href="https://www.artbylogic.com/puzzles/tictactoe/inARow.htm" class="PopMenu">Tic-Tac-Toe</a>
+</div>
+
+</div>
+</div><!-- menu2 -->
+
+<br><br>	
+
+  </body>
+</html>
