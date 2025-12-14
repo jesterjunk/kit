@@ -1,7 +1,7 @@
 <h2><a href="#AI_Text_To_Image" title="Calculation" target="_blank">AI Text To Image</a></h2>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌
-            <a href="https://jesterjunk.github.io/kit/aspect_ratio" title="f-stop | Professional AI Scene & Prompt Director" target="_blank">f-stop | Professional AI Scene & Prompt Director</a>
+            <a href="https://jesterjunk.github.io/kit/f-stop.vercel.app" title="f-stop | Professional AI Scene & Prompt Director" target="_blank">f-stop | Professional AI Scene & Prompt Director</a>
     credit: <a href="https://f-stop.vercel.app/" title="https://f-stop.vercel.app/" target="_blank">https://f-stop.vercel.app/</a>
 </p>
 
