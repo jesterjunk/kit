@@ -1,0 +1,1228 @@
+<html lang="en">
+<head>
+<meta name="description" content="Paul Bourke - Data Formats: 3D, Audio, Image">
+<link rel=StyleSheet href="../pdbstyle.css" type="text/css" media=all>
+<title>Data Formats: 3D, Audio, Image</title>
+</head>
+
+<body>
+<p><br><p>
+
+<center><table width="80%" valign="top" align="center" cellspacing=0 cellpadding=0><tr><td>
+
+   <center><table width=100% border=0 cellspacing="2" cellpadding="0" bgcolor="#cccccc">
+   <tr><td valign="center" align="center" bgcolor="#eeeeee">
+      <center>
+
+      <h1><a href="http://paulbourke.net">P a u l &nbsp;&nbsp; B o u r k e</a></h1>
+      <form action="https://paulbourke.net/cgi-bin/google.cgi" method="post">
+      Search:&nbsp;<input type=text size=20 height=0.5 name="Choice" value="">
+      <input type="submit" value="Submit">
+      </form>
+
+		<p>
+
+      <a href="http://paulbourke.net">paulbourke.net</a> &minus;
+      <a href="tel:61433338325">+61&nbsp;(0)433338325</a> &minus;
+      <a href="mailto:paul.bourke@gmail.com">paul.bourke@gmail.com</a> &minus;
+      <a href="https://www.facebook.com/pauldavidbourke">FB</a> &minus;
+      <a href="https://sketchfab.com/pbourke">Sketchfab</a> &minus;
+		<a href="https://www.fab.com/sellers/Paul%20Bourke">Fab</a> &minus;
+      <a href="https://www.youtube.com/user/pauldbourke/">YouTube</a> &minus;
+      <a href="https://vimeo.com/paulbourke">Vimeo</a> 
+
+		<p>
+
+		If you have found the contents of this site useful then 
+		please  consider donating to one of my vices:<br> 
+		<a href="https://www.paypal.com/donate/?hosted_button_id=XTWHGCVJFX4RC">Cup of coffee</a> &minus;
+		<a href="https://www.paypal.com/donate/?hosted_button_id=N2645RYUCDWYS">Can of beer</a> &minus;
+		<a href="https://www.paypal.com/donate/?hosted_button_id=LJ9QRE2UA885Q">Bottle of wine</a>
+
+	</center>
+
+   </td></tr>
+   </table></center>
+
+
+
+
+
+
+
+
+<br>
+<h1>Data Formats: 3D, Audio, Image</h1>
+
+<p align="justify">
+The following are largely my personal collection of references to a range of data formats
+in use in the computer industry, some are just
+copies of manuals and documentation, others are my own investigations and
+associated reports. The largest section is on 3D geometric formats, but there are also notes
+on image formats, conventions and other miscellaneous data representation topics.
+<p>
+
+<blockquote>
+   Standards are good, lets have lots of them. <b>Anon</b>
+</blockquote><p>
+
+<b>Geometric data formats</b><br>
+<center><table width=740 border=0 cellspacing=0 cellpadding=8>
+<tr><td valign="top" width=200>
+   <a href="3d2/">3D2</a>
+</td><td valign="top">
+   Stereo CAD-3D object format
+</td></tr>
+
+<tr><td valign="top">
+   3DML
+</td><td valign="top">
+   Flatland 3DML language
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ac3d/">AC3D</a>
+</td><td valign="top">
+   AC3D
+</td></tr>
+
+<tr><td valign="top">
+   <a href="3ds/">3DS</a><br>
+   <a href="ase/">ASE</a><br>
+   <a href="asc/">ASC</a><br>
+</td><td valign="top">
+   3D-Studio File Format<br>
+   3D Studio Max Ascii Export Format<br>
+   3D Studio Ascii Format<br>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="arcinfoasc/">asc</a><br>
+</td><td valign="top">
+   Arc Info Ascii grid
+</td></tr>
+
+<tr><td valign="top">
+   <a href="alc/alc3/">ALC</a><br>
+</td><td valign="top">
+   Alchemy III molecule file format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="alc/">AL2</a><br>
+</td><td valign="top">
+   Alchemy 2000 molecule file format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="bmf_1/">BMF</a><br>
+</td><td valign="top">
+   3D data format BMF by David Farrell
+</td></tr>
+
+<tr><td valign="top">
+   <a href="bmf_2/">BMF</a><br>
+</td><td valign="top">
+   BMF as used by FleetFeet and Volumental foot scanners
+</td></tr>
+
+<tr><td valign="top">
+   <a href="cdf/">CDF</A>
+</td><td valign="top">
+   Cyberspace Description Format
+</td></tr>
+
+<tr><td valign="top">
+   CGM
+</td><td valign="top">
+   Computer Graphics Metafile (ISO/IEC standard for vector graphics)
+</td></tr>
+
+<tr><td valign="top">
+   <a href="cinema4d/">cinema4d</a>
+</td><td valign="top">
+   Cinema4d file format from "Maxon Computer"
+</td></tr>
+
+<tr><td valign="top">
+   <a href="glTF/">glTF</a>
+</td><td valign="top">
+    GL Transmission Format
+</td></tr>
+
+<tr><td valign="top">
+   COB
+</td><td valign="top">
+   Calgari trueSpace2 File Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="collada/">DAE</a>
+</td><td valign="top">
+   Sony / Khronos Collada
+</td></tr>
+
+<tr><td valign="top">
+   cmod
+</td><td valign="top">
+   3D model format for Celestia
+</td></tr>
+
+<tr><td valign="top">
+   <a href="cube/">cube</a>
+</td><td valign="top">
+   Gaussian cube file format for volumetric data
+</td></tr>
+
+<tr><td colspan=2>
+<center>
+<a href="holter/"><img src="holter/small2.jpg" width=800 height=238 border=1></a>
+</center>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="holter/">dat</a>
+</td><td valign="top">
+	ECG files from the Holter recorder
+</td></tr>
+
+<tr><td valign="top">
+   <a href="edan/">dat/hea</a>
+</td><td valign="top">
+   ECG files from EDAN SE-2012 Holter recorder
+</td></tr>
+
+<tr><td valign="top">
+   <a href="../miscellaneous/povexamples/#df3">DF3</a>
+</td><td valign="top">
+   Povray DF3 density (volumetric) format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="directx/">Direct-X</a>
+</td><td valign="top">
+   Microsoft's answer to QuickDraw3D and OpenGL
+</td></tr>
+
+<tr><td valign="top">
+   <a href="dmo/">DMO</a>
+</td><td valign="top">
+   Duke Nukem 3D or Redneck Rampage
+</td></tr>
+
+<tr><td valign="top">
+   <a href="whip/">DWF</a>
+</td><td valign="top">
+   Format used by AutoDesks attempt at an internet format for
+   it's models, used by the WHIP viewer.
+</td></tr>
+
+<tr><td valign="top">
+   DXF2000<br> 
+	Release 14<br> 
+	<a href="dxf/">Release 12</a><br> 
+	<a href="dxf/dxf10.html">Release 10</a>
+</td><td valign="top">
+   DXF, AutoDesk/AutoCAD interchange format in the various
+   format versions that have appeared over the years.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="dxf/min3d.html">Minimal 3D DXF</a><br>
+</td><td valign="top">
+   The minimal requirements to represent 3D geometry in DXF, useful for
+   creating geometry for commercial packages from your own software.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="edf/">EDF and EDF+</a>
+</td><td valign="top">
+   European Data Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="egdr/">EGDR</a>
+</td><td valign="top">
+   MOLA Experiment Gridded Data Record
+</td></tr>
+
+<tr><td colspan=2>
+<center>
+<a href="e57/"><img src="e57/small2.jpg" width=800 height=178 border=1></a>
+</center>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="e57/">e57</a>
+</td><td valign="top">
+	3D Imaging Data Exchange, most commonly laser scanners
+</td></tr>
+
+<tr><td valign="top">
+   <a href="fact/">FACT</a>
+</td><td valign="top">
+   From ElectricImage
+</td></tr>
+
+<tr><td valign="top">
+   <a href="fbx/">FBX</a>
+</td><td valign="top">
+   Autodesk FBX
+</td></tr>
+
+<tr><td valign="top">
+   <a href="FFIVW/">FFIVW</a>
+</td><td valign="top">
+   File Format for the Interchange of Virtual Worlds</a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="field/">fld</a>
+</td><td valign="top">
+   AVS Field format.
+</td></tr>
+
+<tr><td valign="top">
+   FLT
+</td><td valign="top">
+   OpenFlight format by MulitGen Inc
+</td></tr>
+
+<tr><td valign="top">
+   <a href="gdf/">GDF</a>
+</td><td valign="top">
+   GDF from the WAMIT software
+</td></tr>
+
+<tr><td valign="top">
+   <a href="geo/">GEO</a>
+</td><td valign="top">
+   Videoscape geo an early Amiga 3D animation program written by Allen Hastings.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="geom/">Geom</a>
+</td><td valign="top">
+   Geom format as used by "Stereo", an OpenGL interactive stereo
+   pair package.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="glf/">GLF</a>
+</td><td valign="top">
+   3D font format for the GLF library
+</td></tr>
+
+<tr><td valign="top">
+   <a href="gocad/">GOCAD</a>
+</td><td valign="top">
+   GOCAD ASCII data format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="hdf/">HDF</a>
+</td><td valign="top">
+	Hierarchical Data Format 
+</td></tr>
+
+<tr><td valign="top">
+   <a href="hyperchem/">HIV</a>
+</td><td valign="top">
+   HyperChem molecular format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="hpgl/">HPGL</a>
+</td><td valign="top">
+   Hewlett Packard Graphics Language for platters
+</td></tr>
+
+<tr><td valign="top">
+   <a href="hyperfun/">hf</a>
+</td><td valign="top">
+   Hyperfun: Language for F-rep Geometric Modelling
+</td></tr>
+
+<tr><td valign="top">
+   <a href="iges/">IGES</A>
+</td><td valign="top">
+   Initial Graphics Exchange Specification by the National
+   Bureau of Standards
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ilda/">ILDA</A>
+</td><td valign="top">
+   International Laser Display Association
+</td></tr>
+
+<tr><td valign="top">
+   <a href="infini/">Infini3D</a>
+</td><td valign="top">
+   Infini3D internal format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="inventor/">Inventor</a>
+</td><td valign="top">
+   Inventor ASCII format from SGI</a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="irit/">IRIT</a>
+</td><td valign="top">
+   IRIT interchange format by Gershon Elber </a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ktx/">ktx</a>
+</td><td valign="top">
+   Format for storing textures for OpenGL
+</td></tr>
+
+<tr><td valign="top">
+   <a href="laz/">LAS and LAZ</a>
+</td><td valign="top">
+	LASer file format, currently version 1.4
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ldt/">ldt</a>
+</td><td valign="top">
+   EULUMDAT File Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="lightwave/">LWOB</a><br>
+   <a href="lightwave/restrictions.html">Lightwave 5.x</a>
+</td><td valign="top">
+   LightWave Object File format<br>
+   Importing geometry into Lightwave 5.x
+</td></tr>
+
+<tr><td valign="top">
+   <a href="mdl/">MDL</a>
+</td><td valign="top">
+   From Cornell University and Indiana University
+</td></tr>
+
+<tr><td valign="top">
+   <a href="mgf/entref.html">MGF</a>
+</td><td valign="top">
+   Materials and Geometry format originally appearing as part of
+   the Radiance package. By Greg Ward, Lawrence Berkeley Laboratory.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="mi/">MI</a>
+</td><td valign="top">
+   Mental Images, as used by Mental Ray, SoftImage, and others
+</td></tr>
+
+<tr><td valign="top">
+   <a href="mol2/">MOL2</a>
+</td><td valign="top">
+   Tripos mol2 molecule format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="moviebyu/">MovieBYU</a>
+</td><td valign="top">
+   Format from Brigham Young University to represent polygons,
+   originally designed for FORTRAN file IO.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ms3d/">MS3D</a>
+</td><td valign="top">
+   MilkShape 3D format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="msdl/">MSLD</a>
+</td><td valign="top">
+   Manchester Scene Description Language
+</td></tr>
+
+<tr><td valign="top">
+   <a href="mme/">mme</a>
+</td><td valign="top">
+	Data format for crystals, notably for the Pacor software
+</td></tr>
+
+<tr><td valign="top">
+   <a href="mtl/">MTL</a>
+</td><td valign="top">
+   Lightwave / OBJ material file
+</td></tr>
+
+<tr><td valign="top">
+   NDO
+</td><td valign="top">
+   NENDO by Izware
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nff/nff1.html">nff</a>
+</td><td valign="top">
+   For Eric Haines' SPD package
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nff/nff2.html">nff</a>
+</td><td valign="top">
+   Neutral ASCII File Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nff/enff.html">enff</a>
+</td><td valign="top">
+   Extensions to Neutral File Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nrrd/">nrrd</a>
+</td><td valign="top">
+   Nearly Raw Raster Data
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nuages/">NUAGES</a>
+</td><td valign="top">
+   Format for the NUAGES software,
+   a tool for 3D reconstruction from parallel cross-sections
+</td></tr>
+
+<tr><td valign="top">
+   <a href="obj/">OBJ</a>
+</td><td valign="top">
+   Wavefront .obj file format specification for the Advanced Visualizer software.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="oogl/#OFF">OFF</a>
+</td><td valign="top">
+   OFF format as used by the Geometry Center
+</td></tr>
+
+<tr><td valign="top">
+   <a href="off/">OFF</a>
+</td><td valign="top">
+   OFF format specification originally developed by WSE.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="oogl/">OOGL</a>
+</td><td valign="top">
+   As used by GeomView
+</td></tr>
+
+<tr><td valign="top">
+   PEDR
+</td><td valign="top">
+   MOLA Precision Experiment Data Records from NASA
+</td></tr>
+
+<tr><td valign="top">
+   <a href="pdb/">PDB (V2.1)</a>
+</td><td valign="top">
+   Protein Data Base (Atomic Coordinate File)
+</td></tr>
+
+<tr><td colspan=2>
+<center>
+<a href="phd/"><img src="phd/small2.jpg" width=800 height=160 border=1></a>
+</center>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="phd/">PHD</a>
+</td><td valign="top">
+   Polyhedra Database (NetLib)
+</td></tr>
+
+<tr><td valign="top">
+   <a href="polyray/">PI</a>
+</td><td valign="top">
+   Format for the polyray raytracer by Alexander Enzmann
+</td></tr>
+
+<tr><td valign="top">
+   <a href="plg/">PLG, FIG, WLD</a>
+</td><td valign="top">
+   Virtual World formats as used in Gossamer, Rend386, and others.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ply/">PLY</a>
+</td><td valign="top">
+   Polygon File Format also known as the Stanford Triangle Format.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="poly/">Poly</a>
+</td><td valign="top">
+   Another Polygon Format from the University of Iowa, Image Analysis Facility
+</td></tr>
+
+<tr><td valign="top">
+   <a href="postscript/">PS</a>
+</td><td valign="top">
+   Introduction to Postscript
+</td></tr>
+
+<tr><td valign="top">
+   <a href="http://povray.org/documentation/index-3.6.php">POVRAY (v3.6)</a><br>
+   <a href="http://povray.org/documentation/3.7.0/">POVRAY (v3.7)</a>
+</td><td valign="top">
+   Scene format for the Persistence Of Vision RAYtracer (and derivatives).<br>
+	<a href="citydesign/">City Generator</a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="ptx/">PTX</a>
+</td><td valign="top">
+   Laser scan data format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="pts/">PTS</a>
+</td><td valign="top">
+   Laser scan data format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="pvl/">PVL</a><br>
+</td><td valign="top">
+   Processed VoLume (and other RAW formats) as used by the Drishti volume rendering software.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="pvm/">PVM</a><br>
+</td><td valign="top">
+   Volume files from Stefan Roettger.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="macpersp/">Macperspective</a>
+</td><td valign="top">
+   Translator for this undocumented format.
+	The <a href="macpersp/manual/">MacPerspective manual</a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nii/">nii</a>
+</td><td valign="top">
+	NIfTI-1 Data Format: Neuroimagine Informatics Technology Initiative
+</td></tr>
+
+<tr><td valign="top">
+   <a href="yaodl/">PowerFlip</a>
+</td><td valign="top">
+   Data format (SGI)</a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="prt/">PRT</a>
+</td><td valign="top">
+   PRT raytracer format by Kory Hamzeh
+</td></tr>
+
+<tr><td valign="top">
+   PRT
+</td><td valign="top">
+   Unigraphics "parts" file format.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="q3o/">q3o</a>
+</td><td valign="top">
+   Quick3D Object File and Scene file format (.q3s)
+</td></tr>
+
+<tr><td valign="top">
+   <a href="qd3dformat/qd3d.html">QuickDraw3D</a><br>
+   <a href="qd3dformat/">Primitive summary</a><br>
+</td><td valign="top">
+   Apple's Quickdraw 3D meta format
+</td></tr>
+
+<tr><td valign="top">
+   radio
+</td><td valign="top">
+   Radio format by Anthony D'Agostino
+</td></tr>
+
+<tr><td valign="top">
+   <a href="rad/rad31.html">RAD V3.1</a><br>
+   <a href="rad/rad25.html">RAD V2.5</a><br>
+</td><td valign="top">
+   Radiance scene description by Greg Ward.<br>
+	<a href="rad/2rad/">Converters (old)</a>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="povraw/">RAW</a><br>
+</td><td valign="top">
+   PovRay raw triangle format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="rayshade/">RAY</a><br>
+   <a href="rayshade/raysummary.html">RAY summary</a>
+</td><td valign="top">
+   RayShade scene description format, a solid modelling
+   by Craig Kolb.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="rib/">RIB</A>
+</td><td valign="top">
+   Pixar RenderMan scene description (RenderMan Interface Bytestream)
+</td></tr>
+
+<tr><td valign="top">
+   <a href="rotater/">Rotater</a>
+</td><td valign="top">
+   Macintosh interactive line and point viewer
+   by Craig Kloeden.
+</td></tr>
+
+<tr><td valign="top">
+   rsd
+</td><td valign="top">
+   Playstation
+</td></tr>
+
+<tr><td valign="top">
+   <a href="sat/">SAT</a>
+</td><td valign="top">
+   ACIS 3D format for viewing and transferring solid information
+</td></tr>
+
+<tr><td valign="top">
+   <a href="scene/">SCENE</a>
+</td><td valign="top">
+   A proposed format for 3D geometry
+</td></tr>
+
+<tr><td valign="top">
+   <a href="scn/">SCN</a>
+</td><td valign="top">
+   SCeNe format designed to replace SFF for the Rtrace ray-tracer.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="sdml/index.html">SDML</a><br>
+   <a href="sdml/oldsdml.html">Old SDML</a>
+</td><td valign="top">
+   Spatial Data Modelling Language
+</td></tr>
+
+<tr><td valign="top">
+   <a href="sgs/">SGS</a>
+</td><td valign="top">
+	Stadtplan-Dateien Map File Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="shp/">SHP</a>
+</td><td valign="top">
+   ERSI Shapefile
+</td></tr>
+
+<tr><td colspan=2>
+<center>
+<a href="sjt/"><img src="sjt/small2.jpg" width=800 height=146  border=1></a>
+</center>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="sjt/">sjt</a>
+</td><td valign="top">
+   SiroVision 3D image format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="slc/">SLC</a>
+</td><td valign="top">
+   SLiCe format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="stl/">STL</a>
+</td><td valign="top">
+   Industry standard format for stereoLithography.
+</td></tr>
+
+<tr><td valign="top">
+   STP
+</td><td valign="top">
+   SteinLib format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="step/">STEP</a>
+</td><td valign="top">
+   Standard for Exchange of Product models
+</td></tr>
+
+<tr><td valign="top">
+   <a href="super3d/">Super3D</a>
+</td><td valign="top">
+   Text export format used by the Macintosh modeller Super3D.
+</td></tr>
+
+<tr><td colspan=2>
+<center>
+<a href="surf/"><img src="surf/small2.jpg" width=800 height=200  border=1></a>
+</center>
+</td></tr>
+
+<tr><td valign="top">
+   <a href="surf/">SURF</a>
+</td><td valign="top">
+   Export format from 3D-XplorMath
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tachyon/">Tachyon</a>
+</td><td valign="top">
+   Preliminary scene format for Tachyon by John E. Stone
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tddd/">FORM TDDD</a>
+</td><td valign="top">
+   By Impulse's Turbo Silver
+   for Sense8's WorldToolKit Neutral File Format specification
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tet/">tet</a>
+</td><td valign="top">
+   Format for tetrahedra, originating at the
+   Computer Science department of Williams College.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tin/">TIN</a>
+</td><td valign="top">
+   Triangular Irregular Network
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tm/">TM</a>
+</td><td valign="top">
+   LONI triangle surface model format to represent surface models.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tp/">TP</a>
+</td><td valign="top">
+   TecPlot file format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="tri/">TRI</a>
+</td><td valign="top">
+   Triangle format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="txm/">txm</a>
+</td><td valign="top">
+   Xradia X-ray transmission image data
+</td></tr>
+
+<tr><td valign="top">
+   <a href="u3d/">U3D</a>
+</td><td valign="top">
+   Universal 3D
+</td></tr>
+
+<tr><td valign="top">
+   <a href="unreal/">UNREAL</a>
+</td><td valign="top">
+   UNREAL File Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="usd/">USD</a>
+</td><td valign="top">
+   Universal Scene Description
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vivid/">V</a>
+</td><td valign="top">
+   VIVID file format by Stephen Coy
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vef/">VEF</a>
+</td><td valign="top">
+   Vertex - Edge - Face format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vision3d/">Vision3D</a>
+</td><td valign="top">
+   Text format for the Macintosh Vision3D modeller,
+	<a href="vision3d/manual/">manual</a> (historic interest only)
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vla/">VLA</a>
+</td><td valign="top">
+   Digistar II VLA format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vmd/">vmd</a>
+</td><td valign="top">
+   VMD - WinOSi (XOSi, MacOSi) raytacer by Michael Granz.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vol/">vol</a>
+</td><td valign="top">
+   .vol by Mark Dow
+</td></tr>
+
+<tr><td valign="top">
+   <a href="volumetric/">vol</a>
+</td><td valign="top">
+   Paul Bourke volumetric data format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vox/">vox</a>
+</td><td valign="top">
+	Volumetric voxel format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vrinterchange/">VRI</a>
+</td><td valign="top">
+   Virtual Reality Interchange Language
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vwf/">vwf</a>
+</td><td valign="top">
+   Vioso Warp Format. Warp and blend data for multiple projector displays.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="wld/">WLD</a>
+</td><td valign="top">
+   Morfit's WorldBuilder format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="wrm/">WRM</a>
+</td><td valign="top">
+   World Reference Model by Multigen Inc.
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vrml1/">VRML V1.0</a><br>
+</td><td valign="top">
+   The Virtual Reality Modelling Language
+</td></tr>
+
+<tr><td valign="top">
+   WMF
+</td><td valign="top">
+   Windows Metafile Format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="xyz/">XYZ</a>
+</td><td valign="top">
+   XYZ molecular format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="yasrt/">YASRT</a>
+</td><td valign="top">
+   YASRT - Yet Another Simple Ray Tracer
+</td></tr>
+</table></center>
+<p>
+
+   <blockquote>
+   Outside of a dog, a book is man's best friend.
+   Inside a dog, it's too dark to read. <b>Groucho Marx</b>
+   </blockquote><p>
+
+<b>Image formats</b><br>
+<center><table width=740 border=0 cellspacing=0 cellpadding=4>
+
+<tr><td valign="top">
+   ARW
+</td><td valign="top">
+   Sony RAW format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="avs_x/">AVS X</a>
+</td><td valign="top">
+   AVS "X" image format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="bmp/">BMP</a>
+</td><td valign="top">
+   Windows BMP file format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="dng/">DNG</a>
+</td><td valign="top">
+   Adobe Digital NeGative
+</td></tr>
+
+<tr><td valign="top">
+   <a href="gif/">Gif</a><br>
+</td><td valign="top">
+   Gif 89a Specification:
+   This is the complete specification for the GIF format, mostly unheard of until
+   it was used as the standard image format for the WWW.
+</td></tr>
+
+<tr><td width=160>
+   <a href="psdpsb/">PSD, PSB</a>
+</td><td valign="top">
+   Format of Adobe PhotoShop PSD and PSB files
+</td></tr>
+
+<tr><td>
+	<a href="ppm/">PPM, PGM, PBM</a>
+</td><td valign="top">
+	Format of PPM, PGM, PBM files
+</td></tr>
+
+<tr><td>
+   <a href="svs/">SVS</a>
+</td><td valign="top">
+   SVS used by various medical scanners
+</td></tr>
+
+<tr><td valign="top">
+	<a href="urt/">URT</a>
+</td><td valign="top">
+	URT image format as used by the Utah Raster Toolkit
+</td></tr>
+
+<tr><td valign="top">
+	<a href="sgirgb/">SGI RGB</a>
+</td><td valign="top">
+	Format of SGI RGB image files
+</td></tr>
+
+<tr><td valign="top">
+	<a href="tga/">TGA</a>
+</td><td valign="top">
+	Storing images using the TARGA image format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="kro/">KRO</a>
+</td><td valign="top">
+   Autopano 
+</td></tr>
+
+<tr><td valign="top">
+   <a href="npy/">npy</a>
+</td><td valign="top">
+   Simple format for saving numpy arrays
+</td></tr>
+
+<tr><td valign="top">
+	<a href="tiff/">TIFF</a>
+</td><td valign="top">
+	Creating TIFF files of 24bit RGB images
+</td></tr>
+
+<tr><td valign="top">
+	<a href="pic/">Radiance HDR</a>
+</td><td valign="top">
+	Radiance HDR format (High Dynamic Range image)
+</td></tr>
+
+<tr><td valign="top">
+   insp
+</td><td valign="top">
+   Image format used by Insta360, just a jpeg.
+</td></tr>
+
+<tr><td valign="top">
+	<a href="mtv/">MTV</a>
+</td><td valign="top">
+	Image format used by MTV
+</td></tr>
+
+<tr><td valign="top">
+	<a href="softimagepic/">SoftImage PIC</a>
+</td><td valign="top">
+	Converting SoftImage .pic images
+</td></tr>
+
+<tr><td valign="top">
+	<a href="yuv/">yuv411, yuv422</a>
+</td><td valign="top">
+	Video camera formats: yuv411, yuv422
+</td></tr>
+
+<tr><td valign="top">
+   <a href="nv12/">NV12</a>
+</td><td valign="top">
+   Video camera format YUV 4:2:0
+</td></tr>
+
+<tr><td valign="top">
+	<a href="pbmhdr/">PFM</a>
+</td><td valign="top">
+	Unofficial PBM (Portable Float Map)format for HDR images
+</td></tr>
+
+<tr><td valign="top">
+   <a href="vips/">vips</a>
+</td><td valign="top">
+   libvips image format
+</td></tr>
+
+<tr><td valign="top">
+   <a href="asciiart/">AsciiArt</a>
+</td><td valign="top">
+	Character representation of grey scale images.
+   Including a Macintosh application that converts PICT images into an ASCII bitmap format.
+</td></tr>
+</table></center>
+<p>
+	<blockquote>
+	I can picture in my mind a world without war, a world without hate. And I can
+	picture us attacking that world because they'd never expect it.
+	<b>Jack Handey</b>
+	</blockquote>
+<p>
+<b>Other data formats</b>
+<p>
+   Audio formats:
+   <a href="audio/">AIFF, AU (SUn), WAVE</a>.
+   Descriptions of the minimal requirements necessary to create standard audio data files.
+<p>
+   <a href="../stereographics/stereoimage/">Stereo Pair Image File Format</a>.
+   Format for defining stereo pair attributes proposed by VRex Inc and
+   the interleaved format.
+<p>
+   <a href="meshwarp/">Format for describing warp meshes</a>
+   for unusual projection environments.
+<p>
+   <a href="eeg/">Various EEG file formats and Conventions</a>.
+   Includes continuous (cnt) and average (avg) EEG format from neuroscan,
+   EEG format as used at Westmead Hospital (Sydney),
+   and Pauls ad-hoc ascii format for EEG.
+<p>
+	<a href="holter/HolterECGStandard.pdf">Holter open ECG format</a>
+<p>
+   <a href="gridconventions/">Convention for grid data storage</a>.
+<p>
+
+   <blockquote>
+   Six is a number perfect in itself, and not because God created the world
+   in six days; rather the contrary is true. God created the world in six
+   days because this number is perfect, and it would remain perfect, even
+   if the work of the six days did not exist.
+   <b>St Augustine</b>
+   </blockquote>
+<p>
+<b>Other</b>
+<p>
+	<a href="obj2vox/">Voxelation of mesh data: obj2vox</a>
+<p>
+<center>
+<a href="obj2vox/"><img src="obj2vox/small2.jpg" width=800 height=195 border=1></a>
+</center>
+<p>
+   <a href="reading/">Reading binary files from PC's on "other-endian" machines,
+   and how to read FORTRAN unformatted data files with C/C++</a>.
+<p>
+	Compression: <a href="compress/">Delta coding and Run Length Encoding compression</a>.
+	Simple compression scheme for audio and images.
+<p>
+	Handling data from the <a href="spacemouse/">Magellan SpaceMouse</a>
+	and decoding the data from a <a href="spacemouse/">MicroSoft serial mouse</a>
+<p>
+	<a href="ascii/">Various character and file standards</a>.
+	The famous ASCII code set. Latin Character set.
+	ANSI Standard (X3.64) Control Sequences. VT100 commands and control sequences.
+	Description of mmencode (rad64) format.
+	MacBinary II format specifications.
+	CSV - Comma Separated Value files.
+<p>
+	<a href="dimensions/">Image camera sensor and paper dimensions in common usage</a>
+<p>
+	<a href="connectors/">Random collection of connector pin outs</a>
+<p>
+	<a href="hershey/">Hershey vector fonts</a>
+<p>
+   <a href="bitmaps/">Beginners guide to bitmaps</a> (Historic interest only).
+   Mostly what one needs to know about how images are stored on computers, including colour depth.
+<p>
+
+   <blockquote>
+   Prediction is difficult, especially of the future.
+   <b>Niels Bohr</b>
+   </blockquote><p>
+
+<table bgcolor="#cccccc" border="0" width="100%" cellpadding="8" cellspacing="2">
+<tr><td bgcolor="#eeeeee">
+
+<p align="justify">
+<u>Contents</u>: 
+   <a href="http://paulbourke.net/papers/">Papers, Presentations, Workshops</a> &minus;
+	<a href="http://paulbourke.net/geometry/">Geometry, Surfaces, Curves, Polyhedra</a> &minus;
+   <a href="http://paulbourke.net/fractals/">Fractals, Chaos, Self similarity</a> &minus;
+   <a href="http://paulbourke.net/dome/">Domes, Planetariums, Fisheye, Spherical Mirror</a> &minus;
+   <a href="http://paulbourke.net/stereoscopy/">Stereoscopy, 3D Projection</a> &minus;
+	<a href="http://paulbourke.net/panorama/">Panorama, 360 Video</a> &minus;
+	<a href="http://paulbourke.net/reconstruction/">Photographic Reconstruction</a> &minus;
+	<a href="http://paulbourke.net/miscellaneous/">Miscellaneous: Projection, Modelling, Rendering</a> &minus;
+	<a href="http://paulbourke.net/dataformats/">Data Formats: 3D, Audio, Image</a> &minus;
+	<a href="http://paulbourke.net/texturelibrary/">Texture Library</a> &minus;
+   <a href="http://paulbourke.net/fun/">Fun, Puzzles, Travel</a>
+   &nbsp;&nbsp;(<a href="http://paulbourke.net/allpages.html">All pages in one place</a>)
+</p>
+
+<p align="justify">
+<u>Recent</u>:
+	<a href="http://paulbourke.net/papers/frontiers2025/">Minimization of prediction error during cerebral embryogenesis, and the emergence of agency</a> &minus;
+	<a href="http://paulbourke.net/stereoscopy/pov_odsp/">ODSP (Omni Directional Stereoscopic Panorama) Cylindrical Camera for PovRay</a> &minus;
+	<a href="http://paulbourke.net/panorama/fish2cyl/">Cylindrical projection from fisheye video</a> &minus;
+	<a href="http://paulbourke.net/stereoscopy/wiggle/">Generating wiggle animation images from depth maps</a> &minus;
+	<a href="http://paulbourke.net/stereoscopy/canondualfisheye/">Preparing video from the Canon RF 5.2mm f/2.8L Dual Fisheye lenses for screen display</a> &minus;
+	<a href="http://paulbourke.net/MurtenStory/">Digitising the Murten Panorama. The story behind the highest resolution scan of an artwork</a> &minus;
+	<a href="http://paulbourke.net/panorama/vpano/">Vertical Panoramas</a> &minus;
+	<a href="http://paulbourke.net/fractals/symmetryinchaos/">Symmetry in Chaos</a> &minus;
+	<a href="http://paulbourke.net/dome/fishwarp/">Tools for Spherical Mirror Projection</a>
+</p>
+
+<p align="justify">
+<u>Copyright</u>:
+   The contents of <a href="http://paulbourke.net/">this web site</a> are &copy; Copyright Paul Bourke or
+   a third party contributor where indicated.
+   You may print or save an electronic copy of parts of this web site for personal use,
+   permission must be sought for any other use.
+</p>
+
+</td></tr></table>
+
+</td></tr></table></center>
+</body>
+
+
+</body>
+</html>
