@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="description" content="Cross+A can spell check when entering and editing word descriptions">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Spell Checking</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Spell Checking</h3>
+
+<p><b>Cross+A</b> implements the spell checking engine <b>Common Speller API</b> (CSAPI) for spell checking. The CSAPI is designed for use with all Microsoft applications that include spell-checking. CSAPI is currently provided by many vendors and used by the Microsoft Office 97/2000 and many other applications. The CSAPI engine is not shipped as a part of <b>Cross+A</b> installation package, but if you have Microsoft Office installed, <b>Cross+A</b> will automatically detect the presence of CSAPI and uses it.</p>
+
+<p>While in the window of description's editing, you can use the Spell Checker menu. Right-click on a highlighted word and a popup menu displays, allowing you to choose from a list of suggestions for the correct spelling of the word. Or, choose <b>Add word to dictionary</b> to add the word to the user dictionary. If there are no suggestions in the dictionary for the correct spelling of the misspelled word, no suggestions will be listed in the popup menu.</p>
+
+<p>It is also possible to check the text using the Spell Checking dialog box (click the button <b>Spell Checker</b> or simply press F7). Below is the description of Spell Checking dialog box buttons:</p>
+
+<ul>
+
+<li><b>Change</b> – replaces the current word with the correct word taken from the "Suggestions" field.</li>
+<li><b>Change All</b> – replaces all occurrences of the selected word in the description with the correct word taken from the "Suggestions" field.</li>
+<li><b>Ignore</b> – skips the current word without changing it and goes on to the next misspelled word.</li>
+<li><b>Ignore All</b> – skips all occurrences of the current word in the descriptin without changing it and goes on to the next misspelled word. This word will then be treated as spelled correctly during the entire current <b>Cross+A</b> session.</li>
+<li><b>Add</b> – adds the current word to the user dictionary.</li>
+
+</ul>
+
+<p>A "User dictionary" is a file with a set of words in text form, it has the extension <b>DIC</b>. The main purpose of the user dictionary is allowing user to add custom words to it for spell checking. Microsoft Office 97/2000 holds the user dictionary here: c:\Program Files\Common Files\Microsoft Shared\Proof\custom.dic.</p>
+
+<p><b>Cross+A</b> allows to define two languages for spell checking (check box <b>Second Language</b>). In this case the Spell Checking dialog box is disabled; you can use the Spell Checker menu only.</p>
+
+<hr>
+
+<p>The program can use <b>Hunspell</b> (<a href="https://hunspell.github.io/" target="new">hunspell.github.io</a>). Hunspell is the default spell checker of OpenOffice.org and Mozilla Firefox.</p>
+
+<p>Spell checker dictionaries for Windows are available for <a href="https://www.cross-plus-a.com/download.htm#Spell" target="new">download</a> from the <b>Cross+A</b> website. Download the installer for the selected language, run it once, and then spell checking for that language will be available in the <b>Cross+A</b> and <b>Balabolka</b> applications.</p>
+
+<!--
+<hr>
+
+<p>The program supports <b>GNU Aspell</b> (<a href="http://aspell.net" target="new">www.aspell.net</a>). GNU Aspell is a Free and Open Source spell checker designed to eventually replace Ispell. It can either be used as a library or as an independent spell checker.</p>
+
+<p>The latest binaries of GNU Aspell for Windows and the precompiled dictionaries can be downloaded from the web-site of the project (<i>unfortunately, the files for Windows were not updated since 2002</i>).</p>
+
+<p>GNU Aspell for Windows: <a href="http://aspell.net/win32/" target="new">www.aspell.net/win32/</a></p>
+
+<p>Install Aspell first, then run the wordlist setup (you may install one or more Aspell dictionaries, for different languages). <b>Cross+A</b> provides the same functionality for Aspell, as for CSAPI.</p>
+
+<hr>
+
+<p><b>Cross+A</b> supports <b>Ispell</b> (<a href="http://ficus-www.cs.ucla.edu/geoff/ispell.html" target="new">ficus-www.cs.ucla.edu/geoff/ispell.html</a>). International Ispell is an interactive spell-checking program for Unix which supports a large number of European languages.</p>
+
+<p>For Windows users, <b>Luzius Schneider</b> has provided a <a href="http://www.luziusschneider.com/Speller/English/" target="new">complete package</a> containing Ispell and dictionaries for 30 languages (24 MB).</p>
+-->
+
+</body></html>

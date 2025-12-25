@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Search by Pattern</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Search by Pattern</h3>
+
+<p>This search mode is an extended version of the <a href="cros6bld.htm">search by letters</a>. A pattern is a series of known letters in known positions with wildcard characters in the positions where the letters are not known.</p>
+
+<p>The special wildcard characters provide additional search capabilities:</p>
+
+<ul>
+
+<li>The character <b>?</b> is used instead of <i>one</i> unknown letter.<br><br>
+
+For example, for the pattern <span class="nobr">m?n</span> the word list returned by <b>Cross+A</b> will be: <i>man</i>, <i>men</i>.<br><br></li>
+
+<li>The character <b>*</b> is used<b> </b>instead of <i>few</i> letters.<br><br>
+
+For example, for the pattern <span class="nobr">m*n</span> the word list will be: <i>man</i>, <i>main</i>, <i>mean</i>, <i>maiden</i> etc.<br><br></li>
+
+<li>The character <b>@</b> is used instead of any <i>vowel</i>.<br><br>
+
+For example, for the pattern <span class="nobr">@dd</span> the word list will be: <i>add</i>, <i>odd</i>.<br><br></li>
+
+<li>The character <b>$</b> is used instead of any <i>consonant</i> letter.<br><br>
+
+For example, for the pattern <span class="nobr">$ap</span> the word list will be: <i>cap</i>, <i>lap</i>, <i>map</i>, <i>sap</i> etc.<br><br></li>
+
+<li>The character <b>&amp;</b> is used instead of few <i>vowels</i>.<br><br>
+
+For example, for the pattern <span class="nobr">&amp;r</span> the word list will be: <i>or</i>, <i>ear</i>, <i>our</i>, <i>year</i> etc.<br><br></li>
+
+<li>The character <b>#</b> is used instead of few <i>consonants</i>.<br><br>
+
+For example, for the pattern <span class="nobr">#een</span> the word list will be: <i>green</i>, <i>screen</i> etc.<br><br></li>
+
+<li>The digits <b>0...9</b> are used instead of <i>duplicate</i> letters.<br><br>
+
+For example, for the pattern <span class="nobr">??1221</span> the word list will be: <i>career</i>, <i>chilli</i>, <i>simoom</i> etc.<br><br>
+
+Use can find tautonyms, for example, for the pattern <span class="nobr">12341234</span> the word list will be: <i>beriberi</i>, <i>couscous</i> etc.<br><br></li>
+
+<li>The character <b>!</b> changes the meaning of next symbol on opposite.<br><br>
+
+For example, for the pattern <span class="nobr">!111</span> the word list will be: <i>add, all, fee</i> etc.<br><br>
+
+Character <b>!</b> shouldn't be placed before symbols <b>*</b>, <b>?</b>, <b>&amp;</b> and <b>#</b>.</li>
+
+</ul>
+
+<table style="border: none;"><tr><td style="vertical-align: top;"><p class="Note"><b>Note</b>:</p></td>
+<td><p class="Note"><span class="nobr">!!a</span> = <span class="nobr">a</span>.<br><span class="nobr">!@</span> = <span class="nobr">$</span>.</p></td></tr></table>
+
+<p>Wildcards can be inserted in any combination at any point in a search pattern. If there are few possible letters on the specific position in the word, these letters must be written in round brackets.</p>
+
+<p>For example, <span class="nobr">(abcd)???(e$)</span> finds: <i>abase</i>, <i>agree</i>, <i>ahead</i>, <i>blood</i>, <i>blade</i> etc.</p>
+
+<p>This pattern can be written in other way: <span class="nobr">(a-d)???(e$)</span>. Dash between <b>a</b> and <b>d</b> means that letters from A to D can be used.</p>
+
+<p><a href="cros5rp0.htm">"Weight"</a> of found words also can be considered in search process. User can define the precise "weight" value for word searching. Also user can define a set of unused letters that must be absent in found words.</p>
+
+</body></html>

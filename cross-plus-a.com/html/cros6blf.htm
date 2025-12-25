@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Search by Description</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Search by Description</h3>
+
+<p>This search mode is used when some words in the target word description are known. User can search either in specified length word list or in all database. The known words in description are enumerated via blanks.</p>
+
+<p>For example: <span class="nobr">length unit metric</span></p>
+
+<p>The special wildcard characters can be used in search query:</p>
+<p><ul style="list-style-type: none">
+<li><b>?</b> is used instead of <i>one</i> unknown letter;</li>
+<li><b>*</b> is used instead of <i>few</i> letters;</li>
+<li><b>@</b> is used instead of any <i>vowel</i>;</li>
+<li><b>$</b> is used instead of any <i>consonant</i> letter;</li>
+<li><b>&amp;</b> is used instead of few <i>vowels</i>;</li>
+<li><b>#</b> is used instead of few <i>consonant</i> letters.</li>
+</ul></p>
+
+<p>The character <b>!</b> changes the meaning of next symbol on opposite. If there are few possible letters on the specific position in the word, these letters must be written in round brackets.</p>
+
+<p>For example: <span class="nobr">len??? unit m*c</span></p>
+
+<p>To query on symbols that have special meaning to query expressions such as <b>?</b> or round brackets, you must escape them. Use the backslash character to escape a single character or symbol. Only the character immediately following the backslash is escaped. For example: </p>
+
+<p>&nbsp;&nbsp;&nbsp;<span class="nobr">AT\&T</span></p>
+
+<p>&nbsp;&nbsp;&nbsp;<span class="nobr">\(comment\)</span></p>
+
+<p><a href="cros5rp0.htm">"Weight"</a> of found words also can be considered in search process. User can define precise the "weight" value for word searching. Also the program can underline found words in descriptions at the window of search results (check box <b>Show found words in descriptions</b>).</p>
+
+</body></html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="description" content="Cross+A can solve and create the Hebi-Ichigo puzzle">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Hebi-Ichigo</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Hebi-Ichigo</h3>
+
+<p><b>Hebi-Ichigo</b> is a logic puzzle invented by Nikoli. The goal is to insert the numbers 1 to 5 according to the rules:</p>
+
+<ul>
+<li>Numbers form a sequential chain of five cells from 1 ("head") to 5 ("tail") connected horizontally and vertically (the chain of cells forms a "snake").</li>
+<li>Snakes cannot touch other snakes horizontally or vertically, diagonally is allowed.</li>
+<li>Snakes are not allowed to appear in front of the head of another snake. The snake’s eyes are located on a side of the head (cell with number 1), opposite from the side its body (cell with number 2) is connected to. A snake looks in the direction of its eyes until a black cell or the edge of the grid is reached.</li>
+<li>The number in the black cell shows the value of the nearest number in the direction of the arrow. This number must appear before any other black cells. A black cell with a zero means there is no snake in the direction of the arrow until the next black cell or the edge of the grid.</li>
+</ul>
+
+<p><img src="../images/hebi_ichigo.gif" alt="Hebi-Ichigo"></p>
+
+<p><b>Cross+A</b> can solve puzzles from <b><span class="nbt">3 x 3</span></b> to <b><span class="nbt">30 x 30</span></b>.</p>
+
+</body></html>

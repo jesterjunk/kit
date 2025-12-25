@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="description" content="Cross+A can solve and create the Light Up puzzle">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Light Up (Akari)</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Light Up</h3>
+
+<p><b>Light Up</b> (also known as <i>"Akari"</i>, <i>"Bijutsukan"</i>) is a logical puzzle. It is played on a rectangular grid of white and black cells. The player places light bulbs in white cells such that no two bulbs shine on each other, until the entire grid is lit up. A bulb sends rays of light horizontally and vertically, illuminating its entire row and column unless its light is blocked by a black cell. A black cell may have a number on it from 0 to 4, indicating how many bulbs must be placed adjacent to its four sides; for example, a cell with a 4 must have four bulbs around it, one on each side, and a cell with a 0 cannot have a bulb next to any of its sides. An unnumbered black cell may have any number of light bulbs adjacent to it, or none. Bulbs placed diagonally adjacent to a numbered cell do not contribute to the bulb count.</p>
+
+<p><img src="../images/lightup.gif" alt="Light Up"></p>
+
+<p><b>Cross+A</b> can solve puzzles from <b><span class="nbt">3 x 3</span></b> to <b><span class="nbt">30 x 30</span></b>.</p>
+
+<hr>
+
+<p><b>Mirror Akari</b> (<i>"!irakAkari!"</i>): a square or rectangular grid contains diagonal walls (black triangles) with mirrors.</p>
+
+<ul>
+<li>No two bulbs shine on each other, even by reflected light. A bulb cannot shine on itself.</li>
+<li>If a cell contains a diagonal wall ("mirror"), it should be lit.</li>
+<li>If a cell contains a diagonal line ("two-sided mirror"), both sides of a mirror should be lit.</li>
+<li>A cell with a mirror cannot contain a bulb.</li>
+</ul>
+
+<p><img src="../images/lightup1.gif" alt="Mirror Akari"></p>
+
+</body></html>

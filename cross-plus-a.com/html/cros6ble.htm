@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Anagram Search</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Anagram Search</h3>
+
+<p>There are three ways of anagram searching in the program:</p>
+
+<ul>
+
+<li><b>Anagrams Only</b><br><br>
+
+Search for precise anagrams, i.e. words, created by the text letters rearrangement. For example: <span class="nobr">miracle</span> = <i>reclaim</i>.<br><br>
+
+Wildcard characters can be used:<br><br>
+— <b>?</b> instead of<i> one</i> unknown letter;<br>
+— <b>@</b> instead of any <i>vowel</i>;<br>
+— <b>$</b> instead of any <i>consonant</i> letter;<br>
+— <b>0..9</b> instead of <i>duplicate</i> letters.<br><br>
+
+For example: <span class="nobr">magnet?</span> = <i>augment</i>, <i>garment</i>, <i>magenta</i>, <i>magnate</i>, <i>montage</i> etc.<br><br>
+
+User can find <a href="cros5rp0.htm">isograms</a>: <span class="nobr">112233</span> = <i>bilabial</i>, <i>Caucasus</i>.<br><br></li>
+
+
+<li><b>"Descending" Search</b><br><br>
+
+Search for all words that can be created from the text letters.<br><br>
+
+For example, for the word <span class="nobr">option</span> the program will find the word list: <i>point, piton, top, into, tip</i> etc.<br><br>
+
+User can find words, in which each letter occurs only once; query <span class="nobr">abcdefghijklmnopqrstuvwxyz</span> will return words: <i>ambidextrously</i>, <i>hydropneumatic</i>, <i>dermatoglyphics</i>, <i>hyperosculating</i>.<br><br></li>
+
+
+<li><b>"Ascending" Search</b><br><br>
+
+Search for all words that include all letters of the text.<br><br>
+
+For example, for the word <span class="nobr">element</span> the program will find the word list: <i>settlement</i>, <i>development</i>, <i>experimental</i>, <i>acknowledgement</i>, <i>electromagnetism</i> etc.</li>
+
+</ul>
+<br>
+
+<p>In "descending" and "ascending" modes the range of found words can be decreased using pattern (check box <b>Use pattern</b>). The special wildcard characters can be used in pattern: the character <b>?</b> is used instead of <i>one</i> unknown letter, the character <b>*</b> is used instead of <i>few</i> letters, <b>@</b> is used instead of any <i>vowel</i>, <b>$</b> is used instead of any <i>consonant</i> letter, <b>&amp;</b> is used instead of few <i>vowels</i>, <b>#</b> is used instead of few <i>consonant</i> letters, digits <b>0..9</b> are used instead of <i>duplicate</i> letters. The character <b>!</b> changes the meaning of next symbol on opposite. If there are few possible letters on the specific position in the word, these letters must be written in round brackets.</p>
+
+<p><a href="cros5rp0.htm">"Weight"</a> of found words also can be considered in search process. User can define the precise "weight" value for word searching.</p>
+
+</body></html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Database Editing</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Database Editing</h3>
+
+<p>The user can edit the program's database: add or delete words, change their descriptions. To add a new word, choose the main menu item <b>Edit|Add Word</b> and enter the word and its description. To delete a word, click and highlight it in the word list and choose the main menu item <b>Edit|Delete Word</b>. To change word's description, choose the main menu item <b>Edit|Change Description</b> (spell checker can help to find errors in words).</p>
+
+<p>Also a user can insert words from text files into the program's database (the supported formats: TXT, DOC, DOCX, ODT, RTF). Choose the main menu item <b>File|Text File Import</b> and define a file name for text import (button <b>File</b>). Each string of the text file must contain only one word (or a word and its description separated by a hyphen (a dash) or a blank). The text file must have the encoding "ANSI" (not "Unicode" or "UTF-8"). The program can replace the word descriptions in database by new from the text file or add new descriptions to the old descriptions. The user can insert in the database words with descriptions only (check box <b>Use words with descriptions only</b>). When the program adds new description to the old description it uses the separating symbol ("||" by default):</p>
+
+<dl>
+<dt><b>WORD</b></dt><dd><i>old description</i> || <i>new description</i></dd>
+</dl>
+
+<p>The user can choose another separating symbol (the main menu item <b>View|Options</b>).</p>
+
+<p>The user can compare the program's word-list with words from the user's text file. Choose the main menu item <b>File|Text File|Coincident Words</b>, and the program will show a list of equal words. Choose the main menu item <b>File|Text File|Non-coincident Words</b>, and the program will show a list of words from the user's text file which are absent in the program's database. If you want to find mistakes and misprints in the program's database, choose the main menu item <b>File|Text File|Similar Words</b>.</p>
+
+</body></html>

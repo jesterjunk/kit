@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=Windows-1252">
+<meta name="author" content="Ilya Morozov">
+<link href="htmlhelp.css" type="text/css" rel="stylesheet">
+<title>Nonogram</title>
+</head>
+
+<body>
+
+<script>
+<!-- 
+if (self == parent) {
+if (location.href.indexOf('cross-plus-a.com') != -1)
+document.write('<p class="lnk">Cross+A Help File: <a href="https://www.cross-plus-a.com/help.htm">www.cross-plus-a.com/help.htm</a></p><br>'); }
+// -->
+</script>
+
+<h3>Nonogram</h3>
+
+<p><b>Nonogram</b> (also known as <i>"Paint By Numbers", "Griddler", "CrossPix", "Hanjie"</i>) is a type of puzzles where it is necessary to draw the picture in accordance with the numbers to the left of the rows and on top of  the columns. The picture is made up of filled squares and blank (white) squares. The numbers indicate how many groups of filled or colored squares are contained in each row or column, and how many uninterrupted colored squares each group contains.</p>
+
+<p>Nonogram puzzle was invented by <b>Non Ishida</b> in Japan, therefore in some countries (for example, in Russia and Ukraine) it is called <i>"Japanese Crossword"</i>.</p>
+
+<p><img src="../images/nonogram.gif" alt="Nonogram"></p>
+
+<p><b>Cross+A</b> supports two types of nonograms:</p>
+
+<ul>
+
+<li><b>black-and-white</b> nonograms;</li>
+
+<li><b>multicolored</b> nonograms.</li>
+
+</ul>
+
+<p>User enumerates numbers in rows and columns via commas, for example: <span class="nobr">7,21,5,16</span></p>
+
+<p>If nonogram contains square groups of different colors (multicolored nonogram), color name of each group must be specified after its length, for example: <span class="nobr">3y,12d,5g</span></p>
+
+<p>Color abbreviations:</p>
+
+<table class="reftable">
+<tr><th>Color</th><th>Name</th><th>Abbreviation</th></tr>
+<tr><td style="background: aqua;">&nbsp;</td><td>Aqua</td><td style="text-align: center; font-weight: bold;">a</td></tr>
+<tr><td style="background: blue;">&nbsp;</td><td>Blue</td><td style="text-align: center; font-weight: bold;">b</td></tr>
+<tr><td style="background: darkgray;">&nbsp;</td><td>Darkgray</td><td style="text-align: center; font-weight: bold;">d</td></tr>
+<tr><td style="background: fuchsia;">&nbsp;</td><td>Fuchsia</td><td style="text-align: center; font-weight: bold;">f</td></tr>
+<tr><td style="background: green;">&nbsp;</td><td>Green</td><td style="text-align: center; font-weight: bold;">g</td></tr>
+<tr><td style="background: lime;">&nbsp;</td><td>Lime</td><td style="text-align: center; font-weight: bold;">l</td></tr>
+<tr><td style="background: maroon;">&nbsp;</td><td>Maroon</td><td style="text-align: center; font-weight: bold;">m</td></tr>
+<tr><td style="background: navy;">&nbsp;</td><td>Navy</td><td style="text-align: center; font-weight: bold;">n</td></tr>
+<tr><td style="background: olive;">&nbsp;</td><td>Olive</td><td style="text-align: center; font-weight: bold;">o</td></tr>
+<tr><td style="background: purple;">&nbsp;</td><td>Purple</td><td style="text-align: center; font-weight: bold;">p</td></tr>
+<tr><td style="background: red;">&nbsp;</td><td>Red</td><td style="text-align: center; font-weight: bold;">r</td></tr>
+<tr><td style="background: silver;">&nbsp;</td><td>Silver</td><td style="text-align: center; font-weight: bold;">s</td></tr>
+<tr><td style="background: teal;">&nbsp;</td><td>Teal</td><td style="text-align: center; font-weight: bold;">t</td></tr>
+<tr><td style="background: yellow;">&nbsp;</td><td>Yellow</td><td style="text-align: center; font-weight: bold;">y</td></tr>
+<tr><td style="background: black;">&nbsp;</td><td>Black [coal-black]</td><td style="text-align: center; font-weight: bold;">c</td></tr>
+</table>
+
+<p><b>Cross+A</b> supports four formats of nonogram description files:</p>
+
+<ul>
+
+<li><b>JCP</b> - black-and-white nonogram file. It contains numbers for the puzzle task.</li>
+
+<li><b>JCF</b> - black-and-white nonogram solution file. It contains the discription of image created using puzzle numbers.</li>
+
+</ul><ul>
+
+<li><b>PBN</b> - multicolored nonogram file. It contains numbers and color names for the puzzle task.</li>
+
+<li><b>NON</b> - multicolored nonogram solution file. It contains the discription of colored image.</li>
+
+</ul>
+
+<p>It is important to understand the difference between a <a href="cros5rp0.htm">nonogram file</a> and a <a href="cros5rp0.htm">nonogram solution file</a>: a nonogram file contains a TASK, a nonogram solution file contains an ANSWER. Nonogram solver has a deal only with nonogram files, nonogram editor works only with nonogram solution files.</p>
+
+<p>The nonogram editor can be used for puzzle image creating and editing. Left mouse button is used for black color drawing, right mouse button is used for white color drawing. User can select area, copy to clipboard and then insert block from clipboard to the image. Created image can be saved (exported) as a graphic file (Windows Bitmap, Windows Metafile, EPS, GIF, JPEG, PNG, SVG, TIFF and CorelDRAW formats are supported). Also nonogram can be created (imported) on the basis of existing graphic file (<i>for example, you can use scanned photos for the puzzle creating</i>); after image insertion from the file to the nonogram user can tune up its brightness.</p>
+
+</body></html>
