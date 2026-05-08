@@ -17,6 +17,10 @@
             <a href="https://jesterjunk.github.io/kit/aspect_ratio_list_calculator" title="Aspect Ratio List Calculator" target="_blank">Aspect Ratio List Calculator</a>
 </p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/duration_converter" title="Duration Converter" target="_blank">Duration Converter</a>
+</p>
+
 
 <h2><a href="#Color" title="Color" target="_blank">Color</a></h2>
 
