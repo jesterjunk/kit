@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-touch-icon" href="logo192.png" />
+    <link rel="manifest" href="manifest.json" />
+    <title>React App</title>
+    <link href="static/css/main.a26fc3b0.chunk.css" rel="stylesheet">
+</head>
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
+    (function() {
+        var default_x_requirements = ["4 4", "1 2 3 2", "13 1", "13", "4 2 2", "7 1 1", "1 4 1 2", "1 3 3", "1 4 1 2", "7 1", "4 2 1", "13", "8 3 2", "1 6 2", "4 4"];
+        var default_y_requirements = ["3 3", "1 1 5 1 1", "1 4 4 1", "6 6", "13", "12", "3 5 3", "6 6", "5 2 2", "1 2 3 2 1", "1 2 1 2 1", "1 2 3 2 1", "3 2 2 1 1", "1 2 3", "4 3"];
+        var canvas_grid_style = {
+            cell_size: 50,
+            background_color: "#ffffff",
+            filled_color: "#333333",
+            line_rgb: "rgb(128,128,128)",
+            line_opacity: 0.5,
+            line_width: 2,
+            thick_line_width: 4,
+            clue_text_color: "#111111",
+            clue_font_family: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        };
+        var app_state = {
+            size: [15, 15],
+            x_requirements: default_x_requirements.slice(),
+            y_requirements: default_y_requirements.slice(),
+            clue_text: "",
+            clue_error: "",
+            solution: null,
+            show_steps: false,
+            show_clues: true,
+            show_grid: true,
+            step_run_id: 0
+        };
+        var ui_refs = {};
+
+        function get_default_clue_text() {
+            return default_y_requirements.join("\n") + "\n#\n" + default_x_requirements.join("\n");
+        }
+
+        function get_number_control_markup(data_name) {
+            return '' +
+                '<div class="ant-input-number" data-size-control="' + data_name + '">' +
+                    '<div class="ant-input-number-handler-wrap">' +
+                        '<span unselectable="on" role="button" aria-label="Increase Value" aria-disabled="false" class="ant-input-number-handler ant-input-number-handler-up" data-action="up">' +
+                            '<i aria-label="icon: up" class="anticon anticon-up ant-input-number-handler-up-inner">' +
+                                '<svg viewBox="64 64 896 896" focusable="false" data-icon="up" width="1em" height="1em" fill="currentColor" aria-hidden="true">' +
+                                    '<path d="M890.5 755.3L537.9 269.2c-12.8-17.6-39-17.6-51.7 0L133.5 755.3A8 8 0 0 0 140 768h75c5.1 0 9.9-2.5 12.9-6.6L512 369.8l284.1 391.6c3 4.1 7.8 6.6 12.9 6.6h75c6.5 0 10.3-7.4 6.5-12.7z"></path>' +
+                                '</svg>' +
+                            '</i>' +
+                        '</span>' +
+                        '<span unselectable="on" role="button" aria-label="Decrease Value" aria-disabled="false" class="ant-input-number-handler ant-input-number-handler-down" data-action="down">' +
+                            '<i aria-label="icon: down" class="anticon anticon-down ant-input-number-handler-down-inner">' +
+                                '<svg viewBox="64 64 896 896" focusable="false" data-icon="down" width="1em" height="1em" fill="currentColor" aria-hidden="true">' +
+                                    '<path d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"></path>' +
+                                '</svg>' +
+                            '</i>' +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="ant-input-number-input-wrap" role="spinbutton" aria-valuemin="10" aria-valuenow="50">' +
+                        '<input class="ant-input-number-input" autocomplete="off" min="10" step="1" type="text">' +
+                    '</div>' +
+                '</div>';
+        }
+
+        function create_empty_solution(width, height) {
+            var solution = new Array(height);
+            var row_index = 0;
+            for (row_index = 0; row_index < height; row_index++) {
+                solution[row_index] = new Array(width).fill(false);
+            }
+            return solution;
+        }
+
+        function parse_requirements(value) {
+            return String(value == null ? "" : value).split(/\s+/).map(Number).filter(Boolean);
+        }
+
+        function parse_plain_clue_line(line) {
+            var trimmed_line = String(line == null ? "" : line).trim();
+            var parts = [];
+            var index = 0;
+            if (!trimmed_line) {
+                return { ok: true, value: "" };
+            }
+            parts = trimmed_line.split(/\s+/);
+            for (index = 0; index < parts.length; index++) {
+                if (!/^\d+$/.test(parts[index])) {
+                    return { ok: false, error: "Invalid clue line: " + trimmed_line };
+                }
+                parts[index] = String(parseInt(parts[index], 10));
+            }
+            return { ok: true, value: parts.join(" ") };
+        }
+
+        function parse_g_clue_line(line) {
+            var trimmed_line = String(line == null ? "" : line).trim();
+            var matches = null;
+            var values = [];
+            var index = 0;
+            if (!trimmed_line) {
+                return { ok: true, value: "" };
+            }
+            matches = trimmed_line.match(/\d+[A-Za-z]?/g);
+            if (!matches || !matches.length) {
+                return { ok: false, error: "Invalid .g clue line: " + trimmed_line };
+            }
+            for (index = 0; index < matches.length; index++) {
+                values.push(String(parseInt(matches[index], 10)));
+            }
+            return { ok: true, value: values.join(" ") };
+        }
+
+        function parse_format_one(non_empty_lines) {
+            var separator_index = -1;
+            var row_lines = [];
+            var column_lines = [];
+            var parsed_rows = [];
+            var parsed_columns = [];
+            var line_result = null;
+            var index = 0;
+
+            for (index = 0; index < non_empty_lines.length; index++) {
+                if (non_empty_lines[index] === "#") {
+                    separator_index = index;
+                    break;
+                }
+            }
+
+            if (separator_index <= 0 || separator_index >= non_empty_lines.length - 1) {
+                return { ok: false, error: "Format 1 must contain rows, a # separator, and columns." };
+            }
+
+            row_lines = non_empty_lines.slice(0, separator_index);
+            column_lines = non_empty_lines.slice(separator_index + 1);
+
+            for (index = 0; index < row_lines.length; index++) {
+                line_result = parse_plain_clue_line(row_lines[index]);
+                if (!line_result.ok) {
+                    return line_result;
+                }
+                parsed_rows.push(line_result.value);
+            }
+
+            for (index = 0; index < column_lines.length; index++) {
+                line_result = parse_plain_clue_line(column_lines[index]);
+                if (!line_result.ok) {
+                    return line_result;
+                }
+                parsed_columns.push(line_result.value);
+            }
+
+            return {
+                ok: true,
+                width: parsed_columns.length,
+                height: parsed_rows.length,
+                y_requirements: parsed_rows,
+                x_requirements: parsed_columns
+            };
+        }
+
+        function parse_format_two(non_empty_lines) {
+            var size_parts = non_empty_lines[0].split(/\s+/);
+            var width = 0;
+            var height = 0;
+            var row_lines = [];
+            var column_lines = [];
+            var parsed_rows = [];
+            var parsed_columns = [];
+            var line_result = null;
+            var index = 0;
+
+            if (size_parts.length !== 2 || !/^\d+$/.test(size_parts[0]) || !/^\d+$/.test(size_parts[1])) {
+                return { ok: false, error: "Invalid size line in format 2." };
+            }
+
+            width = parseInt(size_parts[0], 10);
+            height = parseInt(size_parts[1], 10);
+
+            if (width < 1 || height < 1) {
+                return { ok: false, error: "Invalid size line in format 2." };
+            }
+
+            if (non_empty_lines.length !== 1 + height + width) {
+                return { ok: false, error: "Format 2 line count does not match the provided size." };
+            }
+
+            row_lines = non_empty_lines.slice(1, 1 + height);
+            column_lines = non_empty_lines.slice(1 + height);
+
+            for (index = 0; index < row_lines.length; index++) {
+                line_result = parse_plain_clue_line(row_lines[index]);
+                if (!line_result.ok) {
+                    return line_result;
+                }
+                parsed_rows.push(line_result.value);
+            }
+
+            for (index = 0; index < column_lines.length; index++) {
+                line_result = parse_plain_clue_line(column_lines[index]);
+                if (!line_result.ok) {
+                    return line_result;
+                }
+                parsed_columns.push(line_result.value);
+            }
+
+            return {
+                ok: true,
+                width: width,
+                height: height,
+                y_requirements: parsed_rows,
+                x_requirements: parsed_columns
+            };
+        }
+
+        function parse_format_three(raw_text) {
+            var lines = String(raw_text == null ? "" : raw_text).replace(/\r/g, "").split("\n");
+            var rows_index = -1;
+            var columns_index = -1;
+            var row_lines = [];
+            var column_lines = [];
+            var parsed_rows = [];
+            var parsed_columns = [];
+            var trimmed_line = "";
+            var line_result = null;
+            var index = 0;
+
+            for (index = 0; index < lines.length; index++) {
+                trimmed_line = lines[index].trim().toLowerCase();
+                if (trimmed_line === ": rows") {
+                    rows_index = index;
+                } else if (trimmed_line === ": columns") {
+                    columns_index = index;
+                }
+            }
+
+            if (rows_index === -1 || columns_index === -1 || columns_index <= rows_index) {
+                return { ok: false, error: "Invalid .g format." };
+            }
+
+            for (index = rows_index + 1; index < columns_index; index++) {
+                trimmed_line = lines[index].trim();
+                if (trimmed_line) {
+                    row_lines.push(trimmed_line);
+                }
+            }
+
+            for (index = columns_index + 1; index < lines.length; index++) {
+                trimmed_line = lines[index].trim();
+                if (trimmed_line) {
+                    column_lines.push(trimmed_line);
+                }
+            }
+
+            if (!row_lines.length || !column_lines.length) {
+                return { ok: false, error: "Invalid .g format." };
+            }
+
+            for (index = 0; index < row_lines.length; index++) {
+                line_result = parse_g_clue_line(row_lines[index]);
+                if (!line_result.ok) {
+                    return line_result;
+                }
+                parsed_rows.push(line_result.value);
+            }
+
+            for (index = 0; index < column_lines.length; index++) {
+                line_result = parse_g_clue_line(column_lines[index]);
+                if (!line_result.ok) {
+                    return line_result;
+                }
+                parsed_columns.push(line_result.value);
+            }
+
+            return {
+                ok: true,
+                width: parsed_columns.length,
+                height: parsed_rows.length,
+                y_requirements: parsed_rows,
+                x_requirements: parsed_columns
+            };
+        }
+
+        function parse_clue_text(raw_text) {
+            var normalized_text = String(raw_text == null ? "" : raw_text).replace(/\uFEFF/g, "");
+            var trimmed_text = normalized_text.trim();
+            var non_empty_lines = [];
+            var first_parts = [];
+            var expected_count = 0;
+
+            if (!trimmed_text) {
+                return { ok: false, error: "Enter clues." };
+            }
+
+            if (/(^|\n)\s*: rows\s*($|\n)/i.test(normalized_text) && /(^|\n)\s*: columns\s*($|\n)/i.test(normalized_text)) {
+                return parse_format_three(normalized_text);
+            }
+
+            non_empty_lines = trimmed_text.split(/\n/).map(function(line) {
+                return line.trim();
+            }).filter(function(line) {
+                return line.length > 0;
+            });
+
+            if (!non_empty_lines.length) {
+                return { ok: false, error: "Enter clues." };
+            }
+
+            if (non_empty_lines.indexOf("#") !== -1) {
+                return parse_format_one(non_empty_lines);
+            }
+
+            first_parts = non_empty_lines[0].split(/\s+/);
+            if (first_parts.length === 2 && /^\d+$/.test(first_parts[0]) && /^\d+$/.test(first_parts[1])) {
+                expected_count = 1 + parseInt(first_parts[0], 10) + parseInt(first_parts[1], 10);
+                if (non_empty_lines.length === expected_count) {
+                    return parse_format_two(non_empty_lines);
+                }
+            }
+
+            return { ok: false, error: "Unsupported clue format." };
+        }
+
+        function apply_parsed_clues(parsed_result) {
+            app_state.size = [parsed_result.width, parsed_result.height];
+            app_state.y_requirements = parsed_result.y_requirements.slice();
+            app_state.x_requirements = parsed_result.x_requirements.slice();
+            app_state.solution = null;
+            app_state.step_run_id += 1;
+        }
+
+        function parse_and_apply_clue_text() {
+            var parsed_result = parse_clue_text(app_state.clue_text);
+            if (!parsed_result.ok) {
+                app_state.clue_error = parsed_result.error;
+                render_clue_textarea();
+                return false;
+            }
+            app_state.clue_error = "";
+            apply_parsed_clues(parsed_result);
+            build_board_structure();
+            render_all();
+            return true;
+        }
+
+        function set_cell_size_value(next_value) {
+            var parsed_value = parseInt(next_value, 10);
+            if (!isFinite(parsed_value) || parsed_value < 10) {
+                render_cell_size_control();
+                return;
+            }
+            canvas_grid_style.cell_size = parsed_value;
+            build_board_structure();
+            render_all();
+        }
+
+        function render_cell_size_control() {
+            var cell_size_wrapper = ui_refs.cell_size_control.querySelector(".ant-input-number-input-wrap");
+            ui_refs.cell_size_input.value = String(canvas_grid_style.cell_size);
+            cell_size_wrapper.setAttribute("aria-valuenow", String(canvas_grid_style.cell_size));
+        }
+
+        function render_clue_textarea() {
+            if (ui_refs.clue_textarea.value !== app_state.clue_text) {
+                ui_refs.clue_textarea.value = app_state.clue_text;
+            }
+            ui_refs.clue_form_item.className = app_state.clue_error ? "ant-row ant-form-item has-error ant-form-item-with-help" : "ant-row ant-form-item";
+            ui_refs.clue_help.textContent = app_state.clue_error;
+            ui_refs.clue_help.style.display = app_state.clue_error ? "" : "none";
+        }
+
+        function render_checkbox(input_ref, box_ref, value) {
+            input_ref.checked = value;
+            if (value) {
+                box_ref.className = "ant-checkbox ant-checkbox-checked";
+            } else {
+                box_ref.className = "ant-checkbox";
+            }
+        }
+
+        function get_max_clue_length(requirements) {
+            var max_length = 0;
+            var index = 0;
+            var current_length = 0;
+            for (index = 0; index < requirements.length; index++) {
+                current_length = parse_requirements(requirements[index]).length;
+                if (current_length > max_length) {
+                    max_length = current_length;
+                }
+            }
+            return max_length;
+        }
+
+        function get_board_metrics() {
+            var row_clue_columns = app_state.show_clues ? get_max_clue_length(app_state.y_requirements) : 0;
+            var column_clue_rows = app_state.show_clues ? get_max_clue_length(app_state.x_requirements) : 0;
+            var puzzle_width = app_state.size[0];
+            var puzzle_height = app_state.size[1];
+            var total_columns = row_clue_columns + puzzle_width;
+            var total_rows = column_clue_rows + puzzle_height;
+            return {
+                cell_size: canvas_grid_style.cell_size,
+                row_clue_columns: row_clue_columns,
+                column_clue_rows: column_clue_rows,
+                puzzle_width: puzzle_width,
+                puzzle_height: puzzle_height,
+                total_columns: total_columns,
+                total_rows: total_rows,
+                total_width: total_columns * canvas_grid_style.cell_size,
+                total_height: total_rows * canvas_grid_style.cell_size,
+                puzzle_offset_x: row_clue_columns * canvas_grid_style.cell_size,
+                puzzle_offset_y: column_clue_rows * canvas_grid_style.cell_size
+            };
+        }
+
+        function setup_grid_canvas(metrics) {
+            ui_refs.grid_canvas.width = metrics.total_width;
+            ui_refs.grid_canvas.height = metrics.total_height;
+            ui_refs.grid_canvas.style.width = String(metrics.total_width) + "px";
+            ui_refs.grid_canvas.style.height = String(metrics.total_height) + "px";
+        }
+
+        function get_vertical_line_width(boundary_index, metrics) {
+            var puzzle_boundary = boundary_index - metrics.row_clue_columns;
+            if (boundary_index === 0 || boundary_index === metrics.total_columns) {
+                return canvas_grid_style.line_width;
+            }
+            if (puzzle_boundary > 0 && puzzle_boundary < metrics.puzzle_width && puzzle_boundary % 5 === 0) {
+                return canvas_grid_style.thick_line_width;
+            }
+            return canvas_grid_style.line_width;
+        }
+
+        function get_horizontal_line_width(boundary_index, metrics) {
+            var puzzle_boundary = boundary_index - metrics.column_clue_rows;
+            if (boundary_index === 0 || boundary_index === metrics.total_rows) {
+                return canvas_grid_style.line_width;
+            }
+            if (puzzle_boundary > 0 && puzzle_boundary < metrics.puzzle_height && puzzle_boundary % 5 === 0) {
+                return canvas_grid_style.thick_line_width;
+            }
+            return canvas_grid_style.line_width;
+        }
+
+        function get_line_position(boundary_index, total_count, cell_size, line_width) {
+            if (boundary_index === 0) {
+                return 0;
+            }
+            if (boundary_index === total_count) {
+                return total_count * cell_size - line_width;
+            }
+            return boundary_index * cell_size - Math.floor(line_width / 2);
+        }
+
+        function draw_grid_overlay(context, metrics) {
+            var mask_canvas = document.createElement("canvas");
+            var mask_context = null;
+            var boundary_index = 0;
+            var line_width = 0;
+            var line_position = 0;
+
+            mask_canvas.width = metrics.total_width;
+            mask_canvas.height = metrics.total_height;
+            mask_context = mask_canvas.getContext("2d");
+            mask_context.fillStyle = canvas_grid_style.line_rgb;
+
+            for (boundary_index = 0; boundary_index <= metrics.total_columns; boundary_index++) {
+                line_width = get_vertical_line_width(boundary_index, metrics);
+                line_position = get_line_position(boundary_index, metrics.total_columns, metrics.cell_size, line_width);
+                mask_context.fillRect(line_position, 0, line_width, metrics.total_height);
+            }
+
+            for (boundary_index = 0; boundary_index <= metrics.total_rows; boundary_index++) {
+                line_width = get_horizontal_line_width(boundary_index, metrics);
+                line_position = get_line_position(boundary_index, metrics.total_rows, metrics.cell_size, line_width);
+                mask_context.fillRect(0, line_position, metrics.total_width, line_width);
+            }
+
+            context.save();
+            context.globalAlpha = canvas_grid_style.line_opacity;
+            context.drawImage(mask_canvas, 0, 0);
+            context.restore();
+        }
+
+        function get_clue_font(metrics) {
+            var font_size = Math.max(10, Math.min(metrics.cell_size * 0.48, metrics.cell_size - 8));
+            return "600 " + String(font_size) + "px " + canvas_grid_style.clue_font_family;
+        }
+
+        function draw_clues(context, metrics) {
+            var row_index = 0;
+            var column_index = 0;
+            var values = [];
+            var value_index = 0;
+            var x = 0;
+            var y = 0;
+
+            if (!app_state.show_clues) {
+                return;
+            }
+
+            context.save();
+            context.fillStyle = canvas_grid_style.clue_text_color;
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.font = get_clue_font(metrics);
+
+            for (row_index = 0; row_index < app_state.y_requirements.length; row_index++) {
+                values = parse_requirements(app_state.y_requirements[row_index]);
+                for (value_index = 0; value_index < values.length; value_index++) {
+                    x = (metrics.row_clue_columns - values.length + value_index) * metrics.cell_size + metrics.cell_size / 2;
+                    y = (metrics.column_clue_rows + row_index) * metrics.cell_size + metrics.cell_size / 2;
+                    context.fillText(String(values[value_index]), x, y);
+                }
+            }
+
+            for (column_index = 0; column_index < app_state.x_requirements.length; column_index++) {
+                values = parse_requirements(app_state.x_requirements[column_index]);
+                for (value_index = 0; value_index < values.length; value_index++) {
+                    x = (metrics.row_clue_columns + column_index) * metrics.cell_size + metrics.cell_size / 2;
+                    y = (metrics.column_clue_rows - values.length + value_index) * metrics.cell_size + metrics.cell_size / 2;
+                    context.fillText(String(values[value_index]), x, y);
+                }
+            }
+
+            context.restore();
+        }
+
+        function draw_filled_cells(context, metrics) {
+            var row_index = 0;
+            var column_index = 0;
+
+            if (!app_state.solution) {
+                return;
+            }
+
+            context.save();
+            context.fillStyle = canvas_grid_style.filled_color;
+
+            for (row_index = 0; row_index < app_state.size[1]; row_index++) {
+                for (column_index = 0; column_index < app_state.size[0]; column_index++) {
+                    if (app_state.solution[row_index] && app_state.solution[row_index][column_index]) {
+                        context.fillRect(
+                            metrics.puzzle_offset_x + column_index * metrics.cell_size,
+                            metrics.puzzle_offset_y + row_index * metrics.cell_size,
+                            metrics.cell_size,
+                            metrics.cell_size
+                        );
+                    }
+                }
+            }
+
+            context.restore();
+        }
+
+        function draw_grid_canvas() {
+            var metrics = get_board_metrics();
+            var context = ui_refs.grid_canvas.getContext("2d");
+
+            context.clearRect(0, 0, metrics.total_width, metrics.total_height);
+            context.fillStyle = canvas_grid_style.background_color;
+            context.fillRect(0, 0, metrics.total_width, metrics.total_height);
+
+            draw_filled_cells(context, metrics);
+
+            if (app_state.show_grid) {
+                draw_grid_overlay(context, metrics);
+            }
+
+            draw_clues(context, metrics);
+        }
+
+        function render_all() {
+            render_cell_size_control();
+            render_clue_textarea();
+            render_checkbox(ui_refs.show_clues_input, ui_refs.show_clues_box, app_state.show_clues);
+            render_checkbox(ui_refs.show_grid_input, ui_refs.show_grid_box, app_state.show_grid);
+            render_checkbox(ui_refs.show_steps_input, ui_refs.show_steps_box, app_state.show_steps);
+            draw_grid_canvas();
+        }
+
+        function build_board_structure() {
+            var metrics = get_board_metrics();
+            ui_refs.board.innerHTML = '<canvas data-grid-canvas="true" style="display:block;background:' + canvas_grid_style.background_color + ';"></canvas>';
+            ui_refs.grid_canvas = ui_refs.board.querySelector("[data-grid-canvas='true']");
+            ui_refs.board.style.width = String(metrics.total_width) + "px";
+            ui_refs.board.style.height = String(metrics.total_height) + "px";
+            setup_grid_canvas(metrics);
+        }
+
+        function solve_nonogram(config) {
+            var x_requirements = config.x_requirements;
+            var y_requirements = config.y_requirements;
+            var width = config.width;
+            var height = config.height;
+            var solution = create_empty_solution(width, height);
+            var steps = [];
+
+            function line_is_valid(requirements, total_length, max_index, getter) {
+                var requirement_index = 0;
+                var run_length = 0;
+                var in_run = false;
+                var current_index = 0;
+
+                for (current_index = 0; current_index <= max_index; current_index++) {
+                    if (getter(current_index)) {
+                        run_length += 1;
+                        if (!in_run && requirement_index >= requirements.length) {
+                            return false;
+                        }
+                        in_run = true;
+                    } else {
+                        if (in_run) {
+                            if (requirements[requirement_index] !== run_length) {
+                                return false;
+                            }
+                            run_length = 0;
+                            requirement_index += 1;
+                        }
+                        in_run = false;
+                    }
+                }
+
+                if (max_index === total_length - 1) {
+                    if (in_run) {
+                        return requirement_index === requirements.length - 1 && run_length === requirements[requirement_index];
+                    }
+                    return requirement_index === requirements.length;
+                }
+
+                return !in_run || run_length <= requirements[requirement_index];
+            }
+
+            function cell_is_valid(row_index, column_index) {
+                return line_is_valid(x_requirements[column_index], height, row_index, function(index) {
+                    return solution[index][column_index];
+                }) && line_is_valid(y_requirements[row_index], width, column_index, function(index) {
+                    return solution[row_index][index];
+                });
+            }
+
+            function solve_next(row_index, column_index) {
+                var next_row_index = row_index + (column_index + 1 === width ? 1 : 0);
+                var next_column_index = (column_index + 1) % width;
+
+                if (row_index === height) {
+                    return true;
+                }
+
+                steps.push({ mark: true, i: row_index, j: column_index });
+                solution[row_index][column_index] = true;
+                if (cell_is_valid(row_index, column_index) && solve_next(next_row_index, next_column_index)) {
+                    return true;
+                }
+
+                steps.push({ mark: false, i: row_index, j: column_index });
+                solution[row_index][column_index] = false;
+                if (cell_is_valid(row_index, column_index) && solve_next(next_row_index, next_column_index)) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (solve_next(0, 0)) {
+                return [solution, steps];
+            }
+
+            return null;
+        }
+
+        function create_shell() {
+            var root_element = document.getElementById("root");
+            root_element.innerHTML = '' +
+                '<div style="padding-top:16px;text-align:center;">' +
+                    '<div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;">' +
+                        '<span>Cell size</span>' +
+                        get_number_control_markup("cell_size") +
+                        '<label class="ant-checkbox-wrapper">' +
+                            '<span class="ant-checkbox" data-toggle-box="show_clues">' +
+                                '<input type="checkbox" class="ant-checkbox-input" data-toggle-input="show_clues" value="">' +
+                                '<span class="ant-checkbox-inner"></span>' +
+                            '</span>' +
+                            '<span>Show Clues</span>' +
+                        '</label>' +
+                        '<label class="ant-checkbox-wrapper">' +
+                            '<span class="ant-checkbox" data-toggle-box="show_grid">' +
+                                '<input type="checkbox" class="ant-checkbox-input" data-toggle-input="show_grid" value="">' +
+                                '<span class="ant-checkbox-inner"></span>' +
+                            '</span>' +
+                            '<span>Show Grid</span>' +
+                        '</label>' +
+                        '<label class="ant-checkbox-wrapper">' +
+                            '<span class="ant-checkbox" data-toggle-box="show_steps">' +
+                                '<input type="checkbox" class="ant-checkbox-input" data-toggle-input="show_steps" value="">' +
+                                '<span class="ant-checkbox-inner"></span>' +
+                            '</span>' +
+                            '<span>Show Steps</span>' +
+                        '</label>' +
+                    '</div>' +
+                    '<div class="ant-row ant-form-item" style="width:min(960px,calc(100vw - 32px));margin:16px auto 0;text-align:left;">' +
+                        '<div class="ant-col ant-form-item-control-wrapper">' +
+                            '<div class="ant-form-item-control">' +
+                                '<span class="ant-form-item-children">' +
+                                    '<textarea class="ant-input" rows="12" spellcheck="false" style="resize:vertical;font-family:monospace;"></textarea>' +
+                                '</span>' +
+                                '<div class="ant-form-explain" style="display:none;"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="NonogramSolver_nonogram__23Kjy"></div>' +
+                    '<button type="button" class="ant-btn ant-btn-primary"><span>Solve</span></button>' +
+                '</div>';
+
+            ui_refs.cell_size_control = root_element.querySelector("[data-size-control='cell_size']");
+            ui_refs.cell_size_input = ui_refs.cell_size_control.querySelector(".ant-input-number-input");
+            ui_refs.clue_form_item = root_element.querySelector(".ant-row.ant-form-item");
+            ui_refs.clue_textarea = ui_refs.clue_form_item.querySelector("textarea");
+            ui_refs.clue_help = ui_refs.clue_form_item.querySelector(".ant-form-explain");
+            ui_refs.board = root_element.querySelector(".NonogramSolver_nonogram__23Kjy");
+            ui_refs.solve_button = root_element.querySelector(".ant-btn-primary");
+            ui_refs.show_clues_box = root_element.querySelector("[data-toggle-box='show_clues']");
+            ui_refs.show_clues_input = root_element.querySelector("[data-toggle-input='show_clues']");
+            ui_refs.show_grid_box = root_element.querySelector("[data-toggle-box='show_grid']");
+            ui_refs.show_grid_input = root_element.querySelector("[data-toggle-input='show_grid']");
+            ui_refs.show_steps_box = root_element.querySelector("[data-toggle-box='show_steps']");
+            ui_refs.show_steps_input = root_element.querySelector("[data-toggle-input='show_steps']");
+
+            ui_refs.cell_size_control.querySelector("[data-action='up']").addEventListener("click", function() {
+                set_cell_size_value(canvas_grid_style.cell_size + 1);
+            });
+
+            ui_refs.cell_size_control.querySelector("[data-action='down']").addEventListener("click", function() {
+                set_cell_size_value(Math.max(10, canvas_grid_style.cell_size - 1));
+            });
+
+            ui_refs.cell_size_input.addEventListener("input", function(event) {
+                set_cell_size_value(event.currentTarget.value);
+            });
+
+            ui_refs.cell_size_input.addEventListener("blur", function() {
+                render_cell_size_control();
+            });
+
+            ui_refs.clue_textarea.addEventListener("input", function(event) {
+                app_state.clue_text = event.currentTarget.value;
+                app_state.clue_error = "";
+                render_clue_textarea();
+            });
+
+            ui_refs.clue_textarea.addEventListener("blur", function() {
+                parse_and_apply_clue_text();
+            });
+
+            ui_refs.show_clues_input.addEventListener("change", function() {
+                app_state.show_clues = !!ui_refs.show_clues_input.checked;
+                build_board_structure();
+                render_all();
+            });
+
+            ui_refs.show_grid_input.addEventListener("change", function() {
+                app_state.show_grid = !!ui_refs.show_grid_input.checked;
+                render_all();
+            });
+
+            ui_refs.show_steps_input.addEventListener("change", function() {
+                app_state.show_steps = !!ui_refs.show_steps_input.checked;
+                render_all();
+            });
+
+            ui_refs.solve_button.addEventListener("click", function() {
+                var solved = null;
+                var final_solution = null;
+                var step_marks = null;
+
+                if (!parse_and_apply_clue_text()) {
+                    return;
+                }
+
+                solved = solve_nonogram({
+                    x_requirements: app_state.x_requirements.map(parse_requirements),
+                    y_requirements: app_state.y_requirements.map(parse_requirements),
+                    width: app_state.size[0],
+                    height: app_state.size[1]
+                });
+
+                if (!solved) {
+                    return;
+                }
+
+                final_solution = solved[0];
+                step_marks = solved[1];
+                app_state.step_run_id += 1;
+
+                if (app_state.show_steps) {
+                    var current_run_id = app_state.step_run_id;
+                    var step_index = 0;
+
+                    app_state.solution = create_empty_solution(app_state.size[0], app_state.size[1]);
+                    draw_grid_canvas();
+
+                    function apply_next_step() {
+                        window.setTimeout(function() {
+                            var step = null;
+
+                            if (current_run_id !== app_state.step_run_id) {
+                                return;
+                            }
+
+                            if (step_index >= step_marks.length) {
+                                return;
+                            }
+
+                            step = step_marks[step_index];
+                            if (app_state.solution && app_state.solution[step.i] && typeof app_state.solution[step.i][step.j] !== "undefined") {
+                                app_state.solution[step.i][step.j] = step.mark;
+                            }
+
+                            step_index += 1;
+                            draw_grid_canvas();
+
+                            if (step_index < step_marks.length) {
+                                apply_next_step();
+                            }
+                        }, 0);
+                    }
+
+                    apply_next_step();
+                } else {
+                    app_state.solution = final_solution;
+                    draw_grid_canvas();
+                }
+            });
+        }
+
+        app_state.clue_text = get_default_clue_text();
+        create_shell();
+        build_board_structure();
+        render_all();
+    }());
+    </script>
+</body>
+</html>

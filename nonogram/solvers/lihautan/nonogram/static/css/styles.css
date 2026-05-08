@@ -1,0 +1,441 @@
+html,
+body {
+    width: 100%;
+    height: 100%
+}
+
+body {
+    margin: 0;
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+    background-color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+
+*,
+:before,
+:after {
+    box-sizing: border-box
+}
+
+button,
+input {
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    line-height: inherit
+}
+
+button {
+    overflow: visible;
+    text-transform: none
+}
+
+input[type=text] {
+    -webkit-appearance: none
+}
+
+.anticon {
+    display: inline-block;
+    color: inherit;
+    font-style: normal;
+    line-height: 0;
+    text-align: center;
+    text-transform: none;
+    vertical-align: -.125em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+
+.anticon>* {
+    line-height: 1
+}
+
+.anticon svg {
+    display: inline-block
+}
+
+.ant-row,
+.ant-col {
+    position: relative
+}
+
+.ant-form-item {
+    margin: 0 0 24px;
+    padding: 0;
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    line-height: 1.5;
+    vertical-align: top
+}
+
+.NonogramSolver_input__2ERQM {
+    align-self: center
+}
+
+.NonogramSolver_input__2ERQM.ant-form-item {
+    margin-bottom: 0
+}
+
+.ant-form-item-control {
+    position: relative;
+    line-height: 40px
+}
+
+.ant-form-item-children {
+    position: relative;
+    display: block
+}
+
+.ant-form-item-with-help {
+    margin-bottom: 5px
+}
+
+.ant-form-explain {
+    clear: both;
+    min-height: 22px;
+    margin-top: -2px;
+    margin-bottom: -1px;
+    color: rgba(0, 0, 0, .45);
+    font-size: 14px;
+    line-height: 1.5
+}
+
+.ant-input {
+    display: inline-block;
+    width: 100%;
+    height: 32px;
+    padding: 4px 11px;
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    transition: all .3s
+}
+
+.ant-input:hover {
+    border-color: #40a9ff;
+    border-right-width: 1px !important
+}
+
+.ant-input:focus {
+    border-color: #40a9ff;
+    border-right-width: 1px !important;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, .2)
+}
+
+.ant-input-sm {
+    height: 24px;
+    padding: 1px 7px
+}
+
+.has-error .ant-input,
+.has-error .ant-input:hover {
+    background-color: #fff;
+    border-color: #f5222d
+}
+
+.has-error .ant-input:focus {
+    border-color: #ff4d4f;
+    border-right-width: 1px !important;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(245, 34, 45, .2)
+}
+
+.has-error .ant-form-explain {
+    color: #f5222d
+}
+
+.ant-input-number {
+    position: relative;
+    display: inline-block;
+    width: 90px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    transition: all .3s
+}
+
+.ant-input-number:hover,
+.ant-input-number:focus-within {
+    border-color: #40a9ff;
+    border-right-width: 1px !important
+}
+
+.ant-input-number:focus-within {
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, .2)
+}
+
+.ant-input-number-input-wrap {
+    height: 100%
+}
+
+.ant-input-number-input {
+    width: 100%;
+    height: 30px;
+    padding: 0 11px;
+    text-align: left;
+    background-color: transparent;
+    border: 0;
+    border-radius: 4px;
+    outline: 0;
+    transition: all .3s linear;
+    -moz-appearance: textfield !important
+}
+
+.ant-input-number-input::-webkit-inner-spin-button,
+.ant-input-number-input::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none
+}
+
+.ant-input-number-handler-wrap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    width: 22px;
+    height: 100%;
+    background: #fff;
+    border-left: 1px solid #d9d9d9;
+    border-radius: 0 4px 4px 0;
+    opacity: 0;
+    transition: opacity .24s linear .1s
+}
+
+.ant-input-number:hover .ant-input-number-handler-wrap,
+.ant-input-number:focus-within .ant-input-number-handler-wrap {
+    opacity: 1
+}
+
+.ant-input-number-handler {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 50%;
+    overflow: hidden;
+    color: rgba(0, 0, 0, .45);
+    font-weight: 700;
+    line-height: 0;
+    text-align: center;
+    transition: all .1s linear;
+    cursor: pointer
+}
+
+.ant-input-number-handler:active {
+    background: #f4f4f4
+}
+
+.ant-input-number-handler-wrap:hover .ant-input-number-handler {
+    height: 40%
+}
+
+.ant-input-number-handler-up:hover,
+.ant-input-number-handler-down:hover {
+    height: 60% !important
+}
+
+.ant-input-number-handler-down {
+    top: 0;
+    border-top: 1px solid #d9d9d9
+}
+
+.ant-input-number-handler-down-inner,
+.ant-input-number-handler-up-inner {
+    position: absolute;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+    color: rgba(0, 0, 0, .45);
+    line-height: 12px;
+    text-align: center;
+    transition: all .1s linear;
+    user-select: none
+}
+
+.ant-input-number-handler-up:hover .ant-input-number-handler-up-inner,
+.ant-input-number-handler-down:hover .ant-input-number-handler-down-inner {
+    color: #40a9ff
+}
+
+.ant-input-number-handler-up-inner {
+    top: 50%;
+    margin-top: -5px
+}
+
+.ant-input-number-handler-down-inner {
+    top: 50%;
+    margin-top: -6px
+}
+
+.ant-btn {
+    position: relative;
+    display: inline-block;
+    height: 32px;
+    padding: 0 15px;
+    color: rgba(0, 0, 0, .65);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .015);
+    cursor: pointer;
+    transition: all .3s cubic-bezier(.645, .045, .355, 1);
+    user-select: none
+}
+
+.ant-btn,
+.ant-btn:focus,
+.ant-btn:active {
+    outline: 0
+}
+
+.ant-btn:hover,
+.ant-btn:focus {
+    color: #40a9ff;
+    background-color: #fff;
+    border-color: #40a9ff
+}
+
+.ant-btn:active {
+    color: #096dd9;
+    background-color: #fff;
+    border-color: #096dd9;
+    box-shadow: none
+}
+
+.ant-btn-primary {
+    color: #fff;
+    background-color: #1890ff;
+    border-color: #1890ff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .12);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .045)
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+    color: #fff;
+    background-color: #40a9ff;
+    border-color: #40a9ff
+}
+
+.ant-btn-primary:active {
+    color: #fff;
+    background-color: #096dd9;
+    border-color: #096dd9
+}
+
+.ant-checkbox-wrapper {
+    display: inline-block;
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    line-height: 1.5;
+    cursor: pointer
+}
+
+.ant-checkbox {
+    position: relative;
+    top: -.09em;
+    display: inline-block;
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: middle;
+    outline: none;
+    cursor: pointer
+}
+
+.ant-checkbox+span {
+    padding-right: 8px;
+    padding-left: 8px
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.ant-checkbox:hover .ant-checkbox-inner,
+.ant-checkbox-input:focus+.ant-checkbox-inner {
+    border-color: #1890ff
+}
+
+.ant-checkbox-inner {
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+    transition: all .3s
+}
+
+.ant-checkbox-inner:after {
+    position: absolute;
+    top: 50%;
+    left: 21%;
+    display: table;
+    width: 5.71428571px;
+    height: 9.14285714px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg) scale(0) translate(-50%, -50%);
+    opacity: 0;
+    transition: all .1s cubic-bezier(.71, -.46, .88, .6), opacity .1s;
+    content: " "
+}
+
+.ant-checkbox-input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    opacity: 0
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #1890ff;
+    border-color: #1890ff
+}
+
+.ant-checkbox-checked .ant-checkbox-inner:after {
+    transform: rotate(45deg) scale(1) translate(-50%, -50%);
+    opacity: 1;
+    transition: all .2s cubic-bezier(.12, .4, .29, 1.46) .1s
+}
+
+.NonogramSolver_nonogram__23Kjy {
+    display: grid;
+    margin: 16px auto
+}
+
+.NonogramSolver_block__3qhGM {
+    display: inline-block;
+    border: 1px solid #000
+}

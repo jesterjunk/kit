@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-touch-icon" href="logo192.png" />
+    <link rel="manifest" href="manifest.json" />
+    <title>React App</title>
+    <link href="static/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
+    (function() {
+        var default_x_requirements = ["4 4", "1 2 3 2", "13 1", "13", "4 2 2", "7 1 1", "1 4 1 2", "1 3 3", "1 4 1 2", "7 1", "4 2 1", "13", "8 3 2", "1 6 2", "4 4"];
+        var default_y_requirements = ["3 3", "1 1 5 1 1", "1 4 4 1", "6 6", "13", "12", "3 5 3", "6 6", "5 2 2", "1 2 3 2 1", "1 2 1 2 1", "1 2 3 2 1", "3 2 2 1 1", "1 2 3", "4 3"];
+        var canvas_grid_style = {
+            cell_size: 50,
+            label_size: 100,
+            header_size: 40,
+            background_color: "#fff",
+            filled_color: "#333",
+            line_color: "#80808069",
+            line_width: 1,
+            thick_line_width: 3
+        };
+        var app_state = {
+            size: [15, 15],
+            x_requirements: default_x_requirements.slice(),
+            y_requirements: default_y_requirements.slice(),
+            solution: null,
+            show_steps: false,
+            step_run_id: 0
+        };
+        var ui_refs = {};
+
+        function get_number_control_markup(data_name) {
+            return '' +
+                '<div class="ant-input-number" data-size-control="' + data_name + '">' +
+                    '<div class="ant-input-number-handler-wrap">' +
+                        '<span unselectable="on" role="button" aria-label="Increase Value" aria-disabled="false" class="ant-input-number-handler ant-input-number-handler-up" data-action="up">' +
+                            '<i aria-label="icon: up" class="anticon anticon-up ant-input-number-handler-up-inner">' +
+                                '<svg viewBox="64 64 896 896" focusable="false" data-icon="up" width="1em" height="1em" fill="currentColor" aria-hidden="true">' +
+                                    '<path d="M890.5 755.3L537.9 269.2c-12.8-17.6-39-17.6-51.7 0L133.5 755.3A8 8 0 0 0 140 768h75c5.1 0 9.9-2.5 12.9-6.6L512 369.8l284.1 391.6c3 4.1 7.8 6.6 12.9 6.6h75c6.5 0 10.3-7.4 6.5-12.7z"></path>' +
+                                '</svg>' +
+                            '</i>' +
+                        '</span>' +
+                        '<span unselectable="on" role="button" aria-label="Decrease Value" aria-disabled="false" class="ant-input-number-handler ant-input-number-handler-down" data-action="down">' +
+                            '<i aria-label="icon: down" class="anticon anticon-down ant-input-number-handler-down-inner">' +
+                                '<svg viewBox="64 64 896 896" focusable="false" data-icon="down" width="1em" height="1em" fill="currentColor" aria-hidden="true">' +
+                                    '<path d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"></path>' +
+                                '</svg>' +
+                            '</i>' +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="ant-input-number-input-wrap" role="spinbutton" aria-valuemin="1" aria-valuenow="1">' +
+                        '<input class="ant-input-number-input" autocomplete="off" min="1" step="1" type="text">' +
+                    '</div>' +
+                '</div>';
+        }
+
+        function get_grid_template(width, height, block_size, label_size, header_size) {
+            return String(header_size) + 'px' + (' ' + String(block_size) + 'px').repeat(height) + ' / ' + String(label_size) + 'px' + (' ' + String(block_size) + 'px').repeat(width);
+        }
+
+        function create_empty_solution(width, height) {
+            var solution = new Array(height);
+            var row_index = 0;
+            for (row_index = 0; row_index < height; row_index++) {
+                solution[row_index] = new Array(width).fill(false);
+            }
+            return solution;
+        }
+
+        function parse_requirements(value) {
+            return String(value == null ? '' : value).split(/\s+/).map(Number).filter(Boolean);
+        }
+
+        function within_requirement_limit(value, limit) {
+            var requirements = parse_requirements(value);
+            var requirement_sum = requirements.reduce(function(total, requirement) {
+                return total + requirement;
+            }, 0);
+            return requirement_sum + requirements.length - 1 <= limit;
+        }
+
+        function validate_requirement(value, limit) {
+            var normalized_value = String(value == null ? '' : value);
+            if (!/^[0-9 ]*$/.test(normalized_value)) {
+                return 'Invalid characters';
+            }
+            if (!within_requirement_limit(normalized_value, limit)) {
+                return 'Sum exceeded limit';
+            }
+            return null;
+        }
+
+        function solve_nonogram(config) {
+            var x_requirements = config.x_requirements;
+            var y_requirements = config.y_requirements;
+            var width = config.width;
+            var height = config.height;
+            var solution = create_empty_solution(width, height);
+            var steps = [];
+
+            function line_is_valid(requirements, total_length, max_index, getter) {
+                var requirement_index = 0;
+                var run_length = 0;
+                var in_run = false;
+                var current_index = 0;
+                for (current_index = 0; current_index <= max_index; current_index++) {
+                    if (getter(current_index)) {
+                        run_length += 1;
+                        if (!in_run && requirement_index >= requirements.length) {
+                            return false;
+                        }
+                        in_run = true;
+                    } else {
+                        if (in_run) {
+                            if (requirements[requirement_index] !== run_length) {
+                                return false;
+                            }
+                            run_length = 0;
+                            requirement_index += 1;
+                        }
+                        in_run = false;
+                    }
+                }
+                if (max_index === total_length - 1) {
+                    if (in_run) {
+                        return requirement_index === requirements.length - 1 && run_length === requirements[requirement_index];
+                    }
+                    return requirement_index === requirements.length;
+                }
+                return !in_run || run_length <= requirements[requirement_index];
+            }
+
+            function cell_is_valid(row_index, column_index) {
+                return line_is_valid(x_requirements[column_index], height, row_index, function(index) {
+                    return solution[index][column_index];
+                }) && line_is_valid(y_requirements[row_index], width, column_index, function(index) {
+                    return solution[row_index][index];
+                });
+            }
+
+            function solve_next(row_index, column_index) {
+                var next_row_index = row_index + (column_index + 1 === width ? 1 : 0);
+                var next_column_index = (column_index + 1) % width;
+                if (row_index === height) {
+                    return true;
+                }
+                steps.push({ mark: true, i: row_index, j: column_index });
+                solution[row_index][column_index] = true;
+                if (cell_is_valid(row_index, column_index) && solve_next(next_row_index, next_column_index)) {
+                    return true;
+                }
+                steps.push({ mark: false, i: row_index, j: column_index });
+                solution[row_index][column_index] = false;
+                if (cell_is_valid(row_index, column_index) && solve_next(next_row_index, next_column_index)) {
+                    return true;
+                }
+                return false;
+            }
+
+            if (solve_next(0, 0)) {
+                return [solution, steps];
+            }
+            return null;
+        }
+
+        function set_size_value(axis_name, next_value) {
+            var parsed_value = parseInt(next_value, 10);
+            var next_size = [app_state.size[0], app_state.size[1]];
+            if (!isFinite(parsed_value) || parsed_value < 1) {
+                render_size_controls();
+                return;
+            }
+            if (axis_name === 'width') {
+                next_size[0] = parsed_value;
+            } else {
+                next_size[1] = parsed_value;
+            }
+            app_state.size = next_size;
+            if (app_state.x_requirements.length < next_size[0]) {
+                app_state.x_requirements = app_state.x_requirements.concat(new Array(next_size[0] - app_state.x_requirements.length).fill(null));
+            } else if (app_state.x_requirements.length > next_size[0]) {
+                app_state.x_requirements = app_state.x_requirements.slice(0, next_size[0]);
+            }
+            if (app_state.y_requirements.length < next_size[1]) {
+                app_state.y_requirements = app_state.y_requirements.concat(new Array(next_size[1] - app_state.y_requirements.length).fill(null));
+            } else if (app_state.y_requirements.length > next_size[1]) {
+                app_state.y_requirements = app_state.y_requirements.slice(0, next_size[1]);
+            }
+            build_board_structure();
+            render_all();
+        }
+
+        function update_requirement(axis_name, index, value) {
+            if (axis_name === 'x') {
+                app_state.x_requirements[index] = value;
+            } else {
+                app_state.y_requirements[index] = value;
+            }
+            render_requirement_fields();
+        }
+
+        function render_size_controls() {
+            var width_wrapper = ui_refs.width_control.querySelector('.ant-input-number-input-wrap');
+            var height_wrapper = ui_refs.height_control.querySelector('.ant-input-number-input-wrap');
+            ui_refs.width_input.value = String(app_state.size[0]);
+            ui_refs.height_input.value = String(app_state.size[1]);
+            width_wrapper.setAttribute('aria-valuenow', String(app_state.size[0]));
+            height_wrapper.setAttribute('aria-valuenow', String(app_state.size[1]));
+        }
+
+        function render_requirement_fields() {
+            var index = 0;
+            var error_message = null;
+            var value = '';
+            for (index = 0; index < ui_refs.x_input_refs.length; index++) {
+                value = app_state.x_requirements[index] == null ? '' : String(app_state.x_requirements[index]);
+                error_message = validate_requirement(value, app_state.size[1]);
+                ui_refs.x_input_refs[index].input.value = value;
+                ui_refs.x_input_refs[index].item.className = error_message ? 'ant-row ant-form-item NonogramSolver_input__2ERQM has-error ant-form-item-with-help' : 'ant-row ant-form-item NonogramSolver_input__2ERQM';
+                ui_refs.x_input_refs[index].help.textContent = error_message || '';
+                ui_refs.x_input_refs[index].help.style.display = error_message ? '' : 'none';
+            }
+            for (index = 0; index < ui_refs.y_input_refs.length; index++) {
+                value = app_state.y_requirements[index] == null ? '' : String(app_state.y_requirements[index]);
+                error_message = validate_requirement(value, app_state.size[0]);
+                ui_refs.y_input_refs[index].input.value = value;
+                ui_refs.y_input_refs[index].item.className = error_message ? 'ant-row ant-form-item NonogramSolver_input__2ERQM has-error ant-form-item-with-help' : 'ant-row ant-form-item NonogramSolver_input__2ERQM';
+                ui_refs.y_input_refs[index].help.textContent = error_message || '';
+                ui_refs.y_input_refs[index].help.style.display = error_message ? '' : 'none';
+            }
+        }
+
+        function setup_grid_canvas() {
+            var canvas_width = app_state.size[0] * canvas_grid_style.cell_size;
+            var canvas_height = app_state.size[1] * canvas_grid_style.cell_size;
+            ui_refs.grid_canvas.width = canvas_width;
+            ui_refs.grid_canvas.height = canvas_height;
+            ui_refs.grid_canvas.style.width = String(canvas_width) + 'px';
+            ui_refs.grid_canvas.style.height = String(canvas_height) + 'px';
+        }
+
+        function draw_grid_canvas() {
+            var canvas_width = app_state.size[0] * canvas_grid_style.cell_size;
+            var canvas_height = app_state.size[1] * canvas_grid_style.cell_size;
+            var context = ui_refs.grid_canvas.getContext('2d');
+            var row_index = 0;
+            var column_index = 0;
+            var line_index = 0;
+            var line_width = 0;
+            var line_position = 0;
+
+            context.clearRect(0, 0, canvas_width, canvas_height);
+            context.fillStyle = canvas_grid_style.background_color;
+            context.fillRect(0, 0, canvas_width, canvas_height);
+
+            if (app_state.solution) {
+                context.fillStyle = canvas_grid_style.filled_color;
+                for (row_index = 0; row_index < app_state.size[1]; row_index++) {
+                    for (column_index = 0; column_index < app_state.size[0]; column_index++) {
+                        if (app_state.solution[row_index] && app_state.solution[row_index][column_index]) {
+                            context.fillRect(column_index * canvas_grid_style.cell_size, row_index * canvas_grid_style.cell_size, canvas_grid_style.cell_size, canvas_grid_style.cell_size);
+                        }
+                    }
+                }
+            }
+
+            context.fillStyle = canvas_grid_style.line_color;
+
+            for (line_index = 0; line_index <= app_state.size[0]; line_index++) {
+                line_width = line_index === 0 || line_index === app_state.size[0] ? canvas_grid_style.line_width : (line_index % 5 === 0 ? canvas_grid_style.thick_line_width : canvas_grid_style.line_width);
+                if (line_index === 0) {
+                    line_position = 0;
+                } else if (line_index === app_state.size[0]) {
+                    line_position = canvas_width - line_width;
+                } else {
+                    line_position = line_index * canvas_grid_style.cell_size - Math.floor(line_width / 2);
+                }
+                context.fillRect(line_position, 0, line_width, canvas_height);
+            }
+
+            for (line_index = 0; line_index <= app_state.size[1]; line_index++) {
+                line_width = line_index === 0 || line_index === app_state.size[1] ? canvas_grid_style.line_width : (line_index % 5 === 0 ? canvas_grid_style.thick_line_width : canvas_grid_style.line_width);
+                if (line_index === 0) {
+                    line_position = 0;
+                } else if (line_index === app_state.size[1]) {
+                    line_position = canvas_height - line_width;
+                } else {
+                    line_position = line_index * canvas_grid_style.cell_size - Math.floor(line_width / 2);
+                }
+                context.fillRect(0, line_position, canvas_width, line_width);
+            }
+        }
+
+        function render_checkbox() {
+            ui_refs.checkbox_input.checked = app_state.show_steps;
+            if (app_state.show_steps) {
+                ui_refs.checkbox_box.className = 'ant-checkbox ant-checkbox-checked';
+            } else {
+                ui_refs.checkbox_box.className = 'ant-checkbox';
+            }
+        }
+
+        function render_all() {
+            render_size_controls();
+            render_requirement_fields();
+            draw_grid_canvas();
+            render_checkbox();
+        }
+
+        function build_board_structure() {
+            var width = app_state.size[0];
+            var height = app_state.size[1];
+            var board_markup = '';
+            var column_index = 0;
+            var row_index = 0;
+
+            ui_refs.board.style.gridTemplate = get_grid_template(width, height, canvas_grid_style.cell_size, canvas_grid_style.label_size, canvas_grid_style.header_size);
+            ui_refs.board.style.width = String(canvas_grid_style.cell_size * width + canvas_grid_style.label_size) + 'px';
+
+            for (column_index = 0; column_index < width; column_index++) {
+                board_markup += '' +
+                    '<div class="ant-row ant-form-item NonogramSolver_input__2ERQM" data-axis="x" data-index="' + String(column_index) + '" style="grid-area: 1 / ' + String(column_index + 2) + ' / 2 / ' + String(column_index + 3) + ';">' +
+                        '<div class="ant-col ant-form-item-control-wrapper">' +
+                            '<div class="ant-form-item-control">' +
+                                '<span class="ant-form-item-children">' +
+                                    '<input type="text" class="ant-input ant-input-sm">' +
+                                '</span>' +
+                                '<div class="ant-form-explain" style="display:none;"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+            }
+
+            for (row_index = 0; row_index < height; row_index++) {
+                board_markup += '' +
+                    '<div class="ant-row ant-form-item NonogramSolver_input__2ERQM" data-axis="y" data-index="' + String(row_index) + '" style="grid-area: ' + String(row_index + 2) + ' / 1 / ' + String(row_index + 3) + ' / 2;">' +
+                        '<div class="ant-col ant-form-item-control-wrapper">' +
+                            '<div class="ant-form-item-control">' +
+                                '<span class="ant-form-item-children">' +
+                                    '<input type="text" class="ant-input ant-input-sm">' +
+                                '</span>' +
+                                '<div class="ant-form-explain" style="display:none;"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+            }
+
+            board_markup += '' +
+                '<canvas data-grid-canvas="true" style="grid-area: 2 / 2 / ' + String(height + 2) + ' / ' + String(width + 2) + '; display:block; background:' + canvas_grid_style.background_color + ';"></canvas>';
+
+            ui_refs.board.innerHTML = board_markup;
+            ui_refs.grid_canvas = ui_refs.board.querySelector('[data-grid-canvas="true"]');
+            ui_refs.x_input_refs = [];
+            ui_refs.y_input_refs = [];
+
+            setup_grid_canvas();
+
+            var x_items = ui_refs.board.querySelectorAll('[data-axis="x"]');
+            var y_items = ui_refs.board.querySelectorAll('[data-axis="y"]');
+
+            for (column_index = 0; column_index < x_items.length; column_index++) {
+                ui_refs.x_input_refs.push({
+                    item: x_items[column_index],
+                    input: x_items[column_index].querySelector('input'),
+                    help: x_items[column_index].querySelector('.ant-form-explain')
+                });
+                (function(current_index) {
+                    ui_refs.x_input_refs[current_index].input.addEventListener('input', function(event) {
+                        update_requirement('x', current_index, event.currentTarget.value);
+                    });
+                }(column_index));
+            }
+
+            for (row_index = 0; row_index < y_items.length; row_index++) {
+                ui_refs.y_input_refs.push({
+                    item: y_items[row_index],
+                    input: y_items[row_index].querySelector('input'),
+                    help: y_items[row_index].querySelector('.ant-form-explain')
+                });
+                (function(current_index) {
+                    ui_refs.y_input_refs[current_index].input.addEventListener('input', function(event) {
+                        update_requirement('y', current_index, event.currentTarget.value);
+                    });
+                }(row_index));
+            }
+        }
+
+        function create_shell() {
+            var root_element = document.getElementById('root');
+            root_element.innerHTML = '' +
+                '<div style="padding-top: 16px; text-align: center;">' +
+                    '<div>' +
+                        get_number_control_markup('width') +
+                        ' X ' +
+                        get_number_control_markup('height') +
+                    '</div>' +
+                    '<div class="NonogramSolver_nonogram__23Kjy"></div>' +
+                    '<button type="button" class="ant-btn ant-btn-primary"><span>Solve</span></button>' +
+                    '<label class="ant-checkbox-wrapper" style="margin-left: 8px;">' +
+                        '<span class="ant-checkbox">' +
+                            '<input type="checkbox" class="ant-checkbox-input" value="">' +
+                            '<span class="ant-checkbox-inner"></span>' +
+                        '</span>' +
+                        '<span>Show Steps</span>' +
+                    '</label>' +
+                '</div>';
+
+            ui_refs.width_control = root_element.querySelector('[data-size-control="width"]');
+            ui_refs.height_control = root_element.querySelector('[data-size-control="height"]');
+            ui_refs.width_input = ui_refs.width_control.querySelector('.ant-input-number-input');
+            ui_refs.height_input = ui_refs.height_control.querySelector('.ant-input-number-input');
+            ui_refs.board = root_element.querySelector('.NonogramSolver_nonogram__23Kjy');
+            ui_refs.solve_button = root_element.querySelector('.ant-btn-primary');
+            ui_refs.checkbox_box = root_element.querySelector('.ant-checkbox');
+            ui_refs.checkbox_input = root_element.querySelector('.ant-checkbox-input');
+
+            ui_refs.width_control.querySelector('[data-action="up"]').addEventListener('click', function() {
+                set_size_value('width', app_state.size[0] + 1);
+            });
+            ui_refs.width_control.querySelector('[data-action="down"]').addEventListener('click', function() {
+                set_size_value('width', Math.max(1, app_state.size[0] - 1));
+            });
+            ui_refs.height_control.querySelector('[data-action="up"]').addEventListener('click', function() {
+                set_size_value('height', app_state.size[1] + 1);
+            });
+            ui_refs.height_control.querySelector('[data-action="down"]').addEventListener('click', function() {
+                set_size_value('height', Math.max(1, app_state.size[1] - 1));
+            });
+            ui_refs.width_input.addEventListener('input', function(event) {
+                set_size_value('width', event.currentTarget.value);
+            });
+            ui_refs.height_input.addEventListener('input', function(event) {
+                set_size_value('height', event.currentTarget.value);
+            });
+            ui_refs.width_input.addEventListener('blur', function() {
+                render_size_controls();
+            });
+            ui_refs.height_input.addEventListener('blur', function() {
+                render_size_controls();
+            });
+            ui_refs.checkbox_input.addEventListener('change', function() {
+                app_state.show_steps = !!ui_refs.checkbox_input.checked;
+                render_checkbox();
+            });
+            ui_refs.solve_button.addEventListener('click', function() {
+                var solved = solve_nonogram({
+                    x_requirements: app_state.x_requirements.map(parse_requirements),
+                    y_requirements: app_state.y_requirements.map(parse_requirements),
+                    width: app_state.size[0],
+                    height: app_state.size[1]
+                });
+                var final_solution = null;
+                var step_marks = null;
+
+                if (!solved) {
+                    return;
+                }
+
+                final_solution = solved[0];
+                step_marks = solved[1];
+                app_state.step_run_id += 1;
+
+                if (app_state.show_steps) {
+                    var current_run_id = app_state.step_run_id;
+                    var step_index = 0;
+
+                    app_state.solution = create_empty_solution(app_state.size[0], app_state.size[1]);
+                    draw_grid_canvas();
+
+                    function apply_next_step() {
+                        window.setTimeout(function() {
+                            var step = null;
+
+                            if (current_run_id !== app_state.step_run_id) {
+                                return;
+                            }
+
+                            if (step_index >= step_marks.length) {
+                                return;
+                            }
+
+                            step = step_marks[step_index];
+                            if (app_state.solution && app_state.solution[step.i] && typeof app_state.solution[step.i][step.j] !== 'undefined') {
+                                app_state.solution[step.i][step.j] = step.mark;
+                            }
+
+                            step_index += 1;
+                            draw_grid_canvas();
+
+                            if (step_index < step_marks.length) {
+                                apply_next_step();
+                            }
+                        }, 0);
+                    }
+
+                    apply_next_step();
+                } else {
+                    app_state.solution = final_solution;
+                    draw_grid_canvas();
+                }
+            });
+        }
+
+        create_shell();
+        build_board_structure();
+        render_all();
+    }());
+    </script>
+</body>
+</html>

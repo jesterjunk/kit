@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR Code Generator (Versions 1–40)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      line-height: 1.35;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; display: grid; gap: 16px; }
+    header { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+    h1 { font-size: 20px; margin: 0; }
+    .sub { opacity: .8; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      border: 1px solid color-mix(in oklab, CanvasText 15%, transparent);
+      border-radius: 14px;
+      padding: 14px;
+      background: color-mix(in oklab, Canvas 92%, transparent);
+      box-shadow: 0 6px 20px color-mix(in oklab, CanvasText 8%, transparent);
+    }
+
+    label { font-size: 13px; opacity: .85; display: block; margin-bottom: 6px; }
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid color-mix(in oklab, CanvasText 18%, transparent);
+      background: Canvas;
+      color: CanvasText;
+      outline: none;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea:focus { border-color: color-mix(in oklab, CanvasText 30%, transparent); }
+
+    .controls { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-top: 12px; }
+    @media (max-width: 520px) { .controls { grid-template-columns: 1fr; } }
+
+    select, input[type="number"], input[type="range"], button {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid color-mix(in oklab, CanvasText 18%, transparent);
+      background: Canvas;
+      color: CanvasText;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .row > * { flex: 1; min-width: 160px; }
+
+    .btns { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+    @media (max-width: 700px) { .btns { grid-template-columns: 1fr; } }
+    button { cursor: pointer; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .out {
+      display: grid;
+      gap: 12px;
+    }
+    .preview {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .pane {
+      border: 1px dashed color-mix(in oklab, CanvasText 20%, transparent);
+      border-radius: 14px;
+      padding: 12px;
+      overflow: auto;
+      background: color-mix(in oklab, Canvas 96%, transparent);
+    }
+    canvas {
+      image-rendering: pixelated;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      background: white;
+    }
+    .meta {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      opacity: .85;
+      white-space: pre-wrap;
+    }
+    .err {
+      color: #b00020;
+      background: color-mix(in oklab, #b00020 10%, Canvas);
+      border: 1px solid color-mix(in oklab, #b00020 30%, transparent);
+      padding: 10px 12px;
+      border-radius: 12px;
+      display: none;
+    }
+    .hint { font-size: 12px; opacity: .75; margin-top: 6px; }
+    .small { font-size: 12px; opacity: .8; }
+    .k { opacity: .7; }
+  </style>
+
+  <!--
+    Library: qrcode-generator (Kazuhiko Arase).
+    It supports typeNumber 1~40 (or 0 auto) and ECC L/M/Q/H.  (see package README)  :contentReference[oaicite:1]{index=1}
+
+    ONLINE (default): load from CDN.
+    OFFLINE: download these two files and paste their contents into <script> tags below:
+      https://codeload.github.com/kazuhikoarase/qrcode-generator/zip/refs/tags/js2.0.4
+      http://web.archive.org/web/20251225203046id_/https://codeload.github.com/kazuhikoarase/qrcode-generator/zip/refs/tags/js2.0.4
+      - qrcode-generator-js2.0.4.zip/qrcode.js
+      - qrcode-generator-js2.0.4.zip/qrcode_UTF8.js
+  -->
+  <script src="js/qrcode.js"></script>
+  <script src="js/qrcode_UTF8.js"></script>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>QR Code Generator</h1>
+        <div class="sub">Single-file page • Versions 1–40 • ECC L/M/Q/H</div>
+      </div>
+      <div class="small">
+        <span class="k">Tip:</span> Try “Auto version” + “Auto mode” for most cases.
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <label for="text">Text / payload</label>
+        <textarea id="text" spellcheck="false" placeholder="Enter text, URL, JSON, etc."></textarea>
+        <div class="hint">UTF-8 supported (emojis, non-Latin scripts, etc.) via qrcode_UTF8.js.</div>
+
+        <div class="controls">
+          <div>
+            <label for="ecc">Error correction</label>
+            <select id="ecc" aria-label="Error correction level">
+              <option value="L">L (7%)</option>
+              <option value="M" selected>M (15%)</option>
+              <option value="Q">Q (25%)</option>
+              <option value="H">H (30%)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="version">Version</label>
+            <select id="version" aria-label="QR version">
+              <option value="0" selected>Auto (smallest that fits)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="mode">Encoding mode</label>
+            <select id="mode" aria-label="Encoding mode">
+              <option value="auto" selected>Auto</option>
+              <option value="Numeric">Numeric</option>
+              <option value="Alphanumeric">Alphanumeric</option>
+              <option value="Byte">Byte (UTF-8)</option>
+              <option value="Kanji">Kanji</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="cell">Cell size (px)</label>
+            <input id="cell" type="range" min="2" max="20" step="1" value="8" />
+            <div class="small"><span class="k">Current:</span> <span id="cellVal">8</span> px</div>
+          </div>
+
+          <div>
+            <label for="quiet">Quiet zone (modules)</label>
+            <input id="quiet" type="range" min="0" max="16" step="1" value="4" />
+            <div class="small"><span class="k">Current:</span> <span id="quietVal">4</span> modules</div>
+          </div>
+
+          <div>
+            <label for="render">Render as</label>
+            <select id="render" aria-label="Render format">
+              <option value="canvas" selected>Canvas (pixel-perfect)</option>
+              <option value="svg">SVG (scalable)</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="downloadPng">Download PNG</button>
+          <button id="downloadSvg">Download SVG</button>
+          <button id="copySvg">Copy SVG</button>
+        </div>
+
+        <div id="error" class="err" role="alert"></div>
+      </section>
+
+      <section class="card out">
+        <div class="preview">
+          <div class="pane">
+            <canvas id="canvas" width="1" height="1" aria-label="QR preview canvas"></canvas>
+          </div>
+          <div class="pane" id="svgPane" style="display:none;">
+            <div id="svgWrap" aria-label="QR preview svg"></div>
+          </div>
+        </div>
+
+        <div class="pane meta" id="meta"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+
+      const elText = $("text");
+      const elEcc = $("ecc");
+      const elVer = $("version");
+      const elMode = $("mode");
+      const elCell = $("cell");
+      const elQuiet = $("quiet");
+      const elRender = $("render");
+
+      const elCellVal = $("cellVal");
+      const elQuietVal = $("quietVal");
+
+      const elCanvas = $("canvas");
+      const ctx = elCanvas.getContext("2d");
+
+      const elSvgPane = $("svgPane");
+      const elSvgWrap = $("svgWrap");
+
+      const elMeta = $("meta");
+      const elErr = $("error");
+
+      const btnPng = $("downloadPng");
+      const btnSvg = $("downloadSvg");
+      const btnCopy = $("copySvg");
+
+      // Populate version dropdown (0 + 1..40)
+      for (let v = 1; v <= 40; v++) {
+        const opt = document.createElement("option");
+        opt.value = String(v);
+        opt.textContent = "Version " + v;
+        elVer.appendChild(opt);
+      }
+
+      // Basic auto-mode choice (keeps things simple; library also supports explicit mode)
+      const ALNUM_SET = /^[A-Z0-9 $%*+\-./:]*$/;
+      const NUM_SET = /^[0-9]*$/;
+      function pickMode(s) {
+        if (s.length === 0) return "Byte";
+        if (NUM_SET.test(s)) return "Numeric";
+        if (ALNUM_SET.test(s)) return "Alphanumeric";
+        return "Byte";
+      }
+
+      function setError(msg) {
+        if (!msg) {
+          elErr.style.display = "none";
+          elErr.textContent = "";
+          return;
+        }
+        elErr.style.display = "block";
+        elErr.textContent = msg;
+      }
+
+      function sanitizeFilename(s) {
+        return (s || "qr")
+          .trim()
+          .slice(0, 40)
+          .replace(/[^\w\-]+/g, "_")
+          .replace(/_+/g, "_")
+          || "qr";
+      }
+
+      function drawToCanvas(qr, cellSize, quietModules) {
+        const count = qr.getModuleCount();
+        const marginPx = quietModules * cellSize;
+        const sizePx = (count * cellSize) + (marginPx * 2);
+
+        elCanvas.width = sizePx;
+        elCanvas.height = sizePx;
+
+        // White background
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, sizePx, sizePx);
+
+        // Dark modules
+        ctx.fillStyle = "#000";
+        for (let r = 0; r < count; r++) {
+          for (let c = 0; c < count; c++) {
+            if (qr.isDark(r, c)) {
+              ctx.fillRect(marginPx + c * cellSize, marginPx + r * cellSize, cellSize, cellSize);
+            }
+          }
+        }
+      }
+
+      function makeSvg(qr, cellSize, quietModules) {
+        // qrcode-generator supports createSvgTag(cellSize, margin) and also createSvgTag(opts). :contentReference[oaicite:2]{index=2}
+        // Use scalable SVG with 1px modules; viewBox will scale nicely.
+        const opts = { cellSize: 1, margin: quietModules, scalable: true };
+        let svg = "";
+        try {
+          svg = qr.createSvgTag(opts);
+        } catch (_) {
+          // fallback (older signature)
+          svg = qr.createSvgTag(1, quietModules);
+        }
+        // If user wants a specific pixel scale for display, wrap with CSS scaling.
+        return { svg, displayScale: cellSize };
+      }
+
+      function setButtonsEnabled(ok) {
+        btnPng.disabled = !ok;
+        btnSvg.disabled = !ok;
+        btnCopy.disabled = !ok;
+      }
+
+      function render() {
+        // Library check
+        if (typeof window.qrcode !== "function") {
+          setError("QR library failed to load. If you’re offline, download qrcode.js + qrcode_UTF8.js and inline them (see file comments).");
+          setButtonsEnabled(false);
+          return;
+        }
+
+        const text = elText.value ?? "";
+        const ecc = elEcc.value;
+        const version = parseInt(elVer.value, 10);
+        const cellSize = parseInt(elCell.value, 10);
+        const quietModules = parseInt(elQuiet.value, 10);
+        const renderMode = elRender.value;
+
+        const chosenMode = (elMode.value === "auto") ? pickMode(text) : elMode.value;
+
+        elCellVal.textContent = String(cellSize);
+        elQuietVal.textContent = String(quietModules);
+
+        try {
+          setError("");
+
+          // Create QR
+          // Per library docs: typeNumber is 1~40, or 0 for auto; ECC is 'L','M','Q','H'. :contentReference[oaicite:3]{index=3}
+          const qr = window.qrcode(version, ecc);
+
+          // addData(data, mode) where mode can be 'Numeric', 'Alphanumeric', 'Byte', 'Kanji'. :contentReference[oaicite:4]{index=4}
+          qr.addData(text, chosenMode);
+          qr.make();
+
+          // Render
+          const moduleCount = qr.getModuleCount();
+
+          // Canvas
+          if (renderMode === "canvas" || renderMode === "both") {
+            drawToCanvas(qr, cellSize, quietModules);
+            elCanvas.parentElement.style.display = "";
+          } else {
+            elCanvas.parentElement.style.display = "none";
+          }
+
+          // SVG
+          if (renderMode === "svg" || renderMode === "both") {
+            const { svg, displayScale } = makeSvg(qr, cellSize, quietModules);
+            elSvgPane.style.display = "";
+            elSvgWrap.innerHTML = svg;
+
+            // Scale SVG visually to roughly match "cell size"
+            const svgEl = elSvgWrap.querySelector("svg");
+            if (svgEl) {
+              svgEl.style.width = (moduleCount + quietModules * 2) * displayScale + "px";
+              svgEl.style.height = "auto";
+              svgEl.style.display = "block";
+              svgEl.style.margin = "0 auto";
+              svgEl.style.background = "#fff";
+              svgEl.style.maxWidth = "100%";
+            }
+          } else {
+            elSvgPane.style.display = "none";
+            elSvgWrap.innerHTML = "";
+          }
+
+          // Meta
+          const usedVersion = qr.typeNumber; // set by library
+          const chars = text.length;
+          elMeta.textContent =
+            `Version: ${usedVersion}  (requested: ${version === 0 ? "auto" : version})
+ECC: ${ecc}
+Mode: ${chosenMode}
+Modules: ${moduleCount} x ${moduleCount}
+Quiet zone: ${quietModules} modules
+Cell size: ${cellSize} px
+Chars: ${chars}`;
+
+          // Hook up downloads using the generated qr instance
+          const filenameBase = sanitizeFilename(text || "qr");
+
+          btnPng.onclick = () => {
+            const a = document.createElement("a");
+            a.download = filenameBase + `.v${usedVersion}-${ecc}.png`;
+            a.href = elCanvas.toDataURL("image/png");
+            a.click();
+          };
+
+          btnSvg.onclick = () => {
+            const { svg } = makeSvg(qr, cellSize, quietModules);
+            const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.download = filenameBase + `.v${usedVersion}-${ecc}.svg`;
+            a.href = url;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+          };
+
+          btnCopy.onclick = async () => {
+            const { svg } = makeSvg(qr, cellSize, quietModules);
+            try {
+              await navigator.clipboard.writeText(svg);
+            } catch (e) {
+              // Fallback
+              const ta = document.createElement("textarea");
+              ta.value = svg;
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+          };
+
+          setButtonsEnabled(true);
+        } catch (e) {
+          setButtonsEnabled(false);
+          const msg = (e && e.message) ? e.message : String(e);
+          setError(
+            "Could not generate QR for the selected options.\n" +
+            "Common causes: payload too large for the chosen Version+ECC, or an incompatible explicit Mode.\n\n" +
+            "Details: " + msg
+          );
+          elMeta.textContent = "";
+        }
+      }
+
+      // Debounce updates
+      let t = null;
+      function scheduleRender() {
+        clearTimeout(t);
+        t = setTimeout(render, 120);
+      }
+
+      // Wire events
+      for (const el of [elText, elEcc, elVer, elMode, elCell, elQuiet, elRender]) {
+        el.addEventListener("input", scheduleRender);
+        el.addEventListener("change", scheduleRender);
+      }
+
+      // Starter content
+      elText.value = "https://example.com";
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+d_toothpick_sequence_explorer
+
+Add option: Resolution width and height
+Add options: Image orientation Vertical, Horizontal, Square (use the lowest value from width and height)
+Add option: Number of iterations
+Add option: Jump to iteration step
+Add option: Starting Pattern
+Add option: Starting Rule

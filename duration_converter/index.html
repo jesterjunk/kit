@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>duration converter</title>
+    <link rel="preload" href="iosevka-term-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+        @font-face {
+            font-family: "Iosevka Term Regular";
+            src: local("Iosevka Term Regular"),
+                 local("Iosevka Term"),
+                 url("iosevka-term-regular.woff2") format("woff2");
+            font-display: block;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            color: #F8F8F2;
+            background: #272822;
+            font-family: "Iosevka Term Regular", monospace;
+            font-size: 11px;
+        }
+
+        body {
+            display: flex;
+            padding: 29px;
+        }
+
+        h1 {
+            color: #F8F8F2;
+            opacity: 0.8;
+        }
+
+        .app {
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .wide_row {
+            margin-bottom: 28px;
+            width: 475px;
+        }
+
+        .unit_row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .format_row {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            margin-top: 34px;
+        }
+
+        fieldset {
+            border: 1px solid #FFE79280;
+            border-radius: 3px;
+            height: 69px;
+            margin: 0;
+            padding: 14px 17px 12px 17px;
+        }
+
+        legend {
+            padding: 0 6px;
+            color: #F8F8F2;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            color: #F8F8F2;
+            background: #272822;
+            border: 0;
+            outline: 0;
+            caret-color: transparent;
+            font: inherit;
+            font-size: 14px;
+            line-height: 21px;
+            padding: 0;
+        }
+
+        input:focus {
+            background: #3E3D32;
+        }
+
+        button {
+            color: #F8F8F2;
+            background: #272822;
+            border: 1px solid #FFE79280;
+            border-radius: 3px;
+            font: inherit;
+            font-size: 14px;
+            outline: 0;
+            padding: 0;
+        }
+
+        @keyframes caret_phase {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .phase_caret {
+            position: fixed;
+            display: none;
+            width: 1px;
+            background: #F8F8F0;
+            pointer-events: none;
+            animation: caret_phase 1s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .caret_measure {
+            position: absolute;
+            visibility: hidden;
+            white-space: pre;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        .unit_field {
+            width: 99px;
+        }
+
+        .unit_field.wide {
+            width: 151px;
+        }
+
+        .unit_field.medium {
+            width: 113px;
+        }
+
+        .format_field {
+            width: 564px;
+            height: 151px;
+            padding: 15px 19px 15px 19px;
+        }
+
+        .format_line {
+            font-size: 14px;
+            line-height: 34px;
+            white-space: nowrap;
+        }
+
+        .comma_control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .comma_toggle {
+            width: 32px;
+            height: 35px;
+        }
+    </style>
+</head>
+<body>
+    <main class="app">
+
+        <h1>duration converter</h1>
+
+        <br>
+
+        <fieldset class="wide_row">
+            <legend>milliseconds</legend>
+            <input id="total_milliseconds" value="0" inputmode="decimal" autocomplete="off">
+        </fieldset>
+
+        <fieldset class="wide_row">
+            <legend>seconds</legend>
+            <input id="total_seconds" value="0.0" inputmode="decimal" autocomplete="off">
+        </fieldset>
+
+        <section class="unit_row">
+            <fieldset class="unit_field">
+                <legend>weeks</legend>
+                <input id="weeks" value="" inputmode="decimal" autocomplete="off">
+            </fieldset>
+
+            <fieldset class="unit_field">
+                <legend>days</legend>
+                <input id="days" value="" inputmode="decimal" autocomplete="off">
+            </fieldset>
+
+            <fieldset class="unit_field">
+                <legend>hours</legend>
+                <input id="hours" value="" inputmode="decimal" autocomplete="off">
+            </fieldset>
+
+            <fieldset class="unit_field medium">
+                <legend>minutes</legend>
+                <input id="minutes" value="" inputmode="decimal" autocomplete="off">
+            </fieldset>
+
+            <fieldset class="unit_field medium">
+                <legend>seconds</legend>
+                <input id="seconds" value="" inputmode="decimal" autocomplete="off">
+            </fieldset>
+
+            <fieldset class="unit_field wide">
+                <legend>milliseconds</legend>
+                <input id="milliseconds" value="" inputmode="decimal" autocomplete="off">
+            </fieldset>
+        </section>
+
+        <section class="format_row">
+            <fieldset class="format_field">
+                <legend>other formats</legend>
+                <div id="long_format" class="format_line"></div>
+                <div id="short_format" class="format_line"></div>
+                <div id="compact_format" class="format_line"></div>
+            </fieldset>
+
+            <div class="comma_control">
+                <span>commas</span>
+                <button id="comma_toggle" class="comma_toggle" type="button" aria-pressed="false"></button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        var millisecond_units = {
+            weeks: 604800000,
+            days: 86400000,
+            hours: 3600000,
+            minutes: 60000,
+            seconds: 1000,
+            milliseconds: 1
+        };
+
+        var input_names = [
+            "total_milliseconds",
+            "total_seconds",
+            "weeks",
+            "days",
+            "hours",
+            "minutes",
+            "seconds",
+            "milliseconds"
+        ];
+
+        var inputs = {};
+        var is_updating = false;
+        var phase_caret = null;
+        var caret_measure = null;
+        var active_input = null;
+        var comma_toggle = null;
+        var use_commas = false;
+        var time_storage_key = "duration_converter_total_milliseconds";
+        var comma_storage_key = "duration_converter_use_commas";
+        var other_format_values = {
+            weeks: 0,
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            milliseconds: 0
+        };
+
+        function get_stored_value(name) {
+            try {
+                return window.localStorage.getItem(name);
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function set_stored_value(name, value) {
+            try {
+                window.localStorage.setItem(name, value);
+            } catch (error) {
+            }
+        }
+
+        function get_number(value) {
+            var trimmed_value = String(value).trim();
+
+            if (trimmed_value === "") {
+                return 0;
+            }
+
+            var number_value = Number(trimmed_value);
+
+            if (!isFinite(number_value)) {
+                return 0;
+            }
+
+            return number_value;
+        }
+
+        function format_number(value) {
+            if (Math.abs(value) < 0.000000001) {
+                value = 0;
+            }
+
+            if (Math.floor(value) === value) {
+                return String(value);
+            }
+
+            return String(Math.round(value * 1000000000) / 1000000000);
+        }
+
+        function set_input_value(name, value) {
+            inputs[name].value = value;
+        }
+
+        function prepare_caret_measure(input) {
+            var computed_style = window.getComputedStyle(input);
+
+            caret_measure.style.fontFamily = computed_style.fontFamily;
+            caret_measure.style.fontSize = computed_style.fontSize;
+            caret_measure.style.fontWeight = computed_style.fontWeight;
+            caret_measure.style.fontStyle = computed_style.fontStyle;
+            caret_measure.style.letterSpacing = computed_style.letterSpacing;
+            caret_measure.style.lineHeight = computed_style.lineHeight;
+            caret_measure.textContent = String(input.value).slice(0, input.selectionStart);
+        }
+
+        function update_phase_caret() {
+            if (!active_input || document.activeElement !== active_input || active_input.selectionStart !== active_input.selectionEnd) {
+                phase_caret.style.display = "none";
+                return;
+            }
+
+            var input_rect = active_input.getBoundingClientRect();
+            var computed_style = window.getComputedStyle(active_input);
+            var line_height = parseFloat(computed_style.lineHeight);
+            var text_width = 0;
+
+            if (!line_height) {
+                line_height = input_rect.height;
+            }
+
+            prepare_caret_measure(active_input);
+            text_width = caret_measure.getBoundingClientRect().width;
+
+            phase_caret.style.display = "block";
+            phase_caret.style.height = line_height + "px";
+            phase_caret.style.left = input_rect.left + text_width - active_input.scrollLeft + "px";
+            phase_caret.style.top = input_rect.top + (input_rect.height - line_height) / 2 + "px";
+        }
+
+        function schedule_phase_caret_update() {
+            window.requestAnimationFrame(update_phase_caret);
+        }
+
+        function handle_caret_focus(event) {
+            active_input = event.target;
+            schedule_phase_caret_update();
+        }
+
+        function handle_caret_blur() {
+            active_input = null;
+            phase_caret.style.display = "none";
+        }
+
+        function get_format_parts(format_name) {
+            var format_parts = [];
+            var format_labels = {
+                long: ["Weeks", "Days", "Hours", "Minutes", "Seconds", "Milliseconds"],
+                short: ["wks", "dys", "hrs", "mins", "secs", "mills"],
+                compact: ["w", "d", "h", "m", "s", "ms"]
+            };
+            var unit_names = [
+                "weeks",
+                "days",
+                "hours",
+                "minutes",
+                "seconds",
+                "milliseconds"
+            ];
+            var index = 0;
+            var value = 0;
+            var separator = " ";
+
+            while (index < unit_names.length) {
+                value = other_format_values[unit_names[index]];
+
+                if (value !== 0) {
+                    if (format_name === "compact") {
+                        separator = "";
+                    }
+
+                    format_parts.push(value + separator + format_labels[format_name][index]);
+                }
+
+                index = index + 1;
+            }
+
+            if (format_parts.length === 0) {
+                if (format_name === "compact") {
+                    format_parts.push("0ms");
+                } else if (format_name === "short") {
+                    format_parts.push("0 mills");
+                } else {
+                    format_parts.push("0 Milliseconds");
+                }
+            }
+
+            return format_parts;
+        }
+
+        function render_other_formats() {
+            var separator = use_commas ? ", " : " ";
+
+            document.getElementById("long_format").textContent = get_format_parts("long").join(separator);
+            document.getElementById("short_format").textContent = get_format_parts("short").join(separator);
+            document.getElementById("compact_format").textContent = get_format_parts("compact").join(separator);
+        }
+
+        function update_other_formats(weeks_value, days_value, hours_value, minutes_value, seconds_value, milliseconds_value) {
+            other_format_values.weeks = weeks_value;
+            other_format_values.days = days_value;
+            other_format_values.hours = hours_value;
+            other_format_values.minutes = minutes_value;
+            other_format_values.seconds = seconds_value;
+            other_format_values.milliseconds = milliseconds_value;
+            render_other_formats();
+        }
+
+        function update_comma_toggle() {
+            comma_toggle.textContent = use_commas ? "✔" : "";
+            comma_toggle.setAttribute("aria-pressed", use_commas ? "true" : "false");
+        }
+
+        function handle_comma_toggle() {
+            use_commas = !use_commas;
+            set_stored_value(comma_storage_key, use_commas ? "true" : "false");
+            update_comma_toggle();
+            render_other_formats();
+        }
+
+        function update_from_milliseconds(total_milliseconds, active_name) {
+            var remaining_milliseconds = Math.round(total_milliseconds);
+            var weeks_value = Math.floor(remaining_milliseconds / millisecond_units.weeks);
+
+            remaining_milliseconds = remaining_milliseconds - weeks_value * millisecond_units.weeks;
+
+            var days_value = Math.floor(remaining_milliseconds / millisecond_units.days);
+
+            remaining_milliseconds = remaining_milliseconds - days_value * millisecond_units.days;
+
+            var hours_value = Math.floor(remaining_milliseconds / millisecond_units.hours);
+
+            remaining_milliseconds = remaining_milliseconds - hours_value * millisecond_units.hours;
+
+            var minutes_value = Math.floor(remaining_milliseconds / millisecond_units.minutes);
+
+            remaining_milliseconds = remaining_milliseconds - minutes_value * millisecond_units.minutes;
+
+            var seconds_value = Math.floor(remaining_milliseconds / millisecond_units.seconds);
+
+            remaining_milliseconds = remaining_milliseconds - seconds_value * millisecond_units.seconds;
+
+            var milliseconds_value = remaining_milliseconds;
+
+            if (active_name !== "total_milliseconds") {
+                set_input_value("total_milliseconds", format_number(Math.round(total_milliseconds)));
+            }
+
+            if (active_name !== "total_seconds") {
+                set_input_value("total_seconds", format_number(Math.round(total_milliseconds) / 1000));
+            }
+
+            if (active_name !== "weeks") {
+                set_input_value("weeks", weeks_value === 0 ? "" : String(weeks_value));
+            }
+
+            if (active_name !== "days") {
+                set_input_value("days", days_value === 0 ? "" : String(days_value));
+            }
+
+            if (active_name !== "hours") {
+                set_input_value("hours", hours_value === 0 ? "" : String(hours_value));
+            }
+
+            if (active_name !== "minutes") {
+                set_input_value("minutes", minutes_value === 0 ? "" : String(minutes_value));
+            }
+
+            if (active_name !== "seconds") {
+                set_input_value("seconds", seconds_value === 0 ? "" : String(seconds_value));
+            }
+
+            if (active_name !== "milliseconds") {
+                set_input_value("milliseconds", milliseconds_value === 0 ? "" : String(milliseconds_value));
+            }
+
+            update_other_formats(weeks_value, days_value, hours_value, minutes_value, seconds_value, milliseconds_value);
+        }
+
+        function get_total_from_parts() {
+            var total_milliseconds = 0;
+
+            total_milliseconds = total_milliseconds + get_number(inputs.weeks.value) * millisecond_units.weeks;
+            total_milliseconds = total_milliseconds + get_number(inputs.days.value) * millisecond_units.days;
+            total_milliseconds = total_milliseconds + get_number(inputs.hours.value) * millisecond_units.hours;
+            total_milliseconds = total_milliseconds + get_number(inputs.minutes.value) * millisecond_units.minutes;
+            total_milliseconds = total_milliseconds + get_number(inputs.seconds.value) * millisecond_units.seconds;
+            total_milliseconds = total_milliseconds + get_number(inputs.milliseconds.value);
+
+            return total_milliseconds;
+        }
+
+        function handle_input(event) {
+            if (is_updating) {
+                return;
+            }
+
+            var active_name = event.target.id;
+            var total_milliseconds = 0;
+
+            if (active_name === "total_milliseconds") {
+                total_milliseconds = get_number(inputs.total_milliseconds.value);
+            } else if (active_name === "total_seconds") {
+                total_milliseconds = get_number(inputs.total_seconds.value) * 1000;
+            } else {
+                total_milliseconds = get_total_from_parts();
+            }
+
+            set_stored_value(time_storage_key, String(Math.round(total_milliseconds)));
+            is_updating = true;
+            update_from_milliseconds(total_milliseconds, active_name);
+            is_updating = false;
+            schedule_phase_caret_update();
+        }
+
+        function initialize() {
+            var index = 0;
+            var stored_total_milliseconds = null;
+            var initial_total_milliseconds = 0;
+
+            phase_caret = document.createElement("span");
+            phase_caret.className = "phase_caret";
+            document.body.appendChild(phase_caret);
+
+            caret_measure = document.createElement("span");
+            caret_measure.className = "caret_measure";
+            document.body.appendChild(caret_measure);
+
+            comma_toggle = document.getElementById("comma_toggle");
+            use_commas = get_stored_value(comma_storage_key) === "true";
+            update_comma_toggle();
+            comma_toggle.addEventListener("click", handle_comma_toggle);
+
+            while (index < input_names.length) {
+                inputs[input_names[index]] = document.getElementById(input_names[index]);
+                inputs[input_names[index]].addEventListener("input", handle_input);
+                inputs[input_names[index]].addEventListener("focus", handle_caret_focus);
+                inputs[input_names[index]].addEventListener("blur", handle_caret_blur);
+                inputs[input_names[index]].addEventListener("click", schedule_phase_caret_update);
+                inputs[input_names[index]].addEventListener("keydown", schedule_phase_caret_update);
+                inputs[input_names[index]].addEventListener("keyup", schedule_phase_caret_update);
+                inputs[input_names[index]].addEventListener("select", schedule_phase_caret_update);
+                inputs[input_names[index]].addEventListener("mouseup", schedule_phase_caret_update);
+                index = index + 1;
+            }
+
+            stored_total_milliseconds = get_stored_value(time_storage_key);
+            initial_total_milliseconds = get_number(inputs.total_milliseconds.value);
+
+            if (stored_total_milliseconds !== null) {
+                initial_total_milliseconds = get_number(stored_total_milliseconds);
+            }
+
+            window.addEventListener("resize", schedule_phase_caret_update);
+            window.addEventListener("scroll", schedule_phase_caret_update);
+            update_from_milliseconds(initial_total_milliseconds, "");
+        }
+
+        document.addEventListener("DOMContentLoaded", initialize);
+    </script>
+</body>
+</html>
