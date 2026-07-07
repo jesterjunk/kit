@@ -79,6 +79,10 @@
     credit: <a href="https://htmledit.squarefree.com/" title="https://htmledit.squarefree.com/" target="_blank">https://htmledit.squarefree.com/</a>
 </p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/python/u16_encoder/" title="Python u16 Encoder" target="_blank">Python u16 Encoder</a></a>
+</p>
+
 
 <h2><a href="#YouTube" title="YouTube" target="_blank">YouTube</a></h2>
 
