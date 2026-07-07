@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pendulum Wave</title>
+<style>
+  :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+  *{box-sizing:border-box} body{margin:0;background:#0d1117;color:#e6edf3;min-height:100vh;display:grid;place-items:center}
+  main{width:min(1100px,100vw);padding:18px} header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}
+  h1{font-size:clamp(22px,4vw,36px);margin:0;letter-spacing:-.04em} p{margin:4px 0 0;color:#8b949e;font-size:13px}
+  .panel{background:#161b22;border:1px solid #30363d;border-radius:16px;overflow:hidden;box-shadow:0 18px 55px #0005}
+  canvas{display:block;width:100%;height:min(68vh,650px);background:radial-gradient(circle at 50% 30%,#202b38,#0d1117 68%)}
+  .controls{display:grid;grid-template-columns:auto minmax(150px,1fr) minmax(150px,1fr) auto;gap:16px;align-items:center;padding:14px 16px;background:#0d1117;border-top:1px solid #30363d}
+  .buttons{display:flex;gap:8px}button{border:1px solid #3d444d;background:#21262d;color:#e6edf3;border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:700}button:hover{background:#30363d}.primary{background:#238636;border-color:#2ea043}.primary:hover{background:#2ea043}
+  label{display:grid;gap:5px;font-size:12px;color:#8b949e}output{color:#e6edf3;font-weight:700}input{width:100%;accent-color:#2ea043}
+  .note{font-size:12px;color:#8b949e;max-width:250px;text-align:right}.note strong{color:#e6edf3}
+  @media(max-width:720px){.controls{grid-template-columns:1fr 1fr}.buttons{grid-column:1/-1}.note{grid-column:1/-1;max-width:none;text-align:left}}
+</style>
+</head>
+<body>
+<main>
+  <header><div><h1>Pendulum Wave</h1><p>End-on view · 20 equal hex nuts · lengths inferred from one adjacent 20-value run</p></div></header>
+  <section class="panel">
+    <canvas id="c"></canvas>
+    <div class="controls">
+      <div class="buttons"><button class="primary" id="toggle">Pause</button><button id="reset">Restart</button></div>
+      <label>Release angle <output id="angleOut">28°</output><input id="angle" type="range" min="5" max="55" value="28"></label>
+      <label>Hex nut weight <output id="massOut">10 g</output><input id="mass" type="range" min="2" max="30" value="10"></label>
+      <div class="note"><strong id="range"></strong><br>Weight changes nut size only; ideal pendulum timing is mass-independent.</div>
+    </div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s), c=$('#c'), x=c.getContext('2d'), N=20, g=9.80665;
+// Only this adjacent 20-value run from the supplied measurements is used.
+const measured=[1000,957,916,879,843,809,778,748,720,694,669,645,623,601,581,562,543,526,509,494];
+// Frequency is proportional to 1/sqrt(length): fit that near-linear progression,
+// then infer the 20 simulation lengths from the fitted sequence.
+const mean=a=>a.reduce((s,v)=>s+v,0)/a.length, u=measured.map(v=>1/Math.sqrt(v)), im=mean([...Array(N).keys()]), um=mean(u);
+const slope=u.reduce((s,v,i)=>s+(i-im)*(v-um),0)/u.reduce((s,_,i)=>s+(i-im)**2,0), base=um-slope*im;
+const L=[...Array(N)].map((_,i)=>1/(base+slope*i)**2); // millimetres
+$('#range').textContent=`${Math.round(L[0])}–${Math.round(L.at(-1))} mm inferred lengths`;
+let start=performance.now(), frozen=0, running=true, angle=28, mass=10;
+function fit(){let d=devicePixelRatio||1,r=c.getBoundingClientRect();c.width=r.width*d;c.height=r.height*d;x.setTransform(d,0,0,d,0,0)}
+addEventListener('resize',fit);fit();
+function hex(cx,cy,r){x.beginPath();for(let i=0;i<6;i++){let a=Math.PI/6+i*Math.PI/3,px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r;i?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.fill();x.stroke();x.beginPath();x.arc(cx,cy,r*.34,0,7);x.stroke()}
+function draw(now){let w=c.clientWidth,h=c.clientHeight,t=running?(now-start)/1000:frozen, longest=L[0], top=46, maxPx=Math.min(h*.78,w*.36), cx=w/2;
+  x.clearRect(0,0,w,h);
+  // End of the support rail, receding away from the viewer.
+  x.fillStyle='#30363d';x.beginPath();x.moveTo(cx-22,top-8);x.lineTo(cx+22,top-8);x.lineTo(cx+8,top+55);x.lineTo(cx-8,top+55);x.closePath();x.fill();
+  for(let i=N-1;i>=0;i--){let depth=i/(N-1), scale=1-depth*.17, py=top+depth*44, lenPx=maxPx*(L[i]/longest)*scale, theta0=angle*Math.PI/180;
+    let T=2*Math.PI*Math.sqrt((L[i]/1000)/g)*(1+theta0*theta0/16+11*theta0**4/3072), a=theta0*Math.cos(2*Math.PI*t/T), bx=cx+Math.sin(a)*lenPx, by=py+Math.cos(a)*lenPx;
+    x.strokeStyle=`rgba(180,190,200,${.35+.5*(1-depth)})`;x.lineWidth=1;x.beginPath();x.moveTo(cx,py);x.lineTo(bx,by);x.stroke();
+    x.fillStyle=`hsl(${36+depth*18} 62% ${48-depth*12}%)`;x.strokeStyle='#0d1117';x.lineWidth=1.5;hex(bx,by,(4.5+mass*.34)*scale);
+  }
+  x.fillStyle='#8b949e';x.font='12px system-ui';x.textAlign='left';x.fillText(`${t.toFixed(1)} s`,14,22);requestAnimationFrame(draw)
+}
+$('#toggle').onclick=e=>{running=!running;if(running){start=performance.now()-frozen*1000;e.target.textContent='Pause'}else{frozen=(performance.now()-start)/1000;e.target.textContent='Resume'}};
+$('#reset').onclick=()=>{start=performance.now();frozen=0};
+$('#angle').oninput=e=>{angle=+e.target.value;$('#angleOut').textContent=angle+'°';start=performance.now();frozen=0};
+$('#mass').oninput=e=>{mass=+e.target.value;$('#massOut').textContent=mass+' g'};
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pendulum Wave</title>
+<style>
+  :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+  *{box-sizing:border-box}body{margin:0;background:#0d1117;color:#e6edf3;min-height:100vh;display:grid;place-items:center}
+  main{width:min(1100px,100vw);padding:18px}header{margin-bottom:10px}h1{font-size:clamp(22px,4vw,36px);margin:0;letter-spacing:-.04em}p{margin:4px 0 0;color:#8b949e;font-size:13px}
+  .panel{background:#161b22;border:1px solid #30363d;border-radius:16px;overflow:hidden;box-shadow:0 18px 55px #0005}canvas{display:block;width:100%;height:min(65vh,620px)}
+  .controls{display:grid;grid-template-columns:auto repeat(2,minmax(145px,1fr));gap:12px 16px;align-items:center;padding:14px 16px;background:#0d1117;border-top:1px solid #30363d}
+  .buttons,.options{display:flex;gap:8px;flex-wrap:wrap}.options{grid-column:1/-1;align-items:center}button{border:1px solid #3d444d;background:#21262d;color:#e6edf3;border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:700}button:hover{background:#30363d}.primary{background:#238636;border-color:#2ea043}.primary:hover{background:#2ea043}
+  label{display:grid;gap:5px;font-size:12px;color:#8b949e}.check{display:flex;align-items:center;gap:6px;color:#c9d1d9;background:#161b22;border:1px solid #30363d;border-radius:9px;padding:8px 10px}.check input{width:auto}.color{display:flex;align-items:center;gap:7px;color:#c9d1d9}.color input{width:34px;height:28px;padding:0;border:1px solid #3d444d;background:none;border-radius:6px}output{color:#e6edf3;font-weight:700}input{width:100%;accent-color:#2ea043}.note{grid-column:1/-1;font-size:12px;color:#8b949e}.note strong{color:#e6edf3}
+  @media(max-width:720px){.controls{grid-template-columns:1fr 1fr}.buttons{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Pendulum Wave</h1><p>End-on view · 20 equal bobs · inferred from one adjacent 20-value run</p></header>
+  <section class="panel">
+    <canvas id="c"></canvas>
+    <div class="controls">
+      <div class="buttons"><button class="primary" id="toggle">Pause</button><button id="restart">Restart</button></div>
+      <label>Release angle <output id="angleOut"></output><input id="angle" type="range" min="5" max="55"></label>
+      <label>Bob weight <output id="massOut"></output><input id="mass" type="range" min="2" max="30"></label>
+      <div class="options">
+        <label class="check"><input id="strings" type="checkbox"> Show strings</label>
+        <label class="check"><input id="pivot" type="checkbox"> Show pivot point</label>
+        <label class="check"><input id="circles" type="checkbox"> Solid circles</label>
+        <label class="color">Background <input id="bg" type="color"></label>
+        <label class="color">Circle color <input id="circleColor" type="color"></label>
+        <button id="clear">Clear stored settings</button>
+      </div>
+      <div class="note"><strong id="range"></strong><br>Weight changes bob size only; ideal pendulum timing is mass-independent. Display settings are saved locally in this browser.</div>
+    </div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s),c=$('#c'),x=c.getContext('2d'),N=20,g=9.80665,KEY='pendulum-wave-settings';
+// Only this adjacent 20-value run from the supplied measurements is used.
+const measured=[1000,957,916,879,843,809,778,748,720,694,669,645,623,601,581,562,543,526,509,494];
+// Fit the nearly linear frequency sequence, then infer 20 simulation lengths.
+const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,u=measured.map(v=>1/Math.sqrt(v)),im=mean([...Array(N).keys()]),um=mean(u),slope=u.reduce((s,v,i)=>s+(i-im)*(v-um),0)/u.reduce((s,_,i)=>s+(i-im)**2,0),base=um-slope*im,L=[...Array(N)].map((_,i)=>1/(base+slope*i)**2);
+$('#range').textContent=`${Math.round(L[0])}–${Math.round(L.at(-1))} mm inferred lengths`;
+const defaults={angle:28,mass:10,strings:true,pivot:true,circles:false,bg:'#0d1117',circleColor:'#e3a928'};
+let s={...defaults},start=performance.now(),frozen=0,running=true;
+try{s={...s,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(s))}catch{}}
+function sync(){for(const id of ['angle','mass','strings','pivot','circles','bg','circleColor'])$('#'+id)[id==='strings'||id==='pivot'||id==='circles'?'checked':'value']=s[id];$('#angleOut').textContent=s.angle+'°';$('#massOut').textContent=s.mass+' g';c.style.background=s.bg}
+function fit(){let d=devicePixelRatio||1,r=c.getBoundingClientRect();c.width=r.width*d;c.height=r.height*d;x.setTransform(d,0,0,d,0,0)}addEventListener('resize',fit);fit();sync();
+function hex(cx,cy,r){x.beginPath();for(let i=0;i<6;i++){let a=Math.PI/6+i*Math.PI/3,px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r;i?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.fill();x.stroke();x.beginPath();x.arc(cx,cy,r*.34,0,7);x.stroke()}
+function circle(cx,cy,r){x.beginPath();x.arc(cx,cy,r,0,7);x.fill();x.stroke()}
+function draw(now){let w=c.clientWidth,h=c.clientHeight,t=running?(now-start)/1000:frozen,longest=L[0],top=46,maxPx=Math.min(h*.78,w*.36),cx=w/2;x.clearRect(0,0,w,h);
+  if(s.pivot){x.fillStyle='#30363d';x.beginPath();x.moveTo(cx-22,top-8);x.lineTo(cx+22,top-8);x.lineTo(cx+8,top+55);x.lineTo(cx-8,top+55);x.closePath();x.fill()}
+  for(let i=N-1;i>=0;i--){let depth=i/(N-1),scale=1-depth*.17,py=top+depth*44,lenPx=maxPx*(L[i]/longest)*scale,theta0=s.angle*Math.PI/180,T=2*Math.PI*Math.sqrt((L[i]/1000)/g)*(1+theta0**2/16+11*theta0**4/3072),a=theta0*Math.cos(2*Math.PI*t/T),bx=cx+Math.sin(a)*lenPx,by=py+Math.cos(a)*lenPx,r=(4.5+s.mass*.34)*scale;
+    if(s.strings){x.strokeStyle=`rgba(180,190,200,${.35+.5*(1-depth)})`;x.lineWidth=1;x.beginPath();x.moveTo(cx,py);x.lineTo(bx,by);x.stroke()}
+    if(s.pivot){x.fillStyle='#8b949e';x.beginPath();x.arc(cx,py,1.6*scale,0,7);x.fill()}
+    x.fillStyle=s.circles?s.circleColor:`hsl(${36+depth*18} 62% ${48-depth*12}%)`;x.strokeStyle='#0d1117';x.lineWidth=1.5;(s.circles?circle:hex)(bx,by,r)
+  }
+  x.fillStyle='#8b949e';x.font='12px system-ui';x.textAlign='left';x.fillText(`${t.toFixed(1)} s`,14,22);requestAnimationFrame(draw)
+}
+$('#toggle').onclick=e=>{running=!running;if(running){start=performance.now()-frozen*1000;e.target.textContent='Pause'}else{frozen=(performance.now()-start)/1000;e.target.textContent='Resume'}};
+$('#restart').onclick=()=>{start=performance.now();frozen=0};
+for(const id of ['angle','mass','strings','pivot','circles','bg','circleColor'])$('#'+id).oninput=e=>{s[id]=e.target.type==='checkbox'?e.target.checked:e.target.type==='range'?+e.target.value:e.target.value;if(id==='angle'){start=performance.now();frozen=0}sync();save()};
+$('#clear').onclick=e=>{try{localStorage.removeItem(KEY)}catch{}s={...defaults};start=performance.now();frozen=0;sync();e.target.textContent='Cleared';setTimeout(()=>e.target.textContent='Clear stored settings',900)};
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
