@@ -35,7 +35,7 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             font-weight: bold;
         }
 
@@ -75,6 +75,12 @@
             margin-bottom: 24px;
         }
 
+        .stats {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #9a9a9a;
+        }
+
         .hint {
             margin-top: 8px;
             font-size: 13px;
@@ -109,11 +115,13 @@
 
         <div class="section">
             <label for="input_textarea">Python input</label>
+            <div id="input_stats" class="stats">0 bytes, 0 chars</div>
             <textarea id="input_textarea" spellcheck="false" placeholder="print('hello world')"></textarea>
         </div>
 
         <div class="section">
             <label for="output_pre">u16 exec output</label>
+            <div id="output_stats" class="stats">0 bytes, 0 chars</div>
             <pre id="output_pre" tabindex="0"></pre>
             <div class="hint">Click the output to copy it exactly.</div>
         </div>
@@ -124,9 +132,27 @@
     <script>
         (function () {
             var input_textarea = document.getElementById("input_textarea");
+            var input_stats = document.getElementById("input_stats");
             var output_pre = document.getElementById("output_pre");
+            var output_stats = document.getElementById("output_stats");
             var splash = document.getElementById("splash");
             var splash_timeout = null;
+            var text_encoder = new TextEncoder();
+
+            function get_byte_count(text) {
+                return text_encoder.encode(text).length;
+            }
+
+            function get_character_count(text) {
+                return Array.from(text).length;
+            }
+
+            function create_stats_text(text) {
+                var byte_count = get_byte_count(text);
+                var character_count = get_character_count(text);
+
+                return byte_count + " bytes, " + character_count + " chars";
+            }
 
             function create_python_string_literal(text) {
                 var literal_parts = ["'"];
@@ -213,7 +239,13 @@
             }
 
             function update_output() {
-                output_pre.textContent = create_u16_exec_output(input_textarea.value);
+                var input_text = input_textarea.value;
+                var output_text = create_u16_exec_output(input_text);
+
+                output_pre.textContent = output_text;
+                input_stats.textContent = create_stats_text(input_text);
+                output_stats.textContent = create_stats_text(output_text);
+
                 resize_input_textarea();
             }
 
