@@ -1,0 +1,2751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Extreme Unicode Packer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #101114;
+            color: #f2f2f2;
+        }
+
+        main {
+            width: min(1100px, 100%);
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        p {
+            margin: 0 0 24px;
+            color: #b8b8b8;
+        }
+
+        code {
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        textarea,
+        pre {
+            width: 100%;
+            border: 1px solid #343740;
+            border-radius: 12px;
+            background: #181a20;
+            color: #f2f2f2;
+            font: 15px/1.5 Consolas, Monaco, monospace;
+        }
+
+        textarea {
+            min-height: 180px;
+            padding: 16px;
+            resize: none;
+            overflow: hidden;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #6ea8ff;
+        }
+
+        pre {
+            min-height: 120px;
+            margin: 0;
+            padding: 16px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            cursor: pointer;
+            user-select: all;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .stats {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #9a9a9a;
+        }
+
+        .hint {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #9a9a9a;
+        }
+
+        .warning {
+            color: #e6ba73;
+        }
+
+        .error {
+            color: #ff8d8d;
+        }
+
+        .winner {
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .winner span {
+            color: #8fc0ff;
+        }
+
+        .table_wrap {
+            overflow-x: auto;
+            border: 1px solid #343740;
+            border-radius: 12px;
+            background: #181a20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #2d3038;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #bfc5d2;
+            background: #1d2027;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tr.best td {
+            color: #dcecff;
+            background: #202b3a;
+        }
+
+        td.number {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .splash {
+            position: fixed;
+            left: 50%;
+            bottom: 32px;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: #f2f2f2;
+            color: #101114;
+            font-weight: bold;
+            opacity: 0;
+            transform: translate(-50%, 12px);
+            transition:
+                opacity 180ms ease,
+                transform 180ms ease;
+            pointer-events: none;
+        }
+
+        .splash.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Python Extreme Unicode Packer</h1>
+
+        <p>
+            Tests several exact, offline Python packing strategies and
+            displays the valid result with the lowest Unicode character
+            count.
+        </p>
+
+        <div class="section">
+            <label for="input_textarea">Python input</label>
+
+            <div id="input_stats" class="stats">
+                0 UTF-8 bytes, 0 chars
+            </div>
+
+            <textarea
+                id="input_textarea"
+                spellcheck="false"
+                placeholder="print('hello world')"
+            ></textarea>
+        </div>
+
+        <div class="section">
+            <div class="winner">
+                Best strategy:
+                <span id="winner_name">None</span>
+            </div>
+
+            <div id="output_stats" class="stats">
+                0 UTF-8 bytes, 0 chars
+            </div>
+
+            <pre id="output_pre" tabindex="0"></pre>
+
+            <div id="status_hint" class="hint">
+                Enter Python code to compare packers.
+            </div>
+
+            <div class="hint warning">
+                Ranking is by Unicode code points, then UTF-8 bytes.
+                Unicode packers usually improve the character leaderboard
+                while making the byte score larger.
+            </div>
+
+            <div class="hint">
+                Click the winning output to copy it exactly.
+            </div>
+        </div>
+
+        <div class="section">
+            <label>All valid strategies</label>
+
+            <div class="table_wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th class="number">Chars</th>
+                            <th class="number">UTF-8 bytes</th>
+                            <th class="number">Change</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="results_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div
+        id="splash"
+        class="splash"
+        aria-live="polite"
+    >
+        Copied
+    </div>
+
+    <script>
+        (function () {
+            var input_textarea =
+                document.getElementById("input_textarea");
+
+            var input_stats =
+                document.getElementById("input_stats");
+
+            var output_pre =
+                document.getElementById("output_pre");
+
+            var output_stats =
+                document.getElementById("output_stats");
+
+            var winner_name =
+                document.getElementById("winner_name");
+
+            var status_hint =
+                document.getElementById("status_hint");
+
+            var results_body =
+                document.getElementById("results_body");
+
+            var splash =
+                document.getElementById("splash");
+
+            var text_encoder = new TextEncoder();
+
+            var splash_timeout = null;
+            var update_timeout = null;
+            var generation = 0;
+            var crt_candidates = [];
+
+            var b64_alphabet =
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+                "abcdefghijklmnopqrstuvwxyz" +
+                "0123456789+/";
+
+            var b85_alphabet =
+                "0123456789" +
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+                "abcdefghijklmnopqrstuvwxyz" +
+                "!#$%&()*+-;<=>?@^_`{|}~";
+
+            function get_byte_count(text) {
+                return text_encoder.encode(text).length;
+            }
+
+            function get_character_count(text) {
+                return Array.from(text).length;
+            }
+
+            function create_stats_text(text) {
+                return (
+                    get_byte_count(text) +
+                    " UTF-8 bytes, " +
+                    get_character_count(text) +
+                    " chars"
+                );
+            }
+
+            function compare_results(first, second) {
+                return (
+                    first.character_count -
+                        second.character_count ||
+                    first.byte_count -
+                        second.byte_count ||
+                    first.name.localeCompare(
+                        second.name
+                    )
+                );
+            }
+
+            function add_result(
+                results,
+                names_by_text,
+                name,
+                text,
+                notes
+            ) {
+                var existing =
+                    names_by_text.get(text);
+
+                var result = null;
+
+                if (existing !== undefined) {
+                    if (!existing.name.includes(name)) {
+                        existing.name +=
+                            " / " + name;
+                    }
+
+                    return existing;
+                }
+
+                result = {
+                    name: name,
+                    text: text,
+                    notes: notes || "",
+
+                    character_count:
+                        get_character_count(text),
+
+                    byte_count:
+                        get_byte_count(text)
+                };
+
+                names_by_text.set(text, result);
+                results.push(result);
+
+                return result;
+            }
+
+            function escape_code_point(
+                code_point
+            ) {
+                var hexadecimal =
+                    code_point.toString(16);
+
+                if (code_point <= 0xff) {
+                    return (
+                        "\\x" +
+                        hexadecimal.padStart(
+                            2,
+                            "0"
+                        )
+                    );
+                }
+
+                if (code_point <= 0xffff) {
+                    return (
+                        "\\u" +
+                        hexadecimal.padStart(
+                            4,
+                            "0"
+                        )
+                    );
+                }
+
+                return (
+                    "\\U" +
+                    hexadecimal.padStart(
+                        8,
+                        "0"
+                    )
+                );
+            }
+
+            function create_python_string_literal_with_quote(
+                text,
+                quote,
+                ascii_only
+            ) {
+                var parts = [quote];
+                var character = "";
+                var code_point = 0;
+
+                for (character of text) {
+                    code_point =
+                        character.codePointAt(0);
+
+                    if (character === "\\") {
+                        parts.push("\\\\");
+                    } else if (
+                        character === quote
+                    ) {
+                        parts.push(
+                            "\\" + quote
+                        );
+                    } else if (
+                        character === "\n"
+                    ) {
+                        parts.push("\\n");
+                    } else if (
+                        character === "\r"
+                    ) {
+                        parts.push("\\r");
+                    } else if (
+                        character === "\t"
+                    ) {
+                        parts.push("\\t");
+                    } else if (
+                        character === "\b"
+                    ) {
+                        parts.push("\\b");
+                    } else if (
+                        character === "\f"
+                    ) {
+                        parts.push("\\f");
+                    } else if (
+                        code_point < 32 ||
+                        (
+                            code_point >= 127 &&
+                            code_point <= 159
+                        ) ||
+                        (
+                            code_point >= 0xd800 &&
+                            code_point <= 0xdfff
+                        ) ||
+                        code_point === 0x2028 ||
+                        code_point === 0x2029 ||
+                        (
+                            ascii_only &&
+                            code_point > 126
+                        )
+                    ) {
+                        parts.push(
+                            escape_code_point(
+                                code_point
+                            )
+                        );
+                    } else {
+                        parts.push(character);
+                    }
+                }
+
+                parts.push(quote);
+
+                return parts.join("");
+            }
+
+            function create_python_string_literal(
+                text,
+                ascii_only
+            ) {
+                var single =
+                    create_python_string_literal_with_quote(
+                        text,
+                        "'",
+                        ascii_only
+                    );
+
+                var double =
+                    create_python_string_literal_with_quote(
+                        text,
+                        '"',
+                        ascii_only
+                    );
+
+                if (
+                    get_character_count(single) <=
+                    get_character_count(double)
+                ) {
+                    return single;
+                }
+
+                return double;
+            }
+
+            function create_python_bytes_literal_with_quote(
+                byte_values,
+                quote
+            ) {
+                var parts = ["b" + quote];
+                var byte_value = 0;
+                var character = "";
+                var index = 0;
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 1
+                ) {
+                    byte_value =
+                        byte_values[index];
+
+                    character =
+                        String.fromCharCode(
+                            byte_value
+                        );
+
+                    if (character === "\\") {
+                        parts.push("\\\\");
+                    } else if (
+                        character === quote
+                    ) {
+                        parts.push(
+                            "\\" + quote
+                        );
+                    } else if (
+                        byte_value === 10
+                    ) {
+                        parts.push("\\n");
+                    } else if (
+                        byte_value === 13
+                    ) {
+                        parts.push("\\r");
+                    } else if (
+                        byte_value === 9
+                    ) {
+                        parts.push("\\t");
+                    } else if (
+                        byte_value >= 32 &&
+                        byte_value <= 126
+                    ) {
+                        parts.push(character);
+                    } else {
+                        parts.push(
+                            "\\x" +
+                            byte_value
+                                .toString(16)
+                                .padStart(2, "0")
+                        );
+                    }
+                }
+
+                parts.push(quote);
+
+                return parts.join("");
+            }
+
+            function create_python_bytes_literal(
+                byte_values
+            ) {
+                var single =
+                    create_python_bytes_literal_with_quote(
+                        byte_values,
+                        "'"
+                    );
+
+                var double =
+                    create_python_bytes_literal_with_quote(
+                        byte_values,
+                        '"'
+                    );
+
+                return (
+                    single.length <= double.length
+                        ? single
+                        : double
+                );
+            }
+
+            function is_printable_ascii(text) {
+                var index = 0;
+                var code = 0;
+
+                for (
+                    index = 0;
+                    index < text.length;
+                    index += 1
+                ) {
+                    code =
+                        text.charCodeAt(index);
+
+                    if (
+                        code < 32 ||
+                        code > 126
+                    ) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            function greatest_common_divisor(
+                first,
+                second
+            ) {
+                var remainder = 0;
+
+                while (second !== 0) {
+                    remainder =
+                        first % second;
+
+                    first = second;
+                    second = remainder;
+                }
+
+                return first;
+            }
+
+            function modular_inverse(
+                value,
+                modulus
+            ) {
+                var old_remainder = value;
+                var remainder = modulus;
+                var old_coefficient = 1;
+                var coefficient = 0;
+                var quotient = 0;
+                var temporary = 0;
+
+                while (remainder !== 0) {
+                    quotient = Math.floor(
+                        old_remainder /
+                        remainder
+                    );
+
+                    temporary =
+                        old_remainder -
+                        quotient * remainder;
+
+                    old_remainder =
+                        remainder;
+
+                    remainder =
+                        temporary;
+
+                    temporary =
+                        old_coefficient -
+                        quotient *
+                        coefficient;
+
+                    old_coefficient =
+                        coefficient;
+
+                    coefficient =
+                        temporary;
+                }
+
+                return (
+                    (
+                        old_coefficient %
+                        modulus
+                    ) +
+                    modulus
+                ) % modulus;
+            }
+
+            function prepare_crt_candidates() {
+                var first = 0;
+                var second = 0;
+                var third = 0;
+                var product = 0;
+                var moduli = null;
+                var multipliers = null;
+                var index = 0;
+                var modulus = 0;
+                var partial_product = 0;
+
+                for (
+                    first = 95;
+                    first <= 122;
+                    first += 1
+                ) {
+                    for (
+                        second = 95;
+                        second <= 122;
+                        second += 1
+                    ) {
+                        if (
+                            greatest_common_divisor(
+                                first,
+                                second
+                            ) !== 1
+                        ) {
+                            continue;
+                        }
+
+                        for (
+                            third = 95;
+                            third <= 122;
+                            third += 1
+                        ) {
+                            if (
+                                greatest_common_divisor(
+                                    first,
+                                    third
+                                ) !== 1 ||
+                                greatest_common_divisor(
+                                    second,
+                                    third
+                                ) !== 1
+                            ) {
+                                continue;
+                            }
+
+                            product =
+                                first *
+                                second *
+                                third;
+
+                            if (
+                                product >
+                                0x110000
+                            ) {
+                                continue;
+                            }
+
+                            moduli = [
+                                first,
+                                second,
+                                third
+                            ];
+
+                            multipliers = [];
+
+                            for (
+                                index = 0;
+                                index < 3;
+                                index += 1
+                            ) {
+                                modulus =
+                                    moduli[index];
+
+                                partial_product =
+                                    product /
+                                    modulus;
+
+                                multipliers.push(
+                                    partial_product *
+                                    modular_inverse(
+                                        partial_product %
+                                            modulus,
+                                        modulus
+                                    )
+                                );
+                            }
+
+                            crt_candidates.push({
+                                moduli: moduli,
+                                product: product,
+                                multipliers:
+                                    multipliers
+                            });
+                        }
+                    }
+                }
+            }
+
+            function create_printable_source_variants(
+                source
+            ) {
+                var variants = [];
+                var seen = new Set();
+                var wrapped = "";
+
+                function add(
+                    text,
+                    description
+                ) {
+                    if (
+                        !seen.has(text) &&
+                        is_printable_ascii(text)
+                    ) {
+                        seen.add(text);
+
+                        variants.push({
+                            text: text,
+                            description:
+                                description
+                        });
+                    }
+                }
+
+                add(
+                    source,
+                    "direct printable source"
+                );
+
+                wrapped =
+                    "exec(" +
+                    create_python_string_literal(
+                        source,
+                        true
+                    ) +
+                    ")";
+
+                add(
+                    wrapped,
+                    "escaped exec source"
+                );
+
+                return variants;
+            }
+
+            function pad_printable_source(
+                source
+            ) {
+                var remainder =
+                    source.length % 3;
+
+                if (remainder === 0) {
+                    return source;
+                }
+
+                return (
+                    source +
+                    " ".repeat(
+                        3 - remainder
+                    )
+                );
+            }
+
+            function pack_crt_variant(
+                source_variant
+            ) {
+                var source =
+                    pad_printable_source(
+                        source_variant.text
+                    );
+
+                var best = null;
+                var candidate = null;
+                var packed_parts = null;
+                var source_index = 0;
+                var first = 0;
+                var second = 0;
+                var third = 0;
+                var code_point = 0;
+                var packed_text = "";
+                var packed_literal = "";
+                var modulus_text = "";
+                var output_text = "";
+                var character_count = 0;
+                var candidate_index = 0;
+
+                for (
+                    candidate_index = 0;
+                    candidate_index <
+                        crt_candidates.length;
+                    candidate_index += 1
+                ) {
+                    candidate =
+                        crt_candidates[
+                            candidate_index
+                        ];
+
+                    packed_parts = [];
+
+                    for (
+                        source_index = 0;
+                        source_index <
+                            source.length;
+                        source_index += 3
+                    ) {
+                        first =
+                            source.charCodeAt(
+                                source_index
+                            ) - 32;
+
+                        second =
+                            source.charCodeAt(
+                                source_index + 1
+                            ) - 32;
+
+                        third =
+                            source.charCodeAt(
+                                source_index + 2
+                            ) - 32;
+
+                        code_point =
+                            (
+                                first *
+                                    candidate
+                                        .multipliers[0] +
+                                second *
+                                    candidate
+                                        .multipliers[1] +
+                                third *
+                                    candidate
+                                        .multipliers[2]
+                            ) %
+                            candidate.product;
+
+                        packed_parts.push(
+                            String.fromCodePoint(
+                                code_point
+                            )
+                        );
+                    }
+
+                    packed_text =
+                        packed_parts.join("");
+
+                    packed_literal =
+                        create_python_string_literal(
+                            packed_text,
+                            false
+                        );
+
+                    modulus_text =
+                        String.fromCharCode(
+                            candidate.moduli[0],
+                            candidate.moduli[1],
+                            candidate.moduli[2]
+                        );
+
+                    output_text =
+                        "exec(bytes(" +
+                        "ord(c)%i+32" +
+                        "for c in" +
+                        packed_literal +
+                        "for i in b'" +
+                        modulus_text +
+                        "'))";
+
+                    character_count =
+                        get_character_count(
+                            output_text
+                        );
+
+                    if (
+                        best === null ||
+                        character_count <
+                            best.character_count ||
+                        (
+                            character_count ===
+                                best.character_count &&
+                            get_byte_count(
+                                output_text
+                            ) <
+                                best.byte_count
+                        )
+                    ) {
+                        best = {
+                            text: output_text,
+
+                            character_count:
+                                character_count,
+
+                            byte_count:
+                                get_byte_count(
+                                    output_text
+                                ),
+
+                            notes:
+                                source_variant
+                                    .description +
+                                ", moduli b'" +
+                                modulus_text +
+                                "'"
+                        };
+                    }
+                }
+
+                return best;
+            }
+
+            function create_best_crt_output(
+                source
+            ) {
+                var variants =
+                    create_printable_source_variants(
+                        source
+                    );
+
+                var best = null;
+                var result = null;
+                var index = 0;
+
+                for (
+                    index = 0;
+                    index < variants.length;
+                    index += 1
+                ) {
+                    result =
+                        pack_crt_variant(
+                            variants[index]
+                        );
+
+                    if (
+                        result !== null &&
+                        (
+                            best === null ||
+                            result.character_count <
+                                best.character_count ||
+                            (
+                                result.character_count ===
+                                    best.character_count &&
+                                result.byte_count <
+                                    best.byte_count
+                            )
+                        )
+                    ) {
+                        best = result;
+                    }
+                }
+
+                return best;
+            }
+
+            function pack_radix_95_variant(
+                source_variant
+            ) {
+                var source =
+                    pad_printable_source(
+                        source_variant.text
+                    );
+
+                var packed_parts = [];
+                var index = 0;
+                var first = 0;
+                var second = 0;
+                var third = 0;
+                var code_point = 0;
+                var packed_text = "";
+                var packed_literal = "";
+
+                for (
+                    index = 0;
+                    index < source.length;
+                    index += 3
+                ) {
+                    first =
+                        source.charCodeAt(index) -
+                        32;
+
+                    second =
+                        source.charCodeAt(
+                            index + 1
+                        ) - 32;
+
+                    third =
+                        source.charCodeAt(
+                            index + 2
+                        ) - 32;
+
+                    code_point =
+                        (
+                            first * 95 +
+                            second
+                        ) *
+                        95 +
+                        third;
+
+                    packed_parts.push(
+                        String.fromCodePoint(
+                            code_point
+                        )
+                    );
+                }
+
+                packed_text =
+                    packed_parts.join("");
+
+                packed_literal =
+                    create_python_string_literal(
+                        packed_text,
+                        false
+                    );
+
+                return {
+                    text:
+                        "exec(bytes(" +
+                        "ord(c)//95**i%95+32" +
+                        "for c in" +
+                        packed_literal +
+                        "for i in(2,1,0)))",
+
+                    notes:
+                        source_variant
+                            .description
+                };
+            }
+
+            function create_best_radix_95_output(
+                source
+            ) {
+                var variants =
+                    create_printable_source_variants(
+                        source
+                    );
+
+                var best = null;
+                var result = null;
+                var index = 0;
+
+                for (
+                    index = 0;
+                    index < variants.length;
+                    index += 1
+                ) {
+                    result =
+                        pack_radix_95_variant(
+                            variants[index]
+                        );
+
+                    result.character_count =
+                        get_character_count(
+                            result.text
+                        );
+
+                    result.byte_count =
+                        get_byte_count(
+                            result.text
+                        );
+
+                    if (
+                        best === null ||
+                        result.character_count <
+                            best.character_count ||
+                        (
+                            result.character_count ===
+                                best.character_count &&
+                            result.byte_count <
+                                best.byte_count
+                        )
+                    ) {
+                        best = result;
+                    }
+                }
+
+                return best;
+            }
+
+            function create_u16_output(
+                source,
+                portable
+            ) {
+                var byte_values =
+                    Array.from(
+                        text_encoder.encode(
+                            source
+                        )
+                    );
+
+                var packed_parts = [];
+                var index = 0;
+                var code_unit = 0;
+                var packed_text = "";
+                var packed_literal = "";
+
+                if (
+                    byte_values.length % 2 !==
+                    0
+                ) {
+                    byte_values.push(10);
+                }
+
+                for (
+                    index = 0;
+                    index <
+                        byte_values.length;
+                    index += 2
+                ) {
+                    code_unit =
+                        byte_values[index] +
+                        byte_values[index + 1] *
+                            256;
+
+                    if (
+                        code_unit >= 0xd800 &&
+                        code_unit <= 0xdfff
+                    ) {
+                        return null;
+                    }
+
+                    packed_parts.push(
+                        String.fromCharCode(
+                            code_unit
+                        )
+                    );
+                }
+
+                packed_text =
+                    packed_parts.join("");
+
+                packed_literal =
+                    create_python_string_literal(
+                        packed_text,
+                        false
+                    );
+
+                if (portable) {
+                    return (
+                        "exec(" +
+                        packed_literal +
+                        ".encode('utf-16le'))"
+                    );
+                }
+
+                return (
+                    "exec(bytes(" +
+                    packed_literal +
+                    ",'u16')[2:])"
+                );
+            }
+
+            function find_dictionary_candidates(
+                source
+            ) {
+                var markers =
+                    "~|^@`_?%&$!";
+
+                var available_markers =
+                    Array.from(markers).filter(
+                        function (marker) {
+                            return (
+                                !source.includes(
+                                    marker
+                                )
+                            );
+                        }
+                    );
+
+                var estimates = [];
+                var seen = new Set();
+
+                var maximum_length =
+                    Math.min(
+                        48,
+                        Math.floor(
+                            source.length / 2
+                        )
+                    );
+
+                var length = 0;
+                var start = 0;
+                var substring = "";
+                var count = 0;
+                var position = 0;
+                var marker = "";
+                var encoded = "";
+                var output = "";
+                var results = [];
+                var index = 0;
+
+                if (
+                    available_markers.length ===
+                        0 ||
+                    source.length < 8
+                ) {
+                    return results;
+                }
+
+                for (
+                    length = 3;
+                    length <= maximum_length;
+                    length += 1
+                ) {
+                    for (
+                        start = 0;
+                        start + length <=
+                            source.length;
+                        start += 1
+                    ) {
+                        substring =
+                            source.slice(
+                                start,
+                                start + length
+                            );
+
+                        if (
+                            seen.has(substring)
+                        ) {
+                            continue;
+                        }
+
+                        seen.add(substring);
+
+                        count = 0;
+                        position = 0;
+
+                        while (
+                            (
+                                position =
+                                    source.indexOf(
+                                        substring,
+                                        position
+                                    )
+                            ) !== -1
+                        ) {
+                            count += 1;
+
+                            position +=
+                                substring.length;
+                        }
+
+                        if (count >= 2) {
+                            estimates.push({
+                                substring:
+                                    substring,
+
+                                estimated_saving:
+                                    count *
+                                        (
+                                            length -
+                                            1
+                                        ) -
+                                    length
+                            });
+                        }
+                    }
+                }
+
+                estimates.sort(
+                    function (
+                        first,
+                        second
+                    ) {
+                        return (
+                            second
+                                .estimated_saving -
+                            first
+                                .estimated_saving
+                        );
+                    }
+                );
+
+                estimates =
+                    estimates.slice(0, 120);
+
+                for (
+                    index = 0;
+                    index < estimates.length;
+                    index += 1
+                ) {
+                    substring =
+                        estimates[index]
+                            .substring;
+
+                    for (
+                        marker of
+                        available_markers
+                    ) {
+                        encoded =
+                            source
+                                .split(
+                                    substring
+                                )
+                                .join(marker);
+
+                        output =
+                            "exec(" +
+                            create_python_string_literal(
+                                encoded,
+                                false
+                            ) +
+                            ".replace(" +
+                            create_python_string_literal(
+                                marker,
+                                false
+                            ) +
+                            "," +
+                            create_python_string_literal(
+                                substring,
+                                false
+                            ) +
+                            "))";
+
+                        results.push({
+                            text: output,
+
+                            notes:
+                                "one-token " +
+                                "dictionary " +
+                                "replacement"
+                        });
+                    }
+                }
+
+                results.sort(
+                    function (
+                        first,
+                        second
+                    ) {
+                        return (
+                            get_character_count(
+                                first.text
+                            ) -
+                                get_character_count(
+                                    second.text
+                                ) ||
+                            get_byte_count(
+                                first.text
+                            ) -
+                                get_byte_count(
+                                    second.text
+                                )
+                        );
+                    }
+                );
+
+                return results.slice(0, 3);
+            }
+
+            function base64_encode(
+                byte_values
+            ) {
+                var output = [];
+                var index = 0;
+                var first = 0;
+                var second = 0;
+                var third = 0;
+                var combined = 0;
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 3
+                ) {
+                    first =
+                        byte_values[index];
+
+                    second =
+                        index + 1 <
+                        byte_values.length
+                            ? byte_values[
+                                index + 1
+                            ]
+                            : 0;
+
+                    third =
+                        index + 2 <
+                        byte_values.length
+                            ? byte_values[
+                                index + 2
+                            ]
+                            : 0;
+
+                    combined =
+                        first * 65536 +
+                        second * 256 +
+                        third;
+
+                    output.push(
+                        b64_alphabet[
+                            Math.floor(
+                                combined /
+                                262144
+                            ) % 64
+                        ]
+                    );
+
+                    output.push(
+                        b64_alphabet[
+                            Math.floor(
+                                combined /
+                                4096
+                            ) % 64
+                        ]
+                    );
+
+                    output.push(
+                        index + 1 <
+                            byte_values.length
+                            ? b64_alphabet[
+                                Math.floor(
+                                    combined /
+                                    64
+                                ) % 64
+                            ]
+                            : "="
+                    );
+
+                    output.push(
+                        index + 2 <
+                            byte_values.length
+                            ? b64_alphabet[
+                                combined % 64
+                            ]
+                            : "="
+                    );
+                }
+
+                return output.join("");
+            }
+
+            function base85_encode(
+                byte_values
+            ) {
+                var output = [];
+                var index = 0;
+                var chunk_length = 0;
+                var value = 0;
+
+                var digits = [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ];
+
+                var digit_index = 0;
+                var byte_index = 0;
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 4
+                ) {
+                    chunk_length =
+                        Math.min(
+                            4,
+                            byte_values.length -
+                                index
+                        );
+
+                    value = 0;
+
+                    for (
+                        byte_index = 0;
+                        byte_index < 4;
+                        byte_index += 1
+                    ) {
+                        value =
+                            value * 256 +
+                            (
+                                byte_index <
+                                    chunk_length
+                                    ? byte_values[
+                                        index +
+                                        byte_index
+                                    ]
+                                    : 0
+                            );
+                    }
+
+                    for (
+                        digit_index = 4;
+                        digit_index >= 0;
+                        digit_index -= 1
+                    ) {
+                        digits[digit_index] =
+                            value % 85;
+
+                        value =
+                            Math.floor(
+                                value / 85
+                            );
+                    }
+
+                    for (
+                        digit_index = 0;
+                        digit_index <
+                            (
+                                chunk_length ===
+                                    4
+                                    ? 5
+                                    : chunk_length +
+                                        1
+                            );
+                        digit_index += 1
+                    ) {
+                        output.push(
+                            b85_alphabet[
+                                digits[
+                                    digit_index
+                                ]
+                            ]
+                        );
+                    }
+                }
+
+                return output.join("");
+            }
+
+            function ascii85_encode(
+                byte_values
+            ) {
+                var output = [];
+                var index = 0;
+                var chunk_length = 0;
+                var value = 0;
+
+                var digits = [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ];
+
+                var digit_index = 0;
+                var byte_index = 0;
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 4
+                ) {
+                    chunk_length =
+                        Math.min(
+                            4,
+                            byte_values.length -
+                                index
+                        );
+
+                    value = 0;
+
+                    for (
+                        byte_index = 0;
+                        byte_index < 4;
+                        byte_index += 1
+                    ) {
+                        value =
+                            value * 256 +
+                            (
+                                byte_index <
+                                    chunk_length
+                                    ? byte_values[
+                                        index +
+                                        byte_index
+                                    ]
+                                    : 0
+                            );
+                    }
+
+                    if (
+                        chunk_length === 4 &&
+                        value === 0
+                    ) {
+                        output.push("z");
+                        continue;
+                    }
+
+                    for (
+                        digit_index = 4;
+                        digit_index >= 0;
+                        digit_index -= 1
+                    ) {
+                        digits[digit_index] =
+                            value % 85;
+
+                        value =
+                            Math.floor(
+                                value / 85
+                            );
+                    }
+
+                    for (
+                        digit_index = 0;
+                        digit_index <
+                            (
+                                chunk_length ===
+                                    4
+                                    ? 5
+                                    : chunk_length +
+                                        1
+                            );
+                        digit_index += 1
+                    ) {
+                        output.push(
+                            String.fromCharCode(
+                                digits[
+                                    digit_index
+                                ] + 33
+                            )
+                        );
+                    }
+                }
+
+                return output.join("");
+            }
+
+            function create_base_decode_wrapper(
+                method,
+                payload
+            ) {
+                var literal =
+                    create_python_string_literal(
+                        payload,
+                        false
+                    );
+
+                var first =
+                    "from base64 import*;" +
+                    "exec(" +
+                    method +
+                    "(" +
+                    literal +
+                    "))";
+
+                var second =
+                    "import base64 as b;" +
+                    "exec(b." +
+                    method +
+                    "(" +
+                    literal +
+                    "))";
+
+                if (
+                    get_character_count(first) <=
+                    get_character_count(second)
+                ) {
+                    return first;
+                }
+
+                return second;
+            }
+
+            function create_compressed_wrapper(
+                module_name,
+                method,
+                payload,
+                raw
+            ) {
+                var literal =
+                    create_python_string_literal(
+                        payload,
+                        false
+                    );
+
+                var suffix =
+                    raw ? ",-15" : "";
+
+                return (
+                    "import " +
+                    module_name +
+                    ",base64 as b;" +
+                    "exec(" +
+                    module_name +
+                    ".decompress(" +
+                    "b." +
+                    method +
+                    "(" +
+                    literal +
+                    ")" +
+                    suffix +
+                    "))"
+                );
+            }
+
+            function create_compressed_bytes_wrapper(
+                module_name,
+                byte_values,
+                raw
+            ) {
+                var literal =
+                    create_python_bytes_literal(
+                        byte_values
+                    );
+
+                var suffix =
+                    raw ? ",-15" : "";
+
+                return (
+                    "import " +
+                    module_name +
+                    ";exec(" +
+                    module_name +
+                    ".decompress(" +
+                    literal +
+                    suffix +
+                    "))"
+                );
+            }
+
+            async function transform_bytes(
+                byte_values,
+                format,
+                decompress
+            ) {
+                var Constructor =
+                    decompress
+                        ? DecompressionStream
+                        : CompressionStream;
+
+                var stream =
+                    new Blob([
+                        byte_values
+                    ])
+                        .stream()
+                        .pipeThrough(
+                            new Constructor(
+                                format
+                            )
+                        );
+
+                return new Uint8Array(
+                    await new Response(
+                        stream
+                    ).arrayBuffer()
+                );
+            }
+
+            function byte_arrays_equal(
+                first,
+                second
+            ) {
+                var index = 0;
+
+                if (
+                    first.length !==
+                    second.length
+                ) {
+                    return false;
+                }
+
+                for (
+                    index = 0;
+                    index < first.length;
+                    index += 1
+                ) {
+                    if (
+                        first[index] !==
+                        second[index]
+                    ) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            async function add_compression_results(
+                source_bytes,
+                results,
+                names_by_text
+            ) {
+                var deflate = null;
+                var gzip = null;
+                var verified = null;
+                var raw_deflate = null;
+                var encodings = null;
+                var encoding = null;
+                var index = 0;
+                var payload = "";
+                var method = "";
+
+                if (
+                    typeof CompressionStream ===
+                        "undefined" ||
+                    typeof DecompressionStream ===
+                        "undefined"
+                ) {
+                    return false;
+                }
+
+                deflate =
+                    await transform_bytes(
+                        source_bytes,
+                        "deflate",
+                        false
+                    );
+
+                verified =
+                    await transform_bytes(
+                        deflate,
+                        "deflate",
+                        true
+                    );
+
+                if (
+                    !byte_arrays_equal(
+                        source_bytes,
+                        verified
+                    )
+                ) {
+                    throw new Error(
+                        "DEFLATE verification failed"
+                    );
+                }
+
+                gzip =
+                    await transform_bytes(
+                        source_bytes,
+                        "gzip",
+                        false
+                    );
+
+                verified =
+                    await transform_bytes(
+                        gzip,
+                        "gzip",
+                        true
+                    );
+
+                if (
+                    !byte_arrays_equal(
+                        source_bytes,
+                        verified
+                    )
+                ) {
+                    throw new Error(
+                        "gzip verification failed"
+                    );
+                }
+
+                raw_deflate =
+                    deflate.slice(
+                        2,
+                        deflate.length - 4
+                    );
+
+                encodings = [
+                    {
+                        name: "Base85",
+                        method: "b85decode",
+                        encode: base85_encode
+                    },
+                    {
+                        name: "Ascii85",
+                        method: "a85decode",
+                        encode: ascii85_encode
+                    },
+                    {
+                        name: "Base64",
+                        method: "b64decode",
+                        encode: base64_encode
+                    }
+                ];
+
+                for (
+                    index = 0;
+                    index < encodings.length;
+                    index += 1
+                ) {
+                    encoding =
+                        encodings[index];
+
+                    method =
+                        encoding.method;
+
+                    payload =
+                        encoding.encode(
+                            deflate
+                        );
+
+                    add_result(
+                        results,
+                        names_by_text,
+                        "zlib + " +
+                            encoding.name,
+                        create_compressed_wrapper(
+                            "zlib",
+                            method,
+                            payload,
+                            false
+                        ),
+                        "browser-compressed " +
+                            "and round-trip " +
+                            "verified"
+                    );
+
+                    payload =
+                        encoding.encode(
+                            raw_deflate
+                        );
+
+                    add_result(
+                        results,
+                        names_by_text,
+                        "raw DEFLATE + " +
+                            encoding.name,
+                        create_compressed_wrapper(
+                            "zlib",
+                            method,
+                            payload,
+                            true
+                        ),
+                        "zlib header/footer " +
+                            "removed"
+                    );
+
+                    payload =
+                        encoding.encode(gzip);
+
+                    add_result(
+                        results,
+                        names_by_text,
+                        "gzip + " +
+                            encoding.name,
+                        create_compressed_wrapper(
+                            "gzip",
+                            method,
+                            payload,
+                            false
+                        ),
+                        "browser-compressed " +
+                            "and round-trip " +
+                            "verified"
+                    );
+                }
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "zlib + bytes literal",
+                    create_compressed_bytes_wrapper(
+                        "zlib",
+                        deflate,
+                        false
+                    ),
+                    "binary payload " +
+                        "escaped directly"
+                );
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "raw DEFLATE + bytes literal",
+                    create_compressed_bytes_wrapper(
+                        "zlib",
+                        raw_deflate,
+                        true
+                    ),
+                    "binary payload " +
+                        "escaped directly"
+                );
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "gzip + bytes literal",
+                    create_compressed_bytes_wrapper(
+                        "gzip",
+                        gzip,
+                        false
+                    ),
+                    "binary payload " +
+                        "escaped directly"
+                );
+
+                return true;
+            }
+
+            function build_synchronous_results(
+                source
+            ) {
+                var results = [];
+                var names_by_text = new Map();
+
+                var source_bytes =
+                    Array.from(
+                        text_encoder.encode(
+                            source
+                        )
+                    );
+
+                var output = "";
+                var crt = null;
+                var radix = null;
+                var dictionary_candidates = null;
+                var dictionary = null;
+                var index = 0;
+                var payload = "";
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "Raw source",
+                    source,
+                    "no wrapper"
+                );
+
+                output =
+                    "exec(" +
+                    create_python_string_literal(
+                        source,
+                        false
+                    ) +
+                    ")";
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "Escaped exec literal",
+                    output,
+                    "exact string wrapper"
+                );
+
+                dictionary_candidates =
+                    find_dictionary_candidates(
+                        source
+                    );
+
+                for (
+                    index = 0;
+                    index <
+                        dictionary_candidates.length;
+                    index += 1
+                ) {
+                    dictionary =
+                        dictionary_candidates[
+                            index
+                        ];
+
+                    add_result(
+                        results,
+                        names_by_text,
+                        "Dictionary replacement " +
+                            (index + 1),
+                        dictionary.text,
+                        dictionary.notes
+                    );
+                }
+
+                output =
+                    create_u16_output(
+                        source,
+                        false
+                    );
+
+                if (output !== null) {
+                    add_result(
+                        results,
+                        names_by_text,
+                        "UTF-16 2:1",
+                        output,
+                        "short native-endian form"
+                    );
+                }
+
+                output =
+                    create_u16_output(
+                        source,
+                        true
+                    );
+
+                if (output !== null) {
+                    add_result(
+                        results,
+                        names_by_text,
+                        "UTF-16LE 2:1",
+                        output,
+                        "portable " +
+                            "little-endian form"
+                    );
+                }
+
+                crt =
+                    create_best_crt_output(
+                        source
+                    );
+
+                if (crt !== null) {
+                    add_result(
+                        results,
+                        names_by_text,
+                        "CRT Unicode 3:1",
+                        crt.text,
+                        crt.notes
+                    );
+                }
+
+                radix =
+                    create_best_radix_95_output(
+                        source
+                    );
+
+                if (radix !== null) {
+                    add_result(
+                        results,
+                        names_by_text,
+                        "Radix-95 Unicode 3:1",
+                        radix.text,
+                        radix.notes
+                    );
+                }
+
+                payload =
+                    base85_encode(
+                        source_bytes
+                    );
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "Raw Base85",
+                    create_base_decode_wrapper(
+                        "b85decode",
+                        payload
+                    ),
+                    "standard-library " +
+                        "base64 module"
+                );
+
+                payload =
+                    ascii85_encode(
+                        source_bytes
+                    );
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "Raw Ascii85",
+                    create_base_decode_wrapper(
+                        "a85decode",
+                        payload
+                    ),
+                    "standard-library " +
+                        "base64 module"
+                );
+
+                payload =
+                    base64_encode(
+                        source_bytes
+                    );
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "Raw Base64",
+                    create_base_decode_wrapper(
+                        "b64decode",
+                        payload
+                    ),
+                    "standard-library " +
+                        "base64 module"
+                );
+
+                add_result(
+                    results,
+                    names_by_text,
+                    "Raw hexadecimal",
+                    "exec(bytes.fromhex(" +
+                    create_python_string_literal(
+                        source_bytes
+                            .map(
+                                function (value) {
+                                    return value
+                                        .toString(16)
+                                        .padStart(
+                                            2,
+                                            "0"
+                                        );
+                                }
+                            )
+                            .join(""),
+                        false
+                    ) +
+                    "))",
+                    "two hexadecimal digits " +
+                        "per source byte"
+                );
+
+                return {
+                    results: results,
+
+                    names_by_text:
+                        names_by_text,
+
+                    source_bytes:
+                        new Uint8Array(
+                            source_bytes
+                        )
+                };
+            }
+
+            function render_results(
+                results,
+                input_character_count
+            ) {
+                var best = null;
+                var row = null;
+                var name_cell = null;
+                var character_cell = null;
+                var byte_cell = null;
+                var change_cell = null;
+                var notes_cell = null;
+                var change = 0;
+                var index = 0;
+
+                results.sort(
+                    compare_results
+                );
+
+                best = results[0];
+
+                results_body.textContent =
+                    "";
+
+                for (
+                    index = 0;
+                    index < results.length;
+                    index += 1
+                ) {
+                    row =
+                        document.createElement(
+                            "tr"
+                        );
+
+                    if (index === 0) {
+                        row.className =
+                            "best";
+                    }
+
+                    name_cell =
+                        document.createElement(
+                            "td"
+                        );
+
+                    character_cell =
+                        document.createElement(
+                            "td"
+                        );
+
+                    byte_cell =
+                        document.createElement(
+                            "td"
+                        );
+
+                    change_cell =
+                        document.createElement(
+                            "td"
+                        );
+
+                    notes_cell =
+                        document.createElement(
+                            "td"
+                        );
+
+                    name_cell.textContent =
+                        results[index].name;
+
+                    character_cell.textContent =
+                        results[index]
+                            .character_count;
+
+                    byte_cell.textContent =
+                        results[index]
+                            .byte_count;
+
+                    change =
+                        results[index]
+                            .character_count -
+                        input_character_count;
+
+                    change_cell.textContent =
+                        change > 0
+                            ? "+" + change
+                            : String(change);
+
+                    notes_cell.textContent =
+                        results[index].notes;
+
+                    character_cell.className =
+                        "number";
+
+                    byte_cell.className =
+                        "number";
+
+                    change_cell.className =
+                        "number";
+
+                    row.appendChild(
+                        name_cell
+                    );
+
+                    row.appendChild(
+                        character_cell
+                    );
+
+                    row.appendChild(
+                        byte_cell
+                    );
+
+                    row.appendChild(
+                        change_cell
+                    );
+
+                    row.appendChild(
+                        notes_cell
+                    );
+
+                    results_body.appendChild(
+                        row
+                    );
+                }
+
+                winner_name.textContent =
+                    best.name;
+
+                output_pre.textContent =
+                    best.text;
+
+                output_stats.textContent =
+                    create_stats_text(
+                        best.text
+                    );
+
+                return best;
+            }
+
+            function set_status(
+                message,
+                class_name
+            ) {
+                status_hint.textContent =
+                    message;
+
+                status_hint.className =
+                    "hint" +
+                    (
+                        class_name
+                            ? " " + class_name
+                            : ""
+                    );
+            }
+
+            async function update_output_now() {
+                var current_generation =
+                    ++generation;
+
+                var source =
+                    input_textarea.value;
+
+                var synchronous = null;
+
+                var compression_available =
+                    false;
+
+                var best = null;
+                var saved = 0;
+
+                input_stats.textContent =
+                    create_stats_text(
+                        source
+                    );
+
+                resize_input_textarea();
+
+                if (!source) {
+                    winner_name.textContent =
+                        "None";
+
+                    output_pre.textContent =
+                        "";
+
+                    output_stats.textContent =
+                        "0 UTF-8 bytes, 0 chars";
+
+                    results_body.textContent =
+                        "";
+
+                    set_status(
+                        "Enter Python code " +
+                            "to compare packers.",
+                        ""
+                    );
+
+                    return;
+                }
+
+                set_status(
+                    "Testing structural " +
+                        "and Unicode packers…",
+                    ""
+                );
+
+                try {
+                    synchronous =
+                        build_synchronous_results(
+                            source
+                        );
+
+                    if (
+                        current_generation !==
+                        generation
+                    ) {
+                        return;
+                    }
+
+                    render_results(
+                        synchronous.results,
+                        get_character_count(
+                            source
+                        )
+                    );
+
+                    set_status(
+                        "Testing DEFLATE " +
+                            "and gzip variants…",
+                        ""
+                    );
+
+                    compression_available =
+                        await add_compression_results(
+                            synchronous
+                                .source_bytes,
+                            synchronous.results,
+                            synchronous
+                                .names_by_text
+                        );
+
+                    if (
+                        current_generation !==
+                        generation
+                    ) {
+                        return;
+                    }
+
+                    best =
+                        render_results(
+                            synchronous.results,
+                            get_character_count(
+                                source
+                            )
+                        );
+
+                    saved =
+                        get_character_count(
+                            source
+                        ) -
+                        best.character_count;
+
+                    set_status(
+                        "Tested " +
+                        synchronous.results
+                            .length +
+                        " distinct valid outputs. " +
+                        (
+                            saved > 0
+                                ? "Winner saves " +
+                                    saved +
+                                    " characters."
+                                : saved === 0
+                                    ? "Winner ties " +
+                                        "the original " +
+                                        "character count."
+                                    : "All wrappers " +
+                                        "are longer; " +
+                                        "raw source " +
+                                        "remains best."
+                        ) +
+                        (
+                            compression_available
+                                ? " Compression " +
+                                    "streams were " +
+                                    "round-trip " +
+                                    "verified."
+                                : " CompressionStream " +
+                                    "is unavailable " +
+                                    "in this browser."
+                        ),
+                        ""
+                    );
+                } catch (error) {
+                    if (
+                        current_generation !==
+                        generation
+                    ) {
+                        return;
+                    }
+
+                    set_status(
+                        error &&
+                        error.message
+                            ? error.message
+                            : "Packing failed.",
+                        "error"
+                    );
+                }
+            }
+
+            function resize_input_textarea() {
+                input_textarea.style.height =
+                    "auto";
+
+                input_textarea.style.height =
+                    input_textarea.scrollHeight +
+                    "px";
+            }
+
+            function schedule_update() {
+                input_stats.textContent =
+                    create_stats_text(
+                        input_textarea.value
+                    );
+
+                resize_input_textarea();
+
+                if (
+                    update_timeout !== null
+                ) {
+                    clearTimeout(
+                        update_timeout
+                    );
+                }
+
+                update_timeout =
+                    setTimeout(
+                        update_output_now,
+                        180
+                    );
+            }
+
+            function show_splash(message) {
+                splash.textContent = message;
+                splash.classList.add("show");
+
+                if (
+                    splash_timeout !== null
+                ) {
+                    clearTimeout(
+                        splash_timeout
+                    );
+                }
+
+                splash_timeout =
+                    setTimeout(
+                        function () {
+                            splash.classList.remove(
+                                "show"
+                            );
+                        },
+                        1100
+                    );
+            }
+
+            function fallback_copy(text) {
+                var copy_textarea =
+                    document.createElement(
+                        "textarea"
+                    );
+
+                var was_copied = false;
+
+                copy_textarea.value = text;
+
+                copy_textarea.setAttribute(
+                    "readonly",
+                    ""
+                );
+
+                copy_textarea.style.position =
+                    "fixed";
+
+                copy_textarea.style.left =
+                    "-9999px";
+
+                copy_textarea.style.top =
+                    "-9999px";
+
+                document.body.appendChild(
+                    copy_textarea
+                );
+
+                copy_textarea.select();
+
+                try {
+                    was_copied =
+                        document.execCommand(
+                            "copy"
+                        );
+                } catch (error) {
+                    was_copied = false;
+                }
+
+                document.body.removeChild(
+                    copy_textarea
+                );
+
+                show_splash(
+                    was_copied
+                        ? "Copied"
+                        : "Copy failed"
+                );
+            }
+
+            function copy_output() {
+                var output_text =
+                    output_pre.textContent;
+
+                if (!output_text) {
+                    return;
+                }
+
+                if (
+                    navigator.clipboard &&
+                    window.isSecureContext
+                ) {
+                    navigator.clipboard
+                        .writeText(output_text)
+                        .then(
+                            function () {
+                                show_splash(
+                                    "Copied"
+                                );
+                            },
+                            function () {
+                                fallback_copy(
+                                    output_text
+                                );
+                            }
+                        );
+                } else {
+                    fallback_copy(
+                        output_text
+                    );
+                }
+            }
+
+            input_textarea.addEventListener(
+                "input",
+                schedule_update
+            );
+
+            output_pre.addEventListener(
+                "click",
+                copy_output
+            );
+
+            output_pre.addEventListener(
+                "keydown",
+                function (event) {
+                    if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                    ) {
+                        event.preventDefault();
+                        copy_output();
+                    }
+                }
+            );
+
+            prepare_crt_candidates();
+            resize_input_textarea();
+            update_output_now();
+        }());
+    </script>
+</body>
+</html>

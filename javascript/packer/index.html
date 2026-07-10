@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1"
+    >
+    <title>JavaScript Extreme Unicode Packer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #101114;
+            color: #f2f2f2;
+        }
+
+        main {
+            width: min(1100px, 100%);
+            margin: auto;
+            padding: 32px 16px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        p {
+            margin: 0 0 24px;
+            color: #b8b8b8;
+        }
+
+        code {
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        textarea,
+        pre,
+        select {
+            border: 1px solid #343740;
+            border-radius: 12px;
+            background: #181a20;
+            color: #f2f2f2;
+            font: 15px/1.5 Consolas, Monaco, monospace;
+        }
+
+        textarea,
+        pre {
+            width: 100%;
+        }
+
+        textarea {
+            min-height: 180px;
+            padding: 16px;
+            resize: none;
+            overflow: hidden;
+            outline: none;
+        }
+
+        textarea:focus,
+        select:focus {
+            border-color: #6ea8ff;
+        }
+
+        pre {
+            min-height: 120px;
+            margin: 0;
+            padding: 16px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            cursor: pointer;
+            user-select: all;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .stats,
+        .hint {
+            font-size: 13px;
+            color: #9a9a9a;
+        }
+
+        .stats {
+            margin-bottom: 8px;
+        }
+
+        .hint {
+            margin-top: 8px;
+        }
+
+        .warning {
+            color: #e6ba73;
+        }
+
+        .error {
+            color: #ff8d8d;
+        }
+
+        .winner {
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .winner span {
+            color: #8fc0ff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .control {
+            min-width: 220px;
+        }
+
+        .control label {
+            font-size: 13px;
+        }
+
+        .control select {
+            width: 100%;
+            padding: 8px 10px;
+            outline: none;
+        }
+
+        .table_wrap {
+            overflow-x: auto;
+            border: 1px solid #343740;
+            border-radius: 12px;
+            background: #181a20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #2d3038;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #bfc5d2;
+            background: #1d2027;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tr.best td {
+            color: #dcecff;
+            background: #202b3a;
+        }
+
+        td.number {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .splash {
+            position: fixed;
+            left: 50%;
+            bottom: 32px;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: #f2f2f2;
+            color: #101114;
+            font-weight: bold;
+            opacity: 0;
+            transform: translate(-50%, 12px);
+            transition:
+                opacity 180ms ease,
+                transform 180ms ease;
+            pointer-events: none;
+        }
+
+        .splash.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>JavaScript Extreme Unicode Packer</h1>
+
+        <p>
+            Tests multiple exact, offline JavaScript packing strategies
+            and displays the valid result with the lowest Unicode
+            character count.
+        </p>
+
+        <div class="section controls">
+            <div class="control">
+                <label for="target_select">Target runtime</label>
+
+                <select id="target_select">
+                    <option value="golf">
+                        V8
+                    </option>
+
+                    <option value="browser">
+                        Modern browser
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section">
+            <label for="input_textarea">JavaScript input</label>
+
+            <div id="input_stats" class="stats">
+                0 UTF-8 bytes, 0 chars
+            </div>
+
+            <textarea
+                id="input_textarea"
+                spellcheck="false"
+                placeholder="print('hello world')"
+            ></textarea>
+        </div>
+
+        <div class="section">
+            <div class="winner">
+                Best strategy:
+                <span id="winner_name">None</span>
+            </div>
+
+            <div id="output_stats" class="stats">
+                0 UTF-8 bytes, 0 chars
+            </div>
+
+            <pre id="output_pre" tabindex="0"></pre>
+
+            <div id="status_hint" class="hint">
+                Preparing packers…
+            </div>
+
+            <div class="hint warning">
+                Ranking is by Unicode code points, then UTF-8 bytes.
+                Unicode packing usually improves the character
+                leaderboard while increasing byte count.
+            </div>
+
+            <div class="hint">
+                Click the winning output to copy it exactly.
+            </div>
+        </div>
+
+        <div class="section">
+            <label>All valid strategies</label>
+
+            <div class="table_wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th class="number">Chars</th>
+                            <th class="number">UTF-8 bytes</th>
+                            <th class="number">Change</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="results_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div
+        id="splash"
+        class="splash"
+        aria-live="polite"
+    >
+        Copied
+    </div>
+
+    <script>
+        (function () {
+            var input =
+                document.getElementById("input_textarea");
+
+            var input_stats =
+                document.getElementById("input_stats");
+
+            var output =
+                document.getElementById("output_pre");
+
+            var output_stats =
+                document.getElementById("output_stats");
+
+            var winner =
+                document.getElementById("winner_name");
+
+            var status =
+                document.getElementById("status_hint");
+
+            var results_body =
+                document.getElementById("results_body");
+
+            var target =
+                document.getElementById("target_select");
+
+            var splash =
+                document.getElementById("splash");
+
+            var text_encoder = new TextEncoder();
+
+            var splash_timer = null;
+            var update_timer = null;
+            var generation = 0;
+
+            var plus_ready = false;
+            var base_map = null;
+            var base_maximum_length = 1;
+            var high_surrogate_parts = [];
+            var low_surrogate_parts = [];
+            var crt_candidates = [];
+
+            var plus_regex = /u\D*/g;
+
+            function get_byte_count(text) {
+                return text_encoder.encode(text).length;
+            }
+
+            function get_character_count(text) {
+                return Array.from(text).length;
+            }
+
+            function create_stats_text(text) {
+                return (
+                    get_byte_count(text) +
+                    " UTF-8 bytes, " +
+                    get_character_count(text) +
+                    " chars"
+                );
+            }
+
+            function set_status(message, class_name) {
+                status.textContent = message;
+
+                status.className =
+                    "hint" +
+                    (
+                        class_name
+                            ? " " + class_name
+                            : ""
+                    );
+            }
+
+            function compare_results(first, second) {
+                return (
+                    first.character_count -
+                        second.character_count ||
+                    first.byte_count -
+                        second.byte_count ||
+                    first.name.localeCompare(
+                        second.name
+                    )
+                );
+            }
+
+            function add_result(
+                results,
+                seen,
+                name,
+                text,
+                notes,
+                environment
+            ) {
+                var previous = null;
+                var result = null;
+
+                if (!text) {
+                    return null;
+                }
+
+                previous = seen.get(text);
+
+                if (previous !== undefined) {
+                    if (!previous.name.includes(name)) {
+                        previous.name += " / " + name;
+                    }
+
+                    return previous;
+                }
+
+                result = {
+                    name: name,
+                    text: text,
+                    notes: notes || "",
+                    environment:
+                        environment || "both",
+
+                    character_count:
+                        get_character_count(text),
+
+                    byte_count:
+                        get_byte_count(text)
+                };
+
+                seen.set(text, result);
+                results.push(result);
+
+                return result;
+            }
+
+            function escape_code_point(code_point) {
+                var hexadecimal =
+                    code_point.toString(16);
+
+                if (code_point < 256) {
+                    return (
+                        "\\x" +
+                        hexadecimal.padStart(2, "0")
+                    );
+                }
+
+                if (code_point < 65536) {
+                    return (
+                        "\\u" +
+                        hexadecimal.padStart(4, "0")
+                    );
+                }
+
+                return "\\u{" + hexadecimal + "}";
+            }
+
+            function create_quoted_literal(text, quote) {
+                var parts = [quote];
+                var character = "";
+                var code_point = 0;
+
+                for (character of text) {
+                    code_point =
+                        character.codePointAt(0);
+
+                    if (character === "\\") {
+                        parts.push("\\\\");
+                    } else if (character === quote) {
+                        parts.push("\\" + quote);
+                    } else if (character === "\n") {
+                        parts.push("\\n");
+                    } else if (character === "\r") {
+                        parts.push("\\r");
+                    } else if (character === "\t") {
+                        parts.push("\\t");
+                    } else if (character === "\b") {
+                        parts.push("\\b");
+                    } else if (character === "\f") {
+                        parts.push("\\f");
+                    } else if (character === "\v") {
+                        parts.push("\\v");
+                    } else if (
+                        code_point < 32 ||
+                        code_point === 127 ||
+                        code_point === 0x2028 ||
+                        code_point === 0x2029 ||
+                        (
+                            code_point >= 0xd800 &&
+                            code_point <= 0xdfff
+                        )
+                    ) {
+                        parts.push(
+                            escape_code_point(code_point)
+                        );
+                    } else {
+                        parts.push(character);
+                    }
+                }
+
+                parts.push(quote);
+
+                return parts.join("");
+            }
+
+            function create_template_literal(text) {
+                var parts = ["`"];
+                var index = 0;
+                var code_point = 0;
+                var character = "";
+
+                while (index < text.length) {
+                    code_point =
+                        text.codePointAt(index);
+
+                    character =
+                        String.fromCodePoint(code_point);
+
+                    index += character.length;
+
+                    if (character === "\\") {
+                        parts.push("\\\\");
+                    } else if (character === "`") {
+                        parts.push("\\`");
+                    } else if (
+                        character === "$" &&
+                        text.charAt(index) === "{"
+                    ) {
+                        parts.push("\\$");
+                    } else if (character === "\n") {
+                        parts.push("\\n");
+                    } else if (character === "\r") {
+                        parts.push("\\r");
+                    } else if (character === "\t") {
+                        parts.push("\\t");
+                    } else if (
+                        code_point < 32 ||
+                        code_point === 127 ||
+                        code_point === 0x2028 ||
+                        code_point === 0x2029 ||
+                        (
+                            code_point >= 0xd800 &&
+                            code_point <= 0xdfff
+                        )
+                    ) {
+                        parts.push(
+                            escape_code_point(code_point)
+                        );
+                    } else {
+                        parts.push(character);
+                    }
+                }
+
+                parts.push("`");
+
+                return parts.join("");
+            }
+
+            function create_shortest_literal(text) {
+                var candidates = [
+                    create_quoted_literal(text, "'"),
+                    create_quoted_literal(text, '"'),
+                    create_template_literal(text)
+                ];
+
+                candidates.sort(function (
+                    first,
+                    second
+                ) {
+                    return (
+                        get_character_count(first) -
+                            get_character_count(second) ||
+                        get_byte_count(first) -
+                            get_byte_count(second)
+                    );
+                });
+
+                return candidates[0];
+            }
+
+            function is_ascii(text) {
+                return !/[^\x00-\x7f]/.test(text);
+            }
+
+            function is_printable_ascii(text) {
+                return !/[^\x20-\x7e]/.test(text);
+            }
+
+            function utf8_to_latin1(text) {
+                var byte_values =
+                    text_encoder.encode(text);
+
+                var output_text = "";
+                var index = 0;
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 0x8000
+                ) {
+                    output_text +=
+                        String.fromCharCode.apply(
+                            null,
+                            byte_values.slice(
+                                index,
+                                index + 0x8000
+                            )
+                        );
+                }
+
+                return output_text;
+            }
+
+            function encode_base64(byte_values) {
+                var binary_text = "";
+                var index = 0;
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 0x8000
+                ) {
+                    binary_text +=
+                        String.fromCharCode.apply(
+                            null,
+                            byte_values.slice(
+                                index,
+                                index + 0x8000
+                            )
+                        );
+                }
+
+                return btoa(binary_text);
+            }
+
+            function pad_source(text, multiple) {
+                var padding =
+                    (
+                        multiple -
+                        text.length % multiple
+                    ) % multiple;
+
+                return text + " ".repeat(padding);
+            }
+
+            function greatest_common_divisor(
+                first,
+                second
+            ) {
+                var temporary = 0;
+
+                while (second !== 0) {
+                    temporary = first % second;
+                    first = second;
+                    second = temporary;
+                }
+
+                return first;
+            }
+
+            function modular_inverse(
+                value,
+                modulus
+            ) {
+                var old_remainder = modulus;
+                var remainder = value;
+                var old_coefficient = 0;
+                var coefficient = 1;
+
+                var quotient = 0;
+                var temporary = 0;
+
+                while (remainder !== 0) {
+                    quotient = Math.floor(
+                        old_remainder / remainder
+                    );
+
+                    temporary =
+                        old_remainder -
+                        quotient * remainder;
+
+                    old_remainder = remainder;
+                    remainder = temporary;
+
+                    temporary =
+                        old_coefficient -
+                        quotient * coefficient;
+
+                    old_coefficient = coefficient;
+                    coefficient = temporary;
+                }
+
+                return (
+                    (
+                        old_coefficient % modulus
+                    ) +
+                    modulus
+                ) % modulus;
+            }
+
+            function prepare_crt_candidates() {
+                var first = 0;
+                var second = 0;
+                var third = 0;
+                var product = 0;
+
+                var moduli = null;
+                var multipliers = null;
+
+                for (
+                    first = 95;
+                    first < 123;
+                    first += 1
+                ) {
+                    for (
+                        second = 95;
+                        second < 123;
+                        second += 1
+                    ) {
+                        if (
+                            greatest_common_divisor(
+                                first,
+                                second
+                            ) > 1
+                        ) {
+                            continue;
+                        }
+
+                        for (
+                            third = 95;
+                            third < 123;
+                            third += 1
+                        ) {
+                            if (
+                                greatest_common_divisor(
+                                    first,
+                                    third
+                                ) > 1 ||
+                                greatest_common_divisor(
+                                    second,
+                                    third
+                                ) > 1
+                            ) {
+                                continue;
+                            }
+
+                            product =
+                                first *
+                                second *
+                                third;
+
+                            if (product > 0x110000) {
+                                continue;
+                            }
+
+                            moduli = [
+                                first,
+                                second,
+                                third
+                            ];
+
+                            multipliers =
+                                moduli.map(
+                                    function (modulus) {
+                                        var partial =
+                                            product /
+                                            modulus;
+
+                                        return (
+                                            partial *
+                                            modular_inverse(
+                                                partial %
+                                                    modulus,
+                                                modulus
+                                            )
+                                        );
+                                    }
+                                );
+
+                            crt_candidates.push({
+                                moduli: moduli,
+                                product: product,
+                                multipliers:
+                                    multipliers
+                            });
+                        }
+                    }
+                }
+            }
+
+            function create_safe_template_content(
+                character
+            ) {
+                return create_template_literal(
+                    character
+                ).slice(1, -1);
+            }
+
+            function decode_plus_escape(text) {
+                plus_regex.lastIndex = 0;
+
+                return unescape(
+                    text.replace(
+                        plus_regex,
+                        ""
+                    )
+                );
+            }
+
+            function add_base_map_entry(
+                character_map,
+                decoded_text,
+                runtime_character
+            ) {
+                var source_text = "";
+                var character_cost = 0;
+                var previous = null;
+
+                if (!decoded_text) {
+                    return;
+                }
+
+                source_text =
+                    create_safe_template_content(
+                        runtime_character
+                    );
+
+                character_cost =
+                    get_character_count(source_text);
+
+                previous =
+                    character_map.get(decoded_text);
+
+                if (
+                    previous === undefined ||
+                    character_cost <
+                        previous.cost
+                ) {
+                    character_map.set(
+                        decoded_text,
+                        {
+                            source: source_text,
+                            runtime:
+                                runtime_character,
+                            cost: character_cost
+                        }
+                    );
+                }
+
+                base_maximum_length =
+                    Math.max(
+                        base_maximum_length,
+                        decoded_text.length
+                    );
+            }
+
+            function prepare_plus_packer() {
+                var character_map = new Map();
+                var code_point = 0;
+                var character = "";
+                var decoded_text = "";
+                var index = 0;
+                var hexadecimal = "";
+
+                base_maximum_length = 1;
+
+                for (
+                    code_point = 0;
+                    code_point < 65536;
+                    code_point += 1
+                ) {
+                    if (
+                        code_point >= 0xd800 &&
+                        code_point <= 0xdfff
+                    ) {
+                        continue;
+                    }
+
+                    character =
+                        String.fromCharCode(
+                            code_point
+                        );
+
+                    decoded_text =
+                        decode_plus_escape(
+                            escape(character)
+                        );
+
+                    add_base_map_entry(
+                        character_map,
+                        decoded_text,
+                        character
+                    );
+                }
+
+                for (
+                    index = 0;
+                    index < 1024;
+                    index += 1
+                ) {
+                    hexadecimal =
+                        (
+                            0xd800 + index
+                        )
+                            .toString(16)
+                            .toUpperCase();
+
+                    high_surrogate_parts.push({
+                        index: index,
+
+                        decoded:
+                            decode_plus_escape(
+                                "%u" + hexadecimal
+                            )
+                    });
+
+                    hexadecimal =
+                        (
+                            0xdc00 + index
+                        )
+                            .toString(16)
+                            .toUpperCase();
+
+                    low_surrogate_parts.push({
+                        index: index,
+
+                        decoded:
+                            decode_plus_escape(
+                                "%u" + hexadecimal
+                            )
+                    });
+                }
+
+                base_map = character_map;
+                plus_ready = true;
+            }
+
+            function create_surrogate_map(source) {
+                var high_parts =
+                    high_surrogate_parts.filter(
+                        function (part) {
+                            return (
+                                part.decoded &&
+                                source.includes(
+                                    part.decoded
+                                )
+                            );
+                        }
+                    );
+
+                var low_parts =
+                    low_surrogate_parts.filter(
+                        function (part) {
+                            return (
+                                part.decoded &&
+                                source.includes(
+                                    part.decoded
+                                )
+                            );
+                        }
+                    );
+
+                var character_map = new Map();
+                var maximum_length =
+                    base_maximum_length;
+
+                var high_part = null;
+                var low_part = null;
+                var decoded_text = "";
+                var runtime_character = "";
+                var source_text = "";
+                var character_cost = 0;
+                var previous = null;
+
+                for (high_part of high_parts) {
+                    for (low_part of low_parts) {
+                        decoded_text =
+                            high_part.decoded +
+                            low_part.decoded;
+
+                        if (
+                            !source.includes(
+                                decoded_text
+                            )
+                        ) {
+                            continue;
+                        }
+
+                        runtime_character =
+                            String.fromCodePoint(
+                                65536 +
+                                high_part.index * 1024 +
+                                low_part.index
+                            );
+
+                        source_text =
+                            create_safe_template_content(
+                                runtime_character
+                            );
+
+                        character_cost =
+                            get_character_count(
+                                source_text
+                            );
+
+                        previous =
+                            character_map.get(
+                                decoded_text
+                            );
+
+                        if (
+                            previous === undefined ||
+                            character_cost <
+                                previous.cost
+                        ) {
+                            character_map.set(
+                                decoded_text,
+                                {
+                                    source:
+                                        source_text,
+
+                                    runtime:
+                                        runtime_character,
+
+                                    cost:
+                                        character_cost
+                                }
+                            );
+                        }
+
+                        maximum_length =
+                            Math.max(
+                                maximum_length,
+                                decoded_text.length
+                            );
+                    }
+                }
+
+                return {
+                    map: character_map,
+                    maximumLength:
+                        maximum_length
+                };
+            }
+
+            function pack_plus(
+                target_text,
+                utf8_mode
+            ) {
+                var surrogate_result =
+                    create_surrogate_map(
+                        target_text
+                    );
+
+                var states = [{
+                    source: "",
+                    runtime: "",
+                    cost: 0
+                }];
+
+                var source_index = 0;
+                var target_length = 0;
+
+                var current_state = null;
+                var previous_state = null;
+
+                var target_part = "";
+                var base_entry = null;
+                var surrogate_entry = null;
+                var map_entry = null;
+                var candidate = null;
+
+                var runtime_text = "";
+                var core = "";
+
+                for (
+                    source_index = 0;
+                    source_index <
+                        target_text.length;
+                    source_index += 1
+                ) {
+                    current_state = states[0];
+
+                    if (current_state !== undefined) {
+                        for (
+                            target_length = 1;
+                            target_length <=
+                                surrogate_result
+                                    .maximumLength &&
+                            source_index +
+                                target_length <=
+                                target_text.length;
+                            target_length += 1
+                        ) {
+                            target_part =
+                                target_text.slice(
+                                    source_index,
+                                    source_index +
+                                        target_length
+                                );
+
+                            base_entry =
+                                base_map.get(
+                                    target_part
+                                );
+
+                            surrogate_entry =
+                                surrogate_result.map.get(
+                                    target_part
+                                );
+
+                            if (
+                                base_entry === undefined
+                            ) {
+                                map_entry =
+                                    surrogate_entry;
+                            } else if (
+                                surrogate_entry ===
+                                    undefined
+                            ) {
+                                map_entry =
+                                    base_entry;
+                            } else {
+                                map_entry =
+                                    surrogate_entry.cost <
+                                    base_entry.cost
+                                        ? surrogate_entry
+                                        : base_entry;
+                            }
+
+                            if (
+                                map_entry ===
+                                undefined
+                            ) {
+                                continue;
+                            }
+
+                            candidate = {
+                                source:
+                                    current_state
+                                        .source +
+                                    map_entry.source,
+
+                                runtime:
+                                    current_state
+                                        .runtime +
+                                    map_entry.runtime,
+
+                                cost:
+                                    current_state
+                                        .cost +
+                                    map_entry.cost
+                            };
+
+                            previous_state =
+                                states[
+                                    target_length
+                                ];
+
+                            if (
+                                previous_state ===
+                                    undefined ||
+                                candidate.cost <
+                                    previous_state.cost
+                            ) {
+                                states[
+                                    target_length
+                                ] = candidate;
+                            }
+                        }
+                    }
+
+                    states.shift();
+                }
+
+                if (states[0] === undefined) {
+                    return null;
+                }
+
+                runtime_text =
+                    states[0].runtime;
+
+                if (
+                    decode_plus_escape(
+                        escape(runtime_text)
+                    ) !== target_text
+                ) {
+                    return null;
+                }
+
+                core =
+                    "unescape(escape" +
+                    create_template_literal(
+                        runtime_text
+                    ) +
+                    ".replace(/u\\D*/g,``))";
+
+                if (utf8_mode) {
+                    return (
+                        "eval(decodeURIComponent(" +
+                        "escape(" +
+                        core +
+                        ")))"
+                    );
+                }
+
+                return "eval(" + core + ")";
+            }
+
+            function pack_fixed_2_to_1(source) {
+                var byte_values =
+                    Array.from(
+                        text_encoder.encode(source)
+                    );
+
+                var was_padded =
+                    byte_values.length % 2;
+
+                var runtime_text = "";
+                var index = 0;
+
+                var escaped_text = "";
+                var recovered_text = "";
+                var core = "";
+
+                if (was_padded) {
+                    byte_values.push(10);
+                }
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 2
+                ) {
+                    runtime_text +=
+                        String.fromCharCode(
+                            byte_values[index] *
+                                256 +
+                            byte_values[
+                                index + 1
+                            ]
+                        );
+                }
+
+                escaped_text =
+                    escape(runtime_text).replace(
+                        /u(..)/g,
+                        "$1%"
+                    );
+
+                try {
+                    recovered_text =
+                        is_ascii(source)
+                            ? unescape(
+                                escaped_text
+                            )
+                            : decodeURIComponent(
+                                escaped_text
+                            );
+                } catch (error) {
+                    return null;
+                }
+
+                if (
+                    recovered_text !==
+                    source +
+                    (
+                        was_padded
+                            ? "\n"
+                            : ""
+                    )
+                ) {
+                    return null;
+                }
+
+                core =
+                    "escape" +
+                    create_template_literal(
+                        runtime_text
+                    ) +
+                    ".replace(/u(..)/g,'$1%')";
+
+                if (is_ascii(source)) {
+                    return (
+                        "eval(unescape(" +
+                        core +
+                        "))"
+                    );
+                }
+
+                return (
+                    "eval(decodeURIComponent(" +
+                    core +
+                    "))"
+                );
+            }
+
+            function pack_text_decoder_2_to_1(
+                source
+            ) {
+                var byte_values =
+                    Array.from(
+                        text_encoder.encode(source)
+                    );
+
+                var runtime_text = "";
+                var index = 0;
+
+                if (byte_values.length % 2) {
+                    byte_values.push(10);
+                }
+
+                for (
+                    index = 0;
+                    index < byte_values.length;
+                    index += 2
+                ) {
+                    runtime_text +=
+                        String.fromCharCode(
+                            byte_values[index] +
+                            byte_values[
+                                index + 1
+                            ] *
+                            256
+                        );
+                }
+
+                return (
+                    "eval(new TextDecoder().decode(" +
+                    "Uint16Array.from(" +
+                    create_shortest_literal(
+                        runtime_text
+                    ) +
+                    ",c=>c.charCodeAt())))"
+                );
+            }
+
+            function pack_crt_3_to_1(source) {
+                var padded_source = "";
+                var best = null;
+                var candidate = null;
+
+                var packed_text = "";
+                var packed_literal = "";
+                var output_text = "";
+
+                var source_index = 0;
+                var code_point = 0;
+
+                var residues = null;
+                var result = null;
+
+                if (!is_printable_ascii(source)) {
+                    return null;
+                }
+
+                padded_source =
+                    pad_source(source, 3);
+
+                for (candidate of crt_candidates) {
+                    packed_text = "";
+
+                    for (
+                        source_index = 0;
+                        source_index <
+                            padded_source.length;
+                        source_index += 3
+                    ) {
+                        residues = [
+                            padded_source.charCodeAt(
+                                source_index
+                            ) - 32,
+
+                            padded_source.charCodeAt(
+                                source_index + 1
+                            ) - 32,
+
+                            padded_source.charCodeAt(
+                                source_index + 2
+                            ) - 32
+                        ];
+
+                        code_point =
+                            (
+                                residues[0] *
+                                    candidate
+                                        .multipliers[0] +
+                                residues[1] *
+                                    candidate
+                                        .multipliers[1] +
+                                residues[2] *
+                                    candidate
+                                        .multipliers[2]
+                            ) %
+                            candidate.product;
+
+                        packed_text +=
+                            String.fromCodePoint(
+                                code_point
+                            );
+                    }
+
+                    packed_literal =
+                        create_template_literal(
+                            packed_text
+                        );
+
+                    output_text =
+                        "eval(String.fromCharCode(" +
+                        "...[..." +
+                        packed_literal +
+                        "].flatMap(c=>[" +
+                        candidate.moduli +
+                        "].map(i=>" +
+                        "c.codePointAt()%i+32))))";
+
+                    result = {
+                        text: output_text,
+
+                        character_count:
+                            get_character_count(
+                                output_text
+                            ),
+
+                        byte_count:
+                            get_byte_count(
+                                output_text
+                            )
+                    };
+
+                    if (
+                        best === null ||
+                        result.character_count <
+                            best.character_count ||
+                        (
+                            result.character_count ===
+                                best.character_count &&
+                            result.byte_count <
+                                best.byte_count
+                        )
+                    ) {
+                        best = result;
+                    }
+                }
+
+                return (
+                    best === null
+                        ? null
+                        : best.text
+                );
+            }
+
+            function pack_radix_95_3_to_1(
+                source
+            ) {
+                var padded_source = "";
+                var packed_text = "";
+                var source_index = 0;
+
+                var first = 0;
+                var second = 0;
+                var third = 0;
+                var code_point = 0;
+
+                if (!is_printable_ascii(source)) {
+                    return null;
+                }
+
+                padded_source =
+                    pad_source(source, 3);
+
+                for (
+                    source_index = 0;
+                    source_index <
+                        padded_source.length;
+                    source_index += 3
+                ) {
+                    first =
+                        padded_source.charCodeAt(
+                            source_index
+                        ) - 32;
+
+                    second =
+                        padded_source.charCodeAt(
+                            source_index + 1
+                        ) - 32;
+
+                    third =
+                        padded_source.charCodeAt(
+                            source_index + 2
+                        ) - 32;
+
+                    code_point =
+                        (
+                            first * 95 +
+                            second
+                        ) *
+                        95 +
+                        third;
+
+                    packed_text +=
+                        String.fromCodePoint(
+                            code_point
+                        );
+                }
+
+                return (
+                    "eval(String.fromCharCode(" +
+                    "...[..." +
+                    create_template_literal(
+                        packed_text
+                    ) +
+                    "].flatMap(c=>[2,1,0].map(" +
+                    "i=>c.codePointAt()/95**i%95+32))))"
+                );
+            }
+
+            function create_dictionary_variants(
+                source
+            ) {
+                var markers =
+                    Array.from(
+                        "~|^@`_?%&$!§¤"
+                    );
+
+                var available_markers =
+                    markers.filter(
+                        function (marker) {
+                            return (
+                                !source.includes(
+                                    marker
+                                )
+                            );
+                        }
+                    );
+
+                var matches = [];
+                var seen = new Set();
+                var outputs = [];
+                var pairs = [];
+
+                var maximum_length =
+                    Math.min(
+                        48,
+                        source.length >> 1
+                    );
+
+                var length = 0;
+                var start = 0;
+                var position = 0;
+                var count = 0;
+
+                var substring = "";
+                var marker = "";
+                var encoded = "";
+                var code = "";
+
+                var first_match = null;
+                var second_match = null;
+                var first_marker = "";
+                var second_marker = "";
+
+                for (
+                    length = 3;
+                    length <= maximum_length;
+                    length += 1
+                ) {
+                    for (
+                        start = 0;
+                        start + length <=
+                            source.length;
+                        start += 1
+                    ) {
+                        substring =
+                            source.slice(
+                                start,
+                                start + length
+                            );
+
+                        if (seen.has(substring)) {
+                            continue;
+                        }
+
+                        seen.add(substring);
+
+                        count = 0;
+                        position = 0;
+
+                        while (
+                            (
+                                position =
+                                    source.indexOf(
+                                        substring,
+                                        position
+                                    )
+                            ) >= 0
+                        ) {
+                            count += 1;
+                            position += length;
+                        }
+
+                        if (
+                            count > 1 &&
+                            count *
+                                (
+                                    length - 1
+                                ) -
+                                length >
+                            0
+                        ) {
+                            matches.push({
+                                substring:
+                                    substring,
+
+                                saving:
+                                    count *
+                                        (
+                                            length - 1
+                                        ) -
+                                    length
+                            });
+                        }
+                    }
+                }
+
+                matches.sort(function (
+                    first,
+                    second
+                ) {
+                    return (
+                        second.saving -
+                        first.saving
+                    );
+                });
+
+                matches = matches.slice(0, 80);
+
+                for (
+                    var match of matches
+                ) {
+                    for (
+                        marker of
+                        available_markers.slice(
+                            0,
+                            8
+                        )
+                    ) {
+                        encoded =
+                            source
+                                .split(
+                                    match.substring
+                                )
+                                .join(marker);
+
+                        if (
+                            encoded.replaceAll(
+                                marker,
+                                match.substring
+                            ) !== source
+                        ) {
+                            continue;
+                        }
+
+                        code =
+                            "eval(" +
+                            create_shortest_literal(
+                                encoded
+                            ) +
+                            ".replaceAll(" +
+                            create_shortest_literal(
+                                marker
+                            ) +
+                            "," +
+                            create_shortest_literal(
+                                match.substring
+                            ) +
+                            "))";
+
+                        outputs.push({
+                            text: code,
+                            notes:
+                                "replaceAll dictionary"
+                        });
+                    }
+                }
+
+                outputs.sort(function (
+                    first,
+                    second
+                ) {
+                    return (
+                        get_character_count(
+                            first.text
+                        ) -
+                            get_character_count(
+                                second.text
+                            ) ||
+                        get_byte_count(
+                            first.text
+                        ) -
+                            get_byte_count(
+                                second.text
+                            )
+                    );
+                });
+
+                if (
+                    available_markers.length >= 2
+                ) {
+                    first_marker =
+                        available_markers[0];
+
+                    second_marker =
+                        available_markers[1];
+
+                    for (
+                        first_match of
+                        matches.slice(0, 18)
+                    ) {
+                        for (
+                            second_match of
+                            matches.slice(0, 18)
+                        ) {
+                            if (
+                                first_match ===
+                                second_match
+                            ) {
+                                continue;
+                            }
+
+                            encoded =
+                                source
+                                    .split(
+                                        first_match
+                                            .substring
+                                    )
+                                    .join(
+                                        first_marker
+                                    )
+                                    .split(
+                                        second_match
+                                            .substring
+                                    )
+                                    .join(
+                                        second_marker
+                                    );
+
+                            if (
+                                encoded
+                                    .replaceAll(
+                                        first_marker,
+                                        first_match
+                                            .substring
+                                    )
+                                    .replaceAll(
+                                        second_marker,
+                                        second_match
+                                            .substring
+                                    ) !== source
+                            ) {
+                                continue;
+                            }
+
+                            code =
+                                "eval(" +
+                                create_shortest_literal(
+                                    encoded
+                                ) +
+                                ".replaceAll(" +
+                                create_shortest_literal(
+                                    first_marker
+                                ) +
+                                "," +
+                                create_shortest_literal(
+                                    first_match
+                                        .substring
+                                ) +
+                                ").replaceAll(" +
+                                create_shortest_literal(
+                                    second_marker
+                                ) +
+                                "," +
+                                create_shortest_literal(
+                                    second_match
+                                        .substring
+                                ) +
+                                "))";
+
+                            pairs.push({
+                                text: code,
+                                notes:
+                                    "two-token dictionary"
+                            });
+                        }
+                    }
+                }
+
+                pairs.sort(function (
+                    first,
+                    second
+                ) {
+                    return (
+                        get_character_count(
+                            first.text
+                        ) -
+                            get_character_count(
+                                second.text
+                            ) ||
+                        get_byte_count(
+                            first.text
+                        ) -
+                            get_byte_count(
+                                second.text
+                            )
+                    );
+                });
+
+                return outputs
+                    .slice(0, 8)
+                    .concat(
+                        pairs.slice(0, 5)
+                    );
+            }
+
+            function create_executable_variants(
+                source
+            ) {
+                var variants = [{
+                    name: "Raw source",
+                    text: source,
+                    notes: "no wrapper"
+                }, {
+                    name: "Eval literal",
+                    text:
+                        "eval(" +
+                        create_shortest_literal(
+                            source
+                        ) +
+                        ")",
+                    notes: "quoted source"
+                }];
+
+                var dictionaries =
+                    create_dictionary_variants(
+                        source
+                    );
+
+                var unique = new Set();
+
+                dictionaries.forEach(function (
+                    dictionary,
+                    index
+                ) {
+                    variants.push({
+                        name:
+                            "Dictionary " +
+                            (
+                                index + 1
+                            ),
+
+                        text:
+                            dictionary.text,
+
+                        notes:
+                            dictionary.notes
+                    });
+                });
+
+                variants =
+                    variants.filter(
+                        function (variant) {
+                            if (
+                                unique.has(
+                                    variant.text
+                                )
+                            ) {
+                                return false;
+                            }
+
+                            unique.add(
+                                variant.text
+                            );
+
+                            return true;
+                        }
+                    );
+
+                variants.sort(function (
+                    first,
+                    second
+                ) {
+                    return (
+                        get_character_count(
+                            first.text
+                        ) -
+                            get_character_count(
+                                second.text
+                            ) ||
+                        get_byte_count(
+                            first.text
+                        ) -
+                            get_byte_count(
+                                second.text
+                            )
+                    );
+                });
+
+                return variants.slice(0, 10);
+            }
+
+            async function transform_bytes(
+                byte_values,
+                format,
+                decompress
+            ) {
+                var StreamConstructor =
+                    decompress
+                        ? DecompressionStream
+                        : CompressionStream;
+
+                var stream =
+                    new Blob([
+                        byte_values
+                    ])
+                        .stream()
+                        .pipeThrough(
+                            new StreamConstructor(
+                                format
+                            )
+                        );
+
+                return new Uint8Array(
+                    await new Response(
+                        stream
+                    ).arrayBuffer()
+                );
+            }
+
+            function byte_arrays_equal(
+                first,
+                second
+            ) {
+                if (
+                    first.length !==
+                    second.length
+                ) {
+                    return false;
+                }
+
+                return first.every(
+                    function (value, index) {
+                        return (
+                            value ===
+                            second[index]
+                        );
+                    }
+                );
+            }
+
+            function create_compressed_wrapper(
+                byte_values,
+                format
+            ) {
+                var payload =
+                    encode_base64(
+                        byte_values
+                    );
+
+                return (
+                    "new Response(new Blob([" +
+                    "Uint8Array.from(atob`" +
+                    payload +
+                    "`,c=>c.charCodeAt())" +
+                    "]).stream().pipeThrough(" +
+                    "new DecompressionStream(" +
+                    create_shortest_literal(
+                        format
+                    ) +
+                    "))).text().then(eval)"
+                );
+            }
+
+            async function add_browser_compression_results(
+                source,
+                results,
+                seen
+            ) {
+                var source_bytes =
+                    text_encoder.encode(source);
+
+                var formats = [
+                    "deflate",
+                    "gzip"
+                ];
+
+                var compressed = null;
+                var recovered = null;
+
+                if (
+                    typeof CompressionStream ===
+                        "undefined" ||
+                    typeof DecompressionStream ===
+                        "undefined" ||
+                    typeof atob === "undefined"
+                ) {
+                    return false;
+                }
+
+                for (var format of formats) {
+                    compressed =
+                        await transform_bytes(
+                            source_bytes,
+                            format,
+                            false
+                        );
+
+                    recovered =
+                        await transform_bytes(
+                            compressed,
+                            format,
+                            true
+                        );
+
+                    if (
+                        !byte_arrays_equal(
+                            source_bytes,
+                            recovered
+                        )
+                    ) {
+                        continue;
+                    }
+
+                    add_result(
+                        results,
+                        seen,
+                        format.toUpperCase() +
+                            " + Base64",
+
+                        create_compressed_wrapper(
+                            compressed,
+                            format
+                        ),
+
+                        "asynchronous browser wrapper",
+                        "browser"
+                    );
+                }
+
+                try {
+                    compressed =
+                        await transform_bytes(
+                            source_bytes,
+                            "deflate-raw",
+                            false
+                        );
+
+                    recovered =
+                        await transform_bytes(
+                            compressed,
+                            "deflate-raw",
+                            true
+                        );
+
+                    if (
+                        byte_arrays_equal(
+                            source_bytes,
+                            recovered
+                        )
+                    ) {
+                        add_result(
+                            results,
+                            seen,
+                            "Raw DEFLATE + Base64",
+
+                            create_compressed_wrapper(
+                                compressed,
+                                "deflate-raw"
+                            ),
+
+                            "asynchronous browser wrapper",
+                            "browser"
+                        );
+                    }
+                } catch (error) {
+                    /*
+                     * deflate-raw is not supported by every browser.
+                     */
+                }
+
+                return true;
+            }
+
+            function build_synchronous_results(
+                source,
+                mode
+            ) {
+                var results = [];
+                var seen = new Map();
+
+                var variants =
+                    create_executable_variants(
+                        source
+                    );
+
+                var packed = null;
+                var target_text = "";
+                var payload = "";
+                var wrapper = "";
+
+                for (var variant of variants) {
+                    add_result(
+                        results,
+                        seen,
+                        variant.name,
+                        variant.text,
+                        variant.notes
+                    );
+                }
+
+                for (variant of variants) {
+                    packed =
+                        pack_fixed_2_to_1(
+                            variant.text
+                        );
+
+                    add_result(
+                        results,
+                        seen,
+                        "Fixed 2:1 · " +
+                            variant.name,
+                        packed,
+                        "legacy escape/unescape",
+                        "both"
+                    );
+
+                    if (plus_ready) {
+                        target_text =
+                            is_ascii(
+                                variant.text
+                            )
+                                ? variant.text
+                                : utf8_to_latin1(
+                                    variant.text
+                                );
+
+                        packed =
+                            pack_plus(
+                                target_text,
+                                !is_ascii(
+                                    variant.text
+                                )
+                            );
+
+                        add_result(
+                            results,
+                            seen,
+                            "2:1-plus · " +
+                                variant.name,
+                            packed,
+                            "dynamic /u\\D*/ packing",
+                            "both"
+                        );
+                    }
+
+                    packed =
+                        pack_crt_3_to_1(
+                            variant.text
+                        );
+
+                    add_result(
+                        results,
+                        seen,
+                        "CRT 3:1 · " +
+                            variant.name,
+                        packed,
+                        "printable ASCII only",
+                        "both"
+                    );
+
+                    packed =
+                        pack_radix_95_3_to_1(
+                            variant.text
+                        );
+
+                    add_result(
+                        results,
+                        seen,
+                        "Radix-95 3:1 · " +
+                            variant.name,
+                        packed,
+                        "printable ASCII only",
+                        "both"
+                    );
+
+                    if (mode === "browser") {
+                        packed =
+                            pack_text_decoder_2_to_1(
+                                variant.text
+                            );
+
+                        add_result(
+                            results,
+                            seen,
+                            "TextDecoder 2:1 · " +
+                                variant.name,
+                            packed,
+                            "modern browser, little-endian",
+                            "browser"
+                        );
+
+                        if (
+                            typeof btoa !==
+                            "undefined"
+                        ) {
+                            payload =
+                                encode_base64(
+                                    text_encoder.encode(
+                                        variant.text
+                                    )
+                                );
+
+                            if (
+                                is_ascii(
+                                    variant.text
+                                )
+                            ) {
+                                wrapper =
+                                    "eval(atob`" +
+                                    payload +
+                                    "`)";
+                            } else {
+                                wrapper =
+                                    "eval(" +
+                                    "decodeURIComponent(" +
+                                    "escape(atob`" +
+                                    payload +
+                                    "`)))";
+                            }
+
+                            add_result(
+                                results,
+                                seen,
+                                "Base64 · " +
+                                    variant.name,
+                                wrapper,
+                                "browser atob",
+                                "browser"
+                            );
+                        }
+                    }
+                }
+
+                return {
+                    results: results,
+                    seen: seen
+                };
+            }
+
+            function render_results(
+                results,
+                input_character_count
+            ) {
+                var best = null;
+                var row = null;
+                var cell = null;
+                var change = 0;
+
+                results.sort(compare_results);
+                results_body.textContent = "";
+
+                best = results[0];
+
+                results.forEach(function (
+                    result,
+                    index
+                ) {
+                    row =
+                        document.createElement(
+                            "tr"
+                        );
+
+                    if (index === 0) {
+                        row.className = "best";
+                    }
+
+                    change =
+                        result.character_count -
+                        input_character_count;
+
+                    [
+                        [
+                            result.name,
+                            ""
+                        ],
+                        [
+                            result.character_count,
+                            "number"
+                        ],
+                        [
+                            result.byte_count,
+                            "number"
+                        ],
+                        [
+                            change > 0
+                                ? "+" + change
+                                : String(change),
+                            "number"
+                        ],
+                        [
+                            result.notes,
+                            ""
+                        ]
+                    ].forEach(function (item) {
+                        cell =
+                            document.createElement(
+                                "td"
+                            );
+
+                        cell.textContent =
+                            item[0];
+
+                        cell.className =
+                            item[1];
+
+                        row.appendChild(cell);
+                    });
+
+                    results_body.appendChild(
+                        row
+                    );
+                });
+
+                winner.textContent =
+                    best.name;
+
+                output.textContent =
+                    best.text;
+
+                output_stats.textContent =
+                    create_stats_text(
+                        best.text
+                    );
+
+                return best;
+            }
+
+            function resize_input() {
+                input.style.height = "auto";
+
+                input.style.height =
+                    input.scrollHeight +
+                    "px";
+            }
+
+            async function update_output() {
+                var current_generation =
+                    ++generation;
+
+                var source =
+                    input.value;
+
+                var mode =
+                    target.value;
+
+                var synchronous = null;
+                var compression_available =
+                    false;
+
+                var best = null;
+                var saved_characters = 0;
+
+                input_stats.textContent =
+                    create_stats_text(source);
+
+                resize_input();
+
+                if (!source) {
+                    winner.textContent = "None";
+                    output.textContent = "";
+
+                    output_stats.textContent =
+                        "0 UTF-8 bytes, 0 chars";
+
+                    results_body.textContent = "";
+
+                    set_status(
+                        "Enter JavaScript to compare packers.",
+                        ""
+                    );
+
+                    return;
+                }
+
+                if (!plus_ready) {
+                    set_status(
+                        "Preparing Unicode maps…",
+                        ""
+                    );
+
+                    return;
+                }
+
+                try {
+                    set_status(
+                        "Testing structural and Unicode packers…",
+                        ""
+                    );
+
+                    synchronous =
+                        build_synchronous_results(
+                            source,
+                            mode
+                        );
+
+                    if (
+                        current_generation !==
+                        generation
+                    ) {
+                        return;
+                    }
+
+                    render_results(
+                        synchronous.results,
+                        get_character_count(
+                            source
+                        )
+                    );
+
+                    if (mode === "browser") {
+                        set_status(
+                            "Testing browser DEFLATE and gzip…",
+                            ""
+                        );
+
+                        compression_available =
+                            await add_browser_compression_results(
+                                source,
+                                synchronous.results,
+                                synchronous.seen
+                            );
+                    }
+
+                    if (
+                        current_generation !==
+                        generation
+                    ) {
+                        return;
+                    }
+
+                    best =
+                        render_results(
+                            synchronous.results,
+                            get_character_count(
+                                source
+                            )
+                        );
+
+                    saved_characters =
+                        get_character_count(
+                            source
+                        ) -
+                        best.character_count;
+
+                    set_status(
+                        "Tested " +
+                        synchronous.results.length +
+                        " distinct valid outputs. " +
+                        (
+                            saved_characters > 0
+                                ? "Winner saves " +
+                                    saved_characters +
+                                    " characters."
+                                : saved_characters < 0
+                                    ? "All wrappers are longer; raw source wins."
+                                    : "Winner ties the original."
+                        ) +
+                        (
+                            mode === "browser"
+                                ? (
+                                    compression_available
+                                        ? " Compression streams were round-trip verified."
+                                        : " CompressionStream is unavailable."
+                                )
+                                : " Only V8-compatible wrappers were ranked."
+                        ),
+                        ""
+                    );
+                } catch (error) {
+                    if (
+                        current_generation ===
+                        generation
+                    ) {
+                        set_status(
+                            error.message ||
+                                "Packing failed.",
+                            "error"
+                        );
+                    }
+                }
+            }
+
+            function schedule_update() {
+                input_stats.textContent =
+                    create_stats_text(
+                        input.value
+                    );
+
+                resize_input();
+
+                set_status("Packing…", "");
+
+                if (update_timer !== null) {
+                    clearTimeout(update_timer);
+                }
+
+                update_timer =
+                    setTimeout(
+                        update_output,
+                        180
+                    );
+            }
+
+            function show_splash(message) {
+                splash.textContent = message;
+                splash.classList.add("show");
+
+                if (splash_timer !== null) {
+                    clearTimeout(splash_timer);
+                }
+
+                splash_timer =
+                    setTimeout(
+                        function () {
+                            splash.classList.remove(
+                                "show"
+                            );
+                        },
+                        1100
+                    );
+            }
+
+            function fallback_copy(text) {
+                var copy_textarea =
+                    document.createElement(
+                        "textarea"
+                    );
+
+                var was_copied = false;
+
+                copy_textarea.value = text;
+                copy_textarea.readOnly = true;
+
+                copy_textarea.style.position =
+                    "fixed";
+
+                copy_textarea.style.left =
+                    "-9999px";
+
+                copy_textarea.style.top =
+                    "-9999px";
+
+                document.body.appendChild(
+                    copy_textarea
+                );
+
+                copy_textarea.select();
+
+                try {
+                    was_copied =
+                        document.execCommand(
+                            "copy"
+                        );
+                } catch (error) {
+                    was_copied = false;
+                }
+
+                copy_textarea.remove();
+
+                show_splash(
+                    was_copied
+                        ? "Copied"
+                        : "Copy failed"
+                );
+            }
+
+            function copy_output() {
+                var text =
+                    output.textContent;
+
+                if (!text) {
+                    return;
+                }
+
+                if (
+                    navigator.clipboard &&
+                    window.isSecureContext
+                ) {
+                    navigator.clipboard
+                        .writeText(text)
+                        .then(
+                            function () {
+                                show_splash(
+                                    "Copied"
+                                );
+                            },
+                            function () {
+                                fallback_copy(
+                                    text
+                                );
+                            }
+                        );
+                } else {
+                    fallback_copy(text);
+                }
+            }
+
+            input.addEventListener(
+                "input",
+                schedule_update
+            );
+
+            target.addEventListener(
+                "change",
+                schedule_update
+            );
+
+            output.addEventListener(
+                "click",
+                copy_output
+            );
+
+            output.addEventListener(
+                "keydown",
+                function (event) {
+                    if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                    ) {
+                        event.preventDefault();
+                        copy_output();
+                    }
+                }
+            );
+
+            prepare_crt_candidates();
+            resize_input();
+
+            setTimeout(function () {
+                try {
+                    prepare_plus_packer();
+
+                    set_status(
+                        "Packers ready.",
+                        ""
+                    );
+
+                    update_output();
+                } catch (error) {
+                    set_status(
+                        error.message ||
+                            "Could not initialize packers.",
+                        "error"
+                    );
+                }
+            }, 0);
+        }());
+    </script>
+</body>
+</html>

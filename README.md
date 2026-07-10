@@ -85,7 +85,11 @@
 </p>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌
-            <a href="https://jesterjunk.github.io/kit/python/u16_encoder/" title="Python u16 Encoder" target="_blank">Python u16 Encoder</a></a>
+            <a href="https://jesterjunk.github.io/kit/python/packer/" title="Python packer" target="_blank">Python packer</a></a>
+</p>
+
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/javascript/packer/" title="JavaScript packer" target="_blank">JavaScript packer</a></a>
 </p>
 
 
