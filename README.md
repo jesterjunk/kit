@@ -21,6 +21,11 @@
             <a href="https://jesterjunk.github.io/kit/duration_converter" title="Duration Converter" target="_blank">Duration Converter</a>
 </p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/somethingorotherwhatever.com/sum-of-3-palindromes" title="sum of three palindromes" target="_blank">sum of three palindromes</a>
+    credit: <a href="https://somethingorotherwhatever.com/sum-of-3-palindromes/" title="https://somethingorotherwhatever.com/sum-of-3-palindromes/" target="_blank">https://somethingorotherwhatever.com/sum-of-3-palindromes/</a>
+</p>
+
 
 <h2><a href="#Color" title="Color" target="_blank">Color</a></h2>
 
