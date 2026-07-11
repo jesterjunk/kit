@@ -92,6 +92,10 @@
             <a href="https://jesterjunk.github.io/kit/javascript/packer/" title="JavaScript packer" target="_blank">JavaScript packer</a></a>
 </p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/erlang/packer/" title="Erlang packer" target="_blank">Erlang packer</a></a>
+</p>
+
 
 <h2><a href="#YouTube" title="YouTube" target="_blank">YouTube</a></h2>
 
