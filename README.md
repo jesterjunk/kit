@@ -69,7 +69,7 @@
 
 <p>‌‌ ‌‌ ‌‌ ‌‌ 
             <a href="https://www.onelook.com/reverse-dictionary.shtml" title="https://www.onelook.com/reverse-dictionary.shtml" target="_blank">https://www.onelook.com/reverse-dictionary.shtml</a>
-        </p>
+</p>
 
 
 <h2><a href="#Code" title="Code" target="_blank">Code</a></h2>
@@ -84,16 +84,19 @@
     credit: <a href="https://htmledit.squarefree.com/" title="https://htmledit.squarefree.com/" target="_blank">https://htmledit.squarefree.com/</a>
 </p>
 
+
+<h2><a href="#Packer" title="Packer" target="_blank">Packers</a></h2>
+
 <p>‌‌ ‌‌ ‌‌ ‌‌
-            <a href="https://jesterjunk.github.io/kit/python/packer/" title="Python packer" target="_blank">Python packer</a></a>
+            <a href="https://jesterjunk.github.io/kit/python/packer/" title="Python packer" target="_blank">Python</a></a>
 </p>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌
-            <a href="https://jesterjunk.github.io/kit/javascript/packer/" title="JavaScript packer" target="_blank">JavaScript packer</a></a>
+            <a href="https://jesterjunk.github.io/kit/javascript/packer/" title="JavaScript packer" target="_blank">JavaScript</a></a>
 </p>
 
 <p>‌‌ ‌‌ ‌‌ ‌‌
-            <a href="https://jesterjunk.github.io/kit/erlang/packer/" title="Erlang packer" target="_blank">Erlang packer</a></a>
+            <a href="https://jesterjunk.github.io/kit/erlang/packer/" title="Erlang packer" target="_blank">Erlang</a></a>
 </p>
 
 
