@@ -26,6 +26,10 @@
     credit: <a href="https://somethingorotherwhatever.com/sum-of-3-palindromes/" title="https://somethingorotherwhatever.com/sum-of-3-palindromes/" target="_blank">https://somethingorotherwhatever.com/sum-of-3-palindromes/</a>
 </p>
 
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/airflow_converter" title="Airflow Converter" target="_blank">Airflow Converter</a>
+</p>
+
 
 <h2><a href="#Color" title="Color" target="_blank">Color</a></h2>
 

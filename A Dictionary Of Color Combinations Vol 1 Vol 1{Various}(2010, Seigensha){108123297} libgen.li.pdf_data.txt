@@ -1,0 +1,146 @@
+pp026, cc001, English Red, Cerulian Blue
+pp026, cc002, Dark Tyrian Blue, Yellow Orange
+pp027, cc003, Pale Lemon Yellow, Raw Sienna
+pp027, cc004, Red Violet, Isabella Color
+pp028, cc005, Cossack Green, Vandar Poel’s Blue
+pp028, cc006, Deep Indigo, Grenadine Pink
+pp029, cc007, Glaucous Green, Orange
+pp029, cc008, Cinnamon Rufous, Grayish Lavender
+pp030, cc009, Dull Blue Violet, Violet Red
+pp030, cc010, Dark Citrine, Cinnamon Rufous
+
+
+PAGE 026
+
+    COLOR COMBINATION 001
+
+        蒲色
+            《かばいろ>
+                English Red
+
+        花浅葱
+            《はなあさぎ》
+                Cerulian Blue
+
+    COLOR COMBINATION 002
+
+        木标
+            《こきはなだ
+                Dark Tyrian Blue
+
+        柑子色
+            《こうじいろ
+                Yellow Orange
+
+
+PAGE 027
+
+    COLOR COMBINATION 003
+
+        淡卵色
+            うすたまごいろ
+                Pale Lemon Yellow
+
+        檜皮色
+            ひわだいろ
+                Raw Sienna
+
+    COLOR COMBINATION 004
+
+        菖蒲色
+            あやめいろ
+                Red Violet
+
+        落葉色
+            おちばいろ
+                Isabella Color
+
+
+PAGE 028
+
+    COLOR COMBINATION 005
+
+        萌木色
+            もえぎいろ
+                Cossack Green
+
+        縹色
+            はなだいろ
+                Vandar Poel's Blue
+
+    COLOR COMBINATION 006
+
+        紺色
+            《こんいろ》
+                Deep Indigo
+
+        洗朱
+            《あらいしゅ》
+                Grenadine Pink
+
+
+PAGE 029
+
+    COLOR COMBINATION 007
+
+        裏葉色
+            《うらはいろ》
+                Glaucous Green
+
+        橙色
+            とうしょく
+                Orange
+
+    COLOR COMBINATION 008
+
+        代赭色
+            たいしゃいろ】
+                Cinnamon Rufous
+
+        藤色
+            ふじいろ
+                Gravish Lavender
+
+
+PAGE 030
+
+    COLOR COMBINATION 009
+
+        藤納戸
+            ・ふじなんと
+                Dull Blue Violet
+
+        京紫
+            きょうむらさき
+                Violet Red
+
+    COLOR COMBINATION 010
+
+        路考茶
+            ろこうちゃ
+                Dark Citrine
+
+        代赭色
+            たいしゃいろ
+                Cinnamon Rufous
+
+
+PAGE 031
+
+    COLOR COMBINATION 011
+
+        鼠色
+            ねずみいろ
+                Mineral Grav
+        白茶
+            しらちゃ
+                Ivory Buff
+
+    COLOR COMBINATION 012
+
+        納戸鼠
+            なんどねずみ
+                Green Blue
+        落葉色
+            おちばいろ
+                Isabella Color

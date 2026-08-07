@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>m³/h ↔ CFM</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:#1b1210;
+  color:#E7CEB4;
+  font:18px system-ui
+}
+
+main{width:min(440px,88vw)}
+
+h1{
+  margin:0 0 44px;
+  text-align:center;
+  font-size:24px;
+  font-weight:600;
+  letter-spacing:.02em
+}
+
+label{display:block;margin:18px 0}
+
+.field{position:relative}
+
+.unit{
+  position:absolute;
+  right:44px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:15px;
+  opacity:.78;
+  pointer-events:none;
+  white-space:nowrap
+}
+
+.unit b{font-weight:700}
+
+input{
+  width:100%;
+  padding:12px 220px 12px 14px;
+  border:1px solid #653025;
+  border-radius:8px;
+  background:#241714;
+  color:#E7CEB4;
+  font:inherit;
+  outline:0;
+  caret-color:transparent
+}
+
+.spin{
+  position:absolute;
+  inset:1px 1px 1px auto;
+  width:34px;
+  display:grid;
+  grid-template-rows:1fr 1fr;
+  border-left:1px solid #653025;
+  border-radius:0 7px 7px 0;
+  overflow:hidden
+}
+
+.spin span{
+  display:grid;
+  place-items:center;
+  font-size:9px;
+  line-height:1;
+  user-select:none;
+  cursor:pointer
+}
+
+.spin span+span{border-top:1px solid #653025}
+.spin span:hover{background:#653025}
+
+.caret{
+  display:none;
+  position:absolute;
+  top:50%;
+  width:6px;
+  height:1.35em;
+  border-radius:3px;
+  background:#E7CEB4;
+  transform:translateY(-50%);
+  pointer-events:none;
+  animation:caret 1.15s ease-in-out infinite
+}
+
+.caret.show{display:block}
+
+@keyframes caret{
+  0%,100%{opacity:.15}
+  50%{opacity:1}
+}
+</style>
+
+<main>
+  <h1>Airflow Converter</h1>
+
+  <label>
+    <div class="field">
+      <input id="mh" inputmode="decimal" autofocus>
+      <i class="caret"></i>
+      <span class="unit"><b>m³/h</b> (Cubic Meters Per Hour)</span>
+      <b class="spin">
+        <span data-d="1">▲</span>
+        <span data-d="-1">▼</span>
+      </b>
+    </div>
+  </label>
+
+  <label>
+    <div class="field">
+      <input id="cfm" inputmode="decimal">
+      <i class="caret"></i>
+      <span class="unit"><b>CFM</b> (Cubic Feet Per Minute)</span>
+      <b class="spin">
+        <span data-d="1">▲</span>
+        <span data-d="-1">▼</span>
+      </b>
+    </div>
+  </label>
+</main>
+
+<script>
+const m=mh,c=cfm,k=.58857777,
+      ctx=document.createElement("canvas").getContext("2d");
+
+function convert(a,b,f){
+  const n=Number(a.value);
+  b.value=a.value.trim()!==""&&Number.isFinite(n)
+    ? +(n*f).toFixed(4)
+    : "";
+}
+
+m.oninput=()=>convert(m,c,k);
+c.oninput=()=>convert(c,m,1/k);
+
+document.querySelectorAll(".spin span").forEach(s=>s.onpointerdown=e=>{
+  e.preventDefault();
+
+  const i=s.closest(".field").querySelector("input"),
+        n=Number(i.value)||0;
+
+  i.value=+(n+ +s.dataset.d).toFixed(4);
+  i.dispatchEvent(new Event("input"));
+  i.focus();
+  i.setSelectionRange(i.value.length,i.value.length);
+  caret(i);
+});
+
+function caret(i){
+  const p=i.selectionStart,
+        q=i.selectionEnd,
+        bar=i.nextElementSibling;
+
+  if(document.activeElement!==i||p!==q){
+    bar.classList.remove("show");
+    return;
+  }
+
+  const cs=getComputedStyle(i);
+  ctx.font=cs.font;
+
+  bar.style.left=(
+    parseFloat(cs.paddingLeft)
+    + ctx.measureText(i.value.slice(0,p)).width
+    - i.scrollLeft
+    + 5
+  )+"px";
+
+  bar.classList.add("show");
+}
+
+document.querySelectorAll("input").forEach(i=>{
+  ["input","keyup","click","focus","scroll","select"].forEach(e=>
+    i.addEventListener(e,()=>requestAnimationFrame(()=>caret(i)))
+  );
+
+  i.addEventListener("blur",()=>
+    i.nextElementSibling.classList.remove("show")
+  );
+});
+</script>
+</html>
