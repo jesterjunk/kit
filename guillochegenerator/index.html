@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<!-- © 2026 Guilloché Atelier · github.com/SobelBandyta · All rights reserved. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guilloché Pattern Generator — Free SVG for CNC &amp; Watch Dials</title>
+<meta name="description" content="Free online guilloché pattern generator. Rose engine & straight-line patterns — barleycorn, clous de Paris, moiré, spirograph — in real millimeters, exported as clean SVG for CNC engraving, watch dials and laser cutting.">
+<link rel="canonical" href="https://guillochegenerator.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Guilloché Atelier — free guilloché pattern generator">
+<meta property="og:description" content="Design rose engine & straight-line guilloché patterns in real millimeters and export clean SVG for CNC engraving and watch dials. Free, runs in the browser.">
+<meta property="og:url" content="https://guillochegenerator.com/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Guilloché Atelier","url":"https://guillochegenerator.com/","applicationCategory":"DesignApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Online guilloché pattern generator with millimeter-precise SVG export for CNC engraving, watch dials and ornamental turning."}
+</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕰️</text></svg>">
+<style>
+    :root{
+        --bg:#0b0c0f; --panel:#13151a; --panel2:#191c23; --line:#272b35;
+        --gold:#c9a24b; --gold2:#e8c97c; --txt:#d9dce3; --mut:#8b909d;
+        --danger:#e0885a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+        margin:0; background:var(--bg); color:var(--txt);
+        font:13.5px/1.45 "Segoe UI",system-ui,sans-serif;
+        display:flex; flex-direction:column; overflow:hidden;
+    }
+
+    /* ---------- Header ---------- */
+    header{
+        display:flex; align-items:center; gap:14px; padding:10px 18px;
+        border-bottom:1px solid var(--line);
+        background:linear-gradient(180deg,#16181e,#0f1115);
+        flex-wrap:wrap;
+    }
+    .brand{display:flex; flex-direction:column}
+    .brand h1{
+        margin:0; font-family:Georgia,"Times New Roman",serif; font-weight:500;
+        font-size:19px; letter-spacing:4px; color:var(--gold2); text-transform:uppercase;
+    }
+    .brand small{color:var(--mut); letter-spacing:1px; font-size:10.5px}
+    .spacer{flex:1}
+    select,input[type=number],input[type=email]{
+        background:#1d212a; color:var(--txt); border:1px solid #323847;
+        border-radius:7px; padding:6px 8px; font:inherit; outline:none;
+    }
+    select:focus,input[type=number]:focus,input[type=email]:focus{border-color:var(--gold)}
+    .btn{
+        background:#222631; border:1px solid #363c4b; color:var(--txt);
+        padding:7px 14px; border-radius:8px; cursor:pointer; font:inherit;
+        transition:background .12s,border-color .12s;
+    }
+    .btn:hover{border-color:var(--gold); color:var(--gold2)}
+    .btn.gold{
+        background:linear-gradient(180deg,#e6c26e,#b68d3c); color:#201804;
+        font-weight:600; border:1px solid #d9b562;
+    }
+    .btn.gold:hover{filter:brightness(1.07); color:#201804}
+
+    /* ---------- Layout ---------- */
+    #app{flex:1; display:flex; min-height:0}
+    aside{
+        width:330px; min-width:330px; overflow-y:auto; padding:13px;
+        background:var(--panel); border-right:1px solid var(--line);
+        scrollbar-width:thin; scrollbar-color:#333947 transparent;
+    }
+    section.box{
+        background:var(--panel2); border:1px solid var(--line); border-radius:11px;
+        padding:12px 13px; margin-bottom:12px;
+    }
+    h2.sec{
+        margin:0 0 10px; font-size:10.5px; letter-spacing:2.5px; font-weight:600;
+        color:var(--gold); text-transform:uppercase;
+    }
+
+    /* ---------- Pattern grid ---------- */
+    .patgrid{display:grid; grid-template-columns:1fr 1fr; gap:6px}
+    .pat{
+        background:#1d212a; border:1px solid #2c313d; color:var(--txt);
+        border-radius:8px; padding:8px 6px; font-size:12px; cursor:pointer;
+        text-align:center; transition:all .12s;
+    }
+    .pat:hover{border-color:#4a5162}
+    .pat.active{
+        border-color:var(--gold); color:var(--gold2);
+        background:rgba(201,162,75,.10);
+        box-shadow:0 0 0 1px rgba(201,162,75,.25) inset;
+    }
+    #patDesc{margin-top:10px; font-size:12px; color:var(--mut); line-height:1.5}
+    #patDesc b{color:var(--gold2); font-weight:600}
+
+    /* ---------- Param rows ---------- */
+    .prm{margin:9px 0}
+    .prm .lab{
+        display:flex; justify-content:space-between; align-items:center;
+        margin-bottom:3px; gap:8px;
+    }
+    .prm .lab span{font-size:12.5px}
+    .prm .lab input[type=number]{width:74px; padding:3px 6px; font-size:12.5px; text-align:right}
+    input[type=range]{width:100%; accent-color:var(--gold); height:20px; margin:0; cursor:pointer}
+    .prm.checkrow,.prm.selrow{display:flex; justify-content:space-between; align-items:center}
+    .prm.checkrow label{cursor:pointer}
+    input[type=checkbox]{accent-color:var(--gold); width:16px; height:16px; cursor:pointer}
+    .rowbtns{display:flex; gap:8px; margin-top:10px}
+    .rowbtns .btn{flex:1}
+
+    /* ---------- Stage ---------- */
+    #stage{flex:1; position:relative; min-width:0;
+        background:radial-gradient(1200px 800px at 50% 42%, #14161b 0%, #0b0c0f 70%);}
+    canvas{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none}
+    #stats{
+        position:absolute; left:12px; bottom:10px; display:flex; gap:8px; flex-wrap:wrap;
+        pointer-events:none;
+    }
+    .chip{
+        background:rgba(19,21,26,.85); border:1px solid var(--line); border-radius:20px;
+        padding:4px 12px; font-size:11.5px; color:var(--mut); backdrop-filter:blur(4px);
+    }
+    .chip b{color:var(--gold2); font-weight:600}
+    #warns{position:absolute; left:12px; top:10px; display:flex; flex-direction:column; gap:6px; pointer-events:none}
+    .warn{
+        background:rgba(46,32,18,.9); border:1px solid #6e5023; color:#e9c187;
+        border-radius:8px; padding:5px 11px; font-size:11.5px;
+    }
+    #hint{
+        position:absolute; right:14px; bottom:10px; font-size:11px; color:#5b6070;
+        pointer-events:none; letter-spacing:.3px;
+    }
+    /* ---------- Course-interest banner ---------- */
+    #promoTab{
+        position:fixed; right:0; top:50%; transform:translateY(-50%); z-index:10;
+        writing-mode:vertical-rl; padding:13px 7px; cursor:pointer;
+        background:linear-gradient(180deg,#e6c26e,#b68d3c); color:#201804;
+        font:inherit; font-weight:600; letter-spacing:1px;
+        border:1px solid #d9b562; border-right:none; border-radius:9px 0 0 9px;
+    }
+    #promoTab:hover{filter:brightness(1.07)}
+    #promo{
+        position:fixed; right:52px; top:50%; transform:translateY(-50%); width:300px; z-index:10;
+        background:var(--panel2); border:1px solid var(--line); border-radius:12px;
+        padding:14px 16px; box-shadow:0 8px 28px rgba(0,0,0,.55);
+    }
+    #promo.hidden,#promoTab.hidden{display:none}
+    #promo h3{
+        margin:0 24px 6px 0; font-family:Georgia,"Times New Roman",serif; font-weight:500;
+        font-size:14.5px; letter-spacing:1.5px; color:var(--gold2); text-transform:uppercase;
+    }
+    #promo p{margin:0 0 10px; color:var(--mut); font-size:12.5px}
+    #promo form{display:flex; gap:7px}
+    #promo input[type=email]{flex:1; min-width:0}
+    #promoClose{
+        position:absolute; top:8px; right:10px; background:none; border:none; cursor:pointer;
+        color:var(--mut); font-size:16px; line-height:1; padding:2px;
+    }
+    #promoClose:hover{color:var(--gold2)}
+
+    /* ---------- Export slide-out ---------- */
+    .expGroup{display:flex; align-items:center}
+    .expBar{
+        display:flex; gap:6px; max-width:0; overflow:hidden;
+        transition:max-width .25s ease, margin-left .25s ease;
+    }
+    .expGroup.open .expBar{max-width:220px; margin-left:8px}
+    .rowbtns .expGroup{flex:1}
+    .rowbtns .expGroup .expMain{flex:1}
+
+    ::-webkit-scrollbar{width:9px}
+    ::-webkit-scrollbar-thumb{background:#2c313d; border-radius:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <h1>Guilloché Atelier</h1>
+        <small>vector pattern generator · rose engine &amp; straight-line · SVG export for CNC</small>
+    </div>
+    <div class="spacer"></div>
+    <label style="color:var(--mut);font-size:12px">Preset:</label>
+    <select id="presetSel"><option value="">— choose —</option></select>
+    <button class="btn" id="randomBtn" title="Randomize current pattern parameters">🎲 Random</button>
+    <button class="btn" id="shareBtn" title="Copy a link that restores this exact pattern">🔗 Share</button>
+    <div class="expGroup">
+        <button class="btn gold expMain">⬇ Export</button>
+        <div class="expBar">
+            <button class="btn expSvg">SVG</button>
+            <button class="btn expDxf">DXF</button>
+        </div>
+    </div>
+</header>
+
+<div id="app">
+    <aside>
+        <section class="box">
+            <h2 class="sec">Pattern</h2>
+            <div class="patgrid" id="patGrid"></div>
+            <div id="patDesc"></div>
+        </section>
+
+        <section class="box">
+            <h2 class="sec">Parameters</h2>
+            <div id="paramBox"></div>
+        </section>
+
+        <section class="box">
+            <h2 class="sec">Dial &amp; mask</h2>
+            <div id="dialBox"></div>
+        </section>
+
+        <section class="box">
+            <h2 class="sec">CNC export</h2>
+            <div id="exportBox"></div>
+            <div class="rowbtns">
+                <div class="expGroup">
+                    <button class="btn gold expMain">⬇ Export</button>
+                    <div class="expBar">
+                        <button class="btn expSvg">SVG</button>
+                        <button class="btn expDxf">DXF</button>
+                    </div>
+                </div>
+                <button class="btn" id="copyBtn">Copy SVG</button>
+            </div>
+        </section>
+    </aside>
+
+    <div id="stage">
+        <canvas id="canvas"></canvas>
+        <div id="warns"></div>
+        <div id="stats"></div>
+        <div id="hint">scroll = zoom &nbsp;·&nbsp; drag = pan &nbsp;·&nbsp; double-click = reset</div>
+    </div>
+</div>
+
+<button id="promoTab" type="button">Make a real watch dial?</button>
+<div id="promo" class="hidden">
+    <button id="promoClose" type="button" aria-label="Close">&times;</button>
+    <h3>Beyond the pattern</h3>
+    <p>Ever wanted to make a real watch dial — engrave it and fire enamel on it?
+         We're preparing a course; leave your email and be first to know.</p>
+    <form id="promoForm">
+        <input type="email" id="promoEmail" required maxlength="254" placeholder="you@email.com" autocomplete="email">
+        <button class="btn gold" type="submit">Notify me</button>
+    </form>
+    <p style="margin:8px 0 0; font-size:10.5px">One email when the course launches — nothing else.
+         Contact / data removal: <a href="/cdn-cgi/l/email-protection#18707d747477587f6d717474777b707d7f7d767d6a796c776a367b7775" style="color:inherit"><span class="__cf_email__" data-cfemail="81e9e4ededeec1e6f4e8ededeee2e9e4e6e4efe4f3e0f5eef3afe2eeec">[email&#160;protected]</span></a></p>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+     Guilloché Atelier
+     Silnik: każdy wzór generuje rodzinę polilinii w mm (środek w 0,0),
+     potem wspólny pipeline: maska pierścienia -> podgląd Canvas -> SVG.
+     Matematyka wg Guilloche_Teoria.txt:
+         r_k(θ) = R0 + k·d + A·sin(nθ + kα)    (+ harmoniczne Fouriera)
+     ===================================================================== */
+
+const TAU = Math.PI * 2;
+const MAX_PATHS = 1500;
+const MAX_PTS     = 2_000_000;
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const gcd = (a,b) => b ? gcd(b, a % b) : a;
+
+/* ---------------- Definicje wzorów ---------------- */
+
+const PATTERNS = {
+    waves: {
+        name: "Waves / Rosette",
+        desc: "A family of “breathing” circles: <b>r(θ)=R₀+kd+A·sin(nθ+kα)</b>. Centre taper linearly reduces all wave amplitudes towards the dial centre for smoother, more cuttable inner paths. α ≠ 0 creates a vortex, A₂ adds Fourier micro-texture.",
+        params: [
+            {k:"n",         l:"n — waves per turn",            min:1,     max:180, step:1,        def:24},
+            {k:"A",         l:"A — amplitude [mm]",            min:0,     max:3,     step:0.01, def:0.25},
+            {k:"d",         l:"d — groove spacing [mm]", min:0.1, max:3,     step:0.01, def:0.5},
+            {k:"centreTaper", l:"centre taper [%]",     min:0,     max:100, step:1,        def:0},
+            {k:"alpha", l:"α — phase per line [°]",    min:-45, max:45,    step:0.5,    def:0},
+            {k:"A2",        l:"A₂ — 2nd harmonic [mm]",    min:0,     max:1.5, step:0.01, def:0},
+            {k:"m2",        l:"m₂ — harmonic multiplier",min:2,     max:8,     step:1,        def:4},
+        ],
+        gen(p, m, col){
+            const taper = p.centreTaper / 100;
+            genRingFamily(col, m, p.d, (th,k,R)=> {
+                const ph = k * p.alpha * Math.PI/180;
+                const radialScale = 1 - taper * (1 - clamp(R / Math.max(m.r2, 0.001), 0, 1));
+                return radialScale * (p.A*Math.sin(p.n*th + ph) + p.A2*Math.sin(p.n*p.m2*th + 2*ph));
+            }, p.A + p.A2, Math.max(p.n, p.n*p.m2*(p.A2>0?1:0)));
+        }
+    },
+
+    barleycorn: {
+        name: "Barleycorn",
+        desc: "Grain d’orge: two opposing wave families <b>±A·sin(nθ+kα)</b> meet and part, forming the classic “barley grains”.",
+        params: [
+            {k:"n",         l:"n — waves per turn",            min:1,     max:120, step:1,        def:24},
+            {k:"A",         l:"A — amplitude [mm]",            min:0,     max:2,     step:0.01, def:0.3},
+            {k:"d",         l:"d — groove spacing [mm]", min:0.1, max:3,     step:0.01, def:0.6},
+            {k:"alpha", l:"α — phase per line [°]",    min:-45, max:45,    step:0.5,    def:0},
+        ],
+        gen(p, m, col){
+            const ph = k => k * p.alpha * Math.PI/180;
+            genRingFamily(col, m, p.d, (th,k)=>    p.A*Math.sin(p.n*th + ph(k)), p.A, p.n);
+            genRingFamily(col, m, p.d, (th,k)=> -p.A*Math.sin(p.n*th + ph(k)), p.A, p.n);
+        }
+    },
+
+    moire: {
+        name: "Moiré",
+        desc: "Two families at frequencies <b>n</b> and <b>n+s</b>. The selected symmetry <b>s</b> creates 1–4 true rotational phase-sync axes. CNC-safe centre keeps both wave families, but progressively lowers their frequency and limits their steepness near the middle so the pattern stays visible and cuttable. Set it to 0 to disable.",
+        params: [
+            {k:"symmetry", l:"phase symmetry", type:"select", def:"1",
+                options:[["1","1-fold"],["2","2-fold"],["3","3-fold"],["4","4-fold"]],
+                onchange: vals => {
+                    const s = parseInt(vals.symmetry, 10) || 1;
+                    vals.n = clamp(Math.round(vals.n/s)*s, Math.max(2,s), Math.floor(120/s)*s);
+                }},
+            {k:"n", l:"n — waves per turn",            min:2,     max:120, step:1,        def:30,
+                snap:(v,vals) => {
+                    const s = parseInt(vals.symmetry, 10) || 1;
+                    return clamp(Math.round(v/s)*s, Math.max(2,s), Math.floor(120/s)*s);
+                }},
+            {k:"A", l:"A — amplitude [mm]",            min:0,     max:2,     step:0.01, def:0.35},
+            {k:"d", l:"d — groove spacing [mm]", min:0.1, max:3,     step:0.01, def:0.7},
+            {k:"safeCentre", l:"CNC-safe centre [mm]", min:0, max:50, step:0.1, def:0, randomMax:8},
+        ],
+        gen(p, m, col){
+            const symmetry = clamp(parseInt(p.symmetry, 10) || 1, 1, 4);
+            const n = clamp(Math.round(p.n/symmetry)*symmetry,
+                Math.max(2,symmetry), Math.floor(120/symmetry)*symmetry);
+            const n2 = n + symmetry;
+            const r0 = m.r1 + p.A, r1 = m.r2 - p.A;
+            if (r1 < r0) return;
+
+            const K = Math.floor((r1 - r0) / p.d) + 1;
+            let steps = clamp(Math.round(n2 * 24), 720, 6000);
+            if (K * steps * 2 > 1.6e6)
+                steps = Math.max(n2 * 8, Math.floor(1.6e6 / Math.max(K * 2, 1)));
+
+            const safeCentre = clamp(p.safeCentre || 0, 0, m.r2);
+            const transitionEnd = Math.min(m.r2, safeCentre * 2);
+            const addRing = (R, freq, ampl) => {
+                const ringSteps = freq === 0 ? 240 : steps;
+                const pts = [];
+                for (let i = 0; i < ringSteps; i++){
+                    const th = TAU * i / ringSteps;
+                    const r = R + ampl * Math.sin(freq * th);
+                    pts.push([r*Math.cos(th), r*Math.sin(th)]);
+                }
+                return col.add(pts, true);
+            };
+
+            for (let k = 0; k < K; k++){
+                const R = r0 + k * p.d;
+                let localN = n, localN2 = n2;
+                let ampl = p.A;
+                if (safeCentre > 0){
+                    const frequencyScale = clamp(R / Math.max(transitionEnd, 0.001), 0, 1);
+                    localN = clamp(Math.round((n * frequencyScale) / symmetry) * symmetry, symmetry, n);
+                    localN2 = localN + symmetry;
+                    const localPitch = TAU * R / localN2;
+                    ampl = Math.min(p.A, localPitch * 0.25);
+                }
+
+                if (!addRing(R, localN, ampl)) return;
+                if (!addRing(R, localN2, ampl)) return;
+            }
+        }
+    },
+
+    compass: {
+        name: "Compass rose",
+        desc: "Compass rose: <b>r=R+A·|cos(nθ)|^p</b>. The absolute value doubles the symmetry (n=8 → 16 directions), exponent p sharpens the arms.",
+        params: [
+            {k:"n",        l:"n — symmetry",                     min:2,     max:24,    step:1,        def:8},
+            {k:"pexp", l:"p — arm sharpness",            min:0.2, max:6,     step:0.1,    def:3},
+            {k:"A",        l:"A — arm height [mm]",        min:0.2, max:8,     step:0.1,    def:3.5},
+            {k:"d",        l:"d — groove spacing [mm]",min:0.1, max:3,     step:0.01, def:0.8},
+            {k:"rot",    l:"overall rotation [°]",     min:-180,max:180, step:1,        def:0},
+        ],
+        gen(p, m, col){
+            const rot = p.rot * Math.PI/180;
+            genRingFamily(col, m, p.d,
+                th => p.A * Math.pow(Math.abs(Math.cos(p.n*(th - rot))), p.pexp) - p.A/2,
+                p.A/2 + 0.01, p.n*4);
+        }
+    },
+
+    soleil: {
+        name: "Soleil",
+        desc: "Sunburst — a family of rays θⱼ=2πj/N. Twist gives the spiral version θ(r)=θ₀+λr, wave adds vibration θ(r)=θ₀+A·sin(kr).",
+        params: [
+            {k:"N",         l:"N — number of rays",                 min:8,     max:360, step:1,     def:120},
+            {k:"twist", l:"twist [°/mm]",                             min:-45, max:45,    step:0.5, def:0},
+            {k:"waveA", l:"wave — amplitude [mm]",            min:0,     max:2,     step:0.01,def:0},
+            {k:"waveL", l:"wave — length [mm]",                 min:0.5, max:10,    step:0.1, def:2},
+        ],
+        gen(p, m, col){
+            const r0 = Math.max(m.r1, 0.15), r1 = m.r2;
+            if (r1 - r0 < 0.05) return;
+            const straight = (p.twist === 0 && p.waveA === 0);
+            const dr = straight ? (r1 - r0) : Math.min(0.12, p.waveL/40);
+            const twist = p.twist * Math.PI/180;
+            for (let j = 0; j < p.N; j++){
+                const th0 = TAU * j / p.N;
+                const pts = [];
+                for (let r = r0; r <= r1 + 1e-9; r += dr){
+                    const rr = Math.min(r, r1);
+                    let th = th0 + twist * (rr - r0);
+                    if (p.waveA > 0) th += (p.waveA / Math.max(rr, 0.5)) * Math.sin(TAU * (rr - r0) / p.waveL);
+                    pts.push([rr*Math.cos(th), rr*Math.sin(th)]);
+                    if (straight && pts.length === 2) break;
+                }
+                // dociągnij ostatni punkt do r1
+                if (!straight){
+                    let th = th0 + twist * (r1 - r0);
+                    if (p.waveA > 0) th += (p.waveA / r1) * Math.sin(TAU * (r1 - r0) / p.waveL);
+                    pts.push([r1*Math.cos(th), r1*Math.sin(th)]);
+                }
+                if (!col.add(pts, false)) return;
+            }
+        }
+    },
+
+    spiral: {
+        name: "Spiral vortex",
+        desc: "A family of Archimedean spirals <b>r=a+bθ</b> rotated by 2πj/N — a gentle vortex leading the eye from center to rim. The A·sin(nθ) modulation blends spiral with rosette.",
+        params: [
+            {k:"N",            l:"N — number of spirals",     min:1,        max:120, step:1,        def:36},
+            {k:"pitch",    l:"pitch [mm/turn]",                 min:0.2,    max:20,    step:0.1,    def:6},
+            {k:"modA",     l:"modulation A [mm]",             min:0,        max:1.5, step:0.01, def:0},
+            {k:"modN",     l:"modulation n",                        min:1,        max:60,    step:1,        def:12},
+            {k:"counter",l:"counter-rotating family", type:"check", def:false},
+        ],
+        gen(p, m, col){
+            const r0 = Math.max(m.r1, 0.05), r1 = m.r2;
+            const b = p.pitch / TAU;
+            const one = (th0, sign) => {
+                const pts = [];
+                let th = 0;
+                for (let i = 0; i < 400000; i++){
+                    const r = r0 + b*th + p.modA*Math.sin(p.modN*th);
+                    if (r > r1 + p.modA + 0.3) break; // wyjdź za maskę — przytnie ją clipToRing
+                    const a = sign*(th) + th0;
+                    pts.push([r*Math.cos(a), r*Math.sin(a)]);
+                    th += 0.08 / Math.max(r, 1);
+                }
+                return pts;
+            };
+            for (let j = 0; j < p.N; j++){
+                if (!col.add(one(TAU*j/p.N, 1), false)) return;
+                if (p.counter && !col.add(one(TAU*j/p.N, -1), false)) return;
+            }
+        }
+    },
+
+    logspiral: {
+        name: "Golden spiral",
+        desc: "The logarithmic spiral <b>r=a·e^{bθ}</b> crosses every radius at a constant angle. Golden option: b=2·lnφ/π (radius grows φ-fold every 90°). Counter-rotating families form a lens lattice.",
+        params: [
+            {k:"N",            l:"N — number of spirals", min:1,        max:120, step:1,         def:30},
+            {k:"b",            l:"b — growth rate",             min:0.05, max:1,     step:0.005, def:0.306},
+            {k:"golden", l:"golden ratio (b=2lnφ/π)", type:"check", def:true},
+            {k:"counter",l:"counter-rotating family", type:"check", def:true},
+        ],
+        gen(p, m, col){
+            const b = p.golden ? 2*Math.log((1+Math.sqrt(5))/2)/Math.PI : p.b;
+            const r0 = Math.max(m.r1, 0.3), r1 = m.r2;
+            if (r1 <= r0) return;
+            const thMax = Math.log(r1/r0) / b;
+            const one = (th0, sign) => {
+                const pts = [];
+                let th = 0;
+                while (th <= thMax){
+                    const r = r0 * Math.exp(b*th);
+                    const a = sign*th + th0;
+                    pts.push([r*Math.cos(a), r*Math.sin(a)]);
+                    th += 0.08 / Math.max(r, 1);
+                }
+                const rEnd = r1, aEnd = sign*thMax + th0;
+                pts.push([rEnd*Math.cos(aEnd), rEnd*Math.sin(aEnd)]);
+                return pts;
+            };
+            for (let j = 0; j < p.N; j++){
+                if (!col.add(one(TAU*j/p.N, 1), false)) return;
+                if (p.counter && !col.add(one(TAU*j/p.N, -1), false)) return;
+            }
+        }
+    },
+
+    trochoid: {
+        name: "Spirograph",
+        desc: "Hypo/epitrochoids — compounded rotations as in a spirograph. The curve closes because the ratio <b>R/r = P/Q</b> is rational. d/r &lt; 1 waves, = 1 cusps, &gt; 1 loops.",
+        params: [
+            {k:"mode",     l:"type", type:"select", def:"hypo",
+                options:[["hypo","Hypotrochoid (inside)"],["epi","Epitrochoid (outside)"]]},
+            {k:"P",            l:"P — large circle",             min:2,    max:40, step:1,        def:10},
+            {k:"Q",            l:"Q — small circle",             min:1,    max:20, step:1,        def:3},
+            {k:"dr",         l:"d/r — tracing point",        min:0.05,max:2, step:0.01, def:0.8},
+            {k:"copies", l:"copies (layers)",                min:1,    max:60, step:1,        def:8},
+            {k:"shrink", l:"scale per copy [%]",         min:0,    max:12, step:0.1,    def:4},
+            {k:"rotStep",l:"rotation per copy [°]",    min:0,    max:45, step:0.1,    def:3},
+        ],
+        gen(p, m, col){
+            const R = p.P, r = p.Q, d = p.dr * r;
+            const g = gcd(p.P, p.Q);
+            const tMax = TAU * (p.Q / g);
+            const maxRad = (p.mode === "hypo") ? Math.abs(R - r) + d : (R + r) + d;
+            if (maxRad < 1e-6) return;
+            const baseScale = m.r2 / maxRad;
+            const steps = clamp(((p.P + p.Q) / g) * 90, 1500, 30000);
+            for (let c = 0; c < p.copies; c++){
+                const s = baseScale * Math.pow(1 - p.shrink/100, c);
+                if (s * maxRad < Math.max(m.r1, 0.2)) break;
+                const rot = c * p.rotStep * Math.PI/180;
+                const cosR = Math.cos(rot), sinR = Math.sin(rot);
+                const pts = [];
+                for (let i = 0; i <= steps; i++){
+                    const t = tMax * i / steps;
+                    let x, y;
+                    if (p.mode === "hypo"){
+                        x = (R - r)*Math.cos(t) + d*Math.cos((R - r)/r * t);
+                        y = (R - r)*Math.sin(t) - d*Math.sin((R - r)/r * t);
+                    } else {
+                        x = (R + r)*Math.cos(t) - d*Math.cos((R + r)/r * t);
+                        y = (R + r)*Math.sin(t) - d*Math.sin((R + r)/r * t);
+                    }
+                    pts.push([s*(x*cosR - y*sinR), s*(x*sinR + y*cosR)]);
+                }
+                if (!col.add(pts, true)) return;
+            }
+        }
+    },
+
+    clous: {
+        name: "Clous de Paris",
+        desc: "Two crossing line families clipped by the circular mask. Choose <b>square</b> cells or true <b>rhombus</b> cells with an adjustable acute angle. 45° rotation = classic clous de Paris (hobnail), 0° = tapisserie.",
+        params: [
+            {k:"cellShape",        l:"cell shape", type:"select", def:"square",
+                options:[["square","Squares"],["rhombus","Rhombuses"]]},
+            {k:"rhombusAngle",l:"rhombus acute angle [°]", min:30, max:80, step:1, def:60,
+                when:{k:"cellShape", value:"rhombus"}},
+            {k:"s",                     l:"s — cell size [mm]",            min:0.3, max:6,    step:0.05, def:1.2},
+            {k:"angle",             l:"grid rotation [°]",             min:0,     max:90, step:1,        def:45},
+        ],
+        gen(p, m, col){
+            const r2 = m.r2;
+            const fam = (thf) => {
+                const c = Math.cos(thf), s = Math.sin(thf);
+                const kMax = Math.ceil(r2 / p.s);
+                for (let k = -kMax; k <= kMax; k++){
+                    const o = k * p.s;
+                    if (Math.abs(o) >= r2) continue;
+                    const h = Math.sqrt(r2*r2 - o*o) + 0.05;
+                    const pts = [];
+                    const ds = 0.25;
+                    for (let t = -h; t <= h + 1e-9; t += ds)
+                        pts.push([t*c - o*s, t*s + o*c]);
+                    pts.push([h*c - o*s, h*s + o*c]);
+                    if (!col.add(pts, false)) return false;
+                }
+                return true;
+            };
+            const a = p.angle * Math.PI/180;
+            const crossingAngle = p.cellShape === "rhombus" ? p.rhombusAngle : 90;
+            if (fam(a)) fam(a + crossingAngle * Math.PI/180);
+        }
+    },
+
+    vagues: {
+        name: "Vagues",
+        desc: "Linear waves from a straight-line engine: <b>y_k=kd+A·sin(2πx/λ+kα)</b> clipped by the dial mask. Phase α per line gives a flowing-fabric effect.",
+        params: [
+            {k:"d",             l:"d — line spacing [mm]",    min:0.2, max:4,     step:0.05, def:0.8},
+            {k:"A",             l:"A — amplitude [mm]",         min:0,     max:3,     step:0.01, def:0.5},
+            {k:"lambda",    l:"λ — wavelength [mm]",        min:1,     max:30,    step:0.1,    def:6},
+            {k:"alphaDeg",l:"α — phase per line [°]", min:0,     max:360, step:1,        def:0},
+            {k:"angle",     l:"pattern rotation [°]",     min:0,     max:180, step:1,        def:0},
+        ],
+        gen(p, m, col){
+            const r2 = m.r2, ext = r2 + p.A + 0.5;
+            const rot = p.angle * Math.PI/180;
+            const cosR = Math.cos(rot), sinR = Math.sin(rot);
+            const dx = Math.min(0.4, p.lambda/48);
+            const kMax = Math.ceil(ext / p.d);
+            for (let k = -kMax; k <= kMax; k++){
+                const y0 = k * p.d;
+                if (Math.abs(y0) - p.A > r2) continue;
+                const ph = k * p.alphaDeg * Math.PI/180;
+                const pts = [];
+                for (let x = -ext; x <= ext + 1e-9; x += dx){
+                    const y = y0 + p.A * Math.sin(TAU * x / p.lambda + ph);
+                    pts.push([x*cosR - y*sinR, x*sinR + y*cosR]);
+                }
+                if (!col.add(pts, false)) return;
+            }
+        }
+    },
+};
+
+/* Wspólny generator rodzin pierścieni r_k(θ) = R0 + k·d + f(θ,k) */
+function genRingFamily(col, mask, d, f, ampl, maxFreq){
+    const r0 = mask.r1 + ampl, r1 = mask.r2 - ampl;
+    if (r1 < r0) return;
+    const K = Math.floor((r1 - r0) / d) + 1;
+    let steps = clamp(Math.round(maxFreq * 24), 720, 6000);
+    if (K * steps > 1.6e6) steps = Math.max(Math.round(maxFreq*8), Math.floor(1.6e6 / K));
+    for (let k = 0; k < K; k++){
+        const R = r0 + k * d;
+        const pts = [];
+        for (let i = 0; i < steps; i++){
+            const th = TAU * i / steps;
+            const r = R + f(th, k, R);
+            pts.push([r*Math.cos(th), r*Math.sin(th)]);
+        }
+        if (!col.add(pts, true)) return;
+    }
+}
+
+/* ---------------- Receptury (presety) ---------------- */
+
+const PRESETS = [
+    {name:"Barleycorn medallion 24",pattern:"barleycorn", params:{n:24,A:0.3,d:0.6,alpha:0}, mask:[1.5,17]},
+    {name:"Minute ring 60",                 pattern:"waves", params:{n:60,A:0.25,d:0.5,centreTaper:0,alpha:0,A2:0,m2:4}, mask:[14.5,19]},
+    {name:"Hour rosette 12",                pattern:"waves", params:{n:12,A:0.7,d:0.55,centreTaper:0,alpha:0,A2:0,m2:4}, mask:[2,17]},
+    {name:"Phase vortex",                     pattern:"waves", params:{n:24,A:0.45,d:0.5,centreTaper:0,alpha:9,A2:0,m2:4}, mask:[1,17.5]},
+    {name:"Fourier micro-texture",    pattern:"waves", params:{n:24,A:0.5,d:0.6,centreTaper:0,alpha:0,A2:0.15,m2:4}, mask:[2,17]},
+    {name:"Moiré — breathing",            pattern:"moire", params:{symmetry:"1",n:36,A:0.35,d:0.7,safeCentre:0}, mask:[3,18]},
+    {name:"Compass rose 8",                 pattern:"compass", params:{n:8,pexp:3,A:3.5,d:0.8,rot:0}, mask:[2,18]},
+    {name:"Soleil 120",                         pattern:"soleil", params:{N:120,twist:0,waveA:0,waveL:2}, mask:[3,19]},
+    {name:"Spiral soleil",                    pattern:"soleil", params:{N:90,twist:6,waveA:0,waveL:2}, mask:[2,19]},
+    {name:"Spiral vortex 36",             pattern:"spiral", params:{N:36,pitch:12,modA:0,modN:12,counter:false}, mask:[0.5,18]},
+    {name:"Golden lattice",                 pattern:"logspiral", params:{N:30,b:0.306,golden:true,counter:true}, mask:[1.5,18]},
+    {name:"Spirograph 10:3",                pattern:"trochoid", params:{mode:"hypo",P:10,Q:3,dr:0.83,copies:8,shrink:4,rotStep:3}, mask:[0,18]},
+    {name:"Clous de Paris",                 pattern:"clous", params:{cellShape:"square",rhombusAngle:60,s:1.2,angle:45}, mask:[0,18]},
+    {name:"Tapisserie",                         pattern:"clous", params:{cellShape:"square",rhombusAngle:60,s:1.5,angle:0}, mask:[0,18]},
+    {name:"Vagues — fabric",                pattern:"vagues", params:{d:0.8,A:0.6,lambda:7,alphaDeg:25,angle:0}, mask:[0,18]},
+    {name:"Clous — rhombus",                pattern:"clous", params:{cellShape:"rhombus",rhombusAngle:60,s:1.2,angle:45}, mask:[0,18]},
+    {name:"Centre-safe rosette",        pattern:"waves", params:{n:24,A:0.8,d:0.55,centreTaper:100,alpha:0,A2:0,m2:4}, mask:[0,18]},
+    {name:"Moiré — 2-fold",                 pattern:"moire", params:{symmetry:"2",n:36,A:0.35,d:0.7,safeCentre:0}, mask:[3,18]},
+    {name:"Moiré — 3-fold",                 pattern:"moire", params:{symmetry:"3",n:36,A:0.35,d:0.7,safeCentre:0}, mask:[3,18]},
+    {name:"Moiré — 4-fold",                 pattern:"moire", params:{symmetry:"4",n:36,A:0.35,d:0.7,safeCentre:0}, mask:[3,18]},
+    {name:"Moiré — CNC-safe centre",pattern:"moire", params:{symmetry:"4",n:36,A:0.35,d:0.7,safeCentre:4}, mask:[0,18]},
+];
+
+/* ---------------- Stan ---------------- */
+
+const state = {
+    pattern: "waves",
+    params: {},                                                                     // params[patternId][key]
+    dial: { diameter:40, r1:2, r2:18 },
+    exp:    { strokeW:0.1, simplify:0.005, feed:300, outline:true },
+};
+for (const [id, p] of Object.entries(PATTERNS)){
+    state.params[id] = {};
+    for (const prm of p.params) state.params[id][prm.k] = prm.def;
+}
+
+let currentPaths = [];        // po masce, w mm
+let genCapped = false;
+let path2d = null;
+let stats = { paths:0, points:0, length:0 };
+
+/* ---------------- Kolektor ścieżek (limity wydajności) ---------------- */
+
+function makeCollector(){
+    const paths = [];
+    let total = 0, capped = false;
+    return {
+        paths,
+        add(pts, closed){
+            if (paths.length >= MAX_PATHS || total >= MAX_PTS){ capped = true; return false; }
+            if (pts.length >= 2){ paths.push({pts, closed}); total += pts.length; }
+            return true;
+        },
+        get capped(){ return capped; },
+    };
+}
+
+/* ---------------- Maska pierścienia ---------------- */
+
+function circleCross(a, b, R, pickMax){
+    // punkt przecięcia odcinka a->b z okręgiem |p|=R
+    const dx = b[0]-a[0], dy = b[1]-a[1];
+    const A = dx*dx + dy*dy;
+    if (A < 1e-18) return null;
+    const B = 2*(a[0]*dx + a[1]*dy);
+    const C = a[0]*a[0] + a[1]*a[1] - R*R;
+    const disc = B*B - 4*A*C;
+    if (disc < 0) return null;
+    const sq = Math.sqrt(disc);
+    const t1 = (-B - sq)/(2*A), t2 = (-B + sq)/(2*A);
+    const valid = [t1, t2].filter(t => t >= -1e-9 && t <= 1 + 1e-9);
+    if (!valid.length) return null;
+    const t = clamp(pickMax ? Math.max(...valid) : Math.min(...valid), 0, 1);
+    return [a[0] + t*dx, a[1] + t*dy];
+}
+
+function clipToRing(paths, r1, r2){
+    const R1 = Math.max(0, r1), R2 = Math.max(R1, r2);
+    const R1s = R1*R1 - 1e-9, R2s = R2*R2 + 1e-9;
+    const inside = p => { const q = p[0]*p[0] + p[1]*p[1]; return q >= R1s && q <= R2s; };
+    const out = [];
+
+    for (const path of paths){
+        let pts = path.pts;
+        let allIn = true;
+        for (let i = 0; i < pts.length; i++){
+            if (!inside(pts[i])){ allIn = false; break; }
+        }
+        if (allIn){ out.push(path); continue; }
+
+        if (path.closed) pts = pts.concat([pts[0]]);
+        const subs = [];
+        let cur = null;
+        for (let i = 0; i < pts.length - 1; i++){
+            const a = pts[i], b = pts[i+1];
+            const ia = inside(a), ib = inside(b);
+            if (ia && ib){
+                if (!cur) cur = [a];
+                cur.push(b);
+            } else if (ia && !ib){
+                if (!cur) cur = [a];
+                const R = (b[0]*b[0] + b[1]*b[1] > R2*R2) ? R2 : R1;
+                const c = circleCross(a, b, R, false);
+                if (c) cur.push(c);
+                if (cur.length >= 2) subs.push(cur);
+                cur = null;
+            } else if (!ia && ib){
+                const R = (a[0]*a[0] + a[1]*a[1] > R2*R2) ? R2 : R1;
+                const c = circleCross(a, b, R, false);
+                cur = c ? [c, b] : [b];
+            }
+        }
+        if (cur && cur.length >= 2) subs.push(cur);
+
+        // zamknięta krzywa przecięta na szwie θ=0 -> sklej ostatni kawałek z pierwszym
+        if (path.closed && subs.length > 1 && inside(path.pts[0])){
+            const last = subs.pop();
+            subs[0] = last.concat(subs[0].slice(1));
+        }
+        for (const s of subs) out.push({pts:s, closed:false});
+    }
+    return out;
+}
+
+/* ---------------- Upraszczanie (Ramer–Douglas–Peucker) ---------------- */
+
+function rdp(pts, tol){
+    const n = pts.length;
+    if (n < 3 || tol <= 0) return pts;
+    const keep = new Uint8Array(n);
+    keep[0] = keep[n-1] = 1;
+    const stack = [[0, n-1]];
+    while (stack.length){
+        const [i0, i1] = stack.pop();
+        if (i1 - i0 < 2) continue;
+        const ax = pts[i0][0], ay = pts[i0][1];
+        const dx = pts[i1][0]-ax, dy = pts[i1][1]-ay;
+        const L2 = dx*dx + dy*dy;
+        let maxD = -1, idx = -1;
+        for (let i = i0+1; i < i1; i++){
+            const px = pts[i][0]-ax, py = pts[i][1]-ay;
+            const d = (L2 < 1e-14) ? Math.hypot(px, py)
+                                                         : Math.abs(px*dy - py*dx) / Math.sqrt(L2);
+            if (d > maxD){ maxD = d; idx = i; }
+        }
+        if (maxD > tol){ keep[idx] = 1; stack.push([i0, idx], [idx, i1]); }
+    }
+    const res = [];
+    for (let i = 0; i < n; i++) if (keep[i]) res.push(pts[i]);
+    return res;
+}
+
+/* ---------------- Generacja + statystyki ---------------- */
+
+function regenerate(){
+    const col = makeCollector();
+    const m = { r1: state.dial.r1, r2: state.dial.r2 };
+    PATTERNS[state.pattern].gen(state.params[state.pattern], m, col);
+    currentPaths = clipToRing(col.paths, m.r1, m.r2);
+    genCapped = col.capped;
+
+    let pts = 0, len = 0;
+    for (const p of currentPaths){
+        pts += p.pts.length;
+        const a = p.pts;
+        for (let i = 1; i < a.length; i++)
+            len += Math.hypot(a[i][0]-a[i-1][0], a[i][1]-a[i-1][1]);
+        if (p.closed && a.length > 1)
+            len += Math.hypot(a[0][0]-a[a.length-1][0], a[0][1]-a[a.length-1][1]);
+    }
+    stats = { paths: currentPaths.length, points: pts, length: len };
+
+    path2d = new Path2D();
+    for (const p of currentPaths){
+        const a = p.pts;
+        path2d.moveTo(a[0][0], a[0][1]);
+        for (let i = 1; i < a.length; i++) path2d.lineTo(a[i][0], a[i][1]);
+        if (p.closed) path2d.closePath();
+    }
+    updateStats();
+    updateWarnings();
+    drawCanvas();
+}
+
+let regenPending = false;
+function scheduleRegen(){
+    if (regenPending) return;
+    regenPending = true;
+    requestAnimationFrame(()=>{ regenPending = false; regenerate(); });
+}
+
+/* ---------------- Canvas: rysowanie, zoom, pan ---------------- */
+
+const canvas = $("canvas");
+const ctx = canvas.getContext("2d");
+const view = { zoom:1, panX:0, panY:0 };
+let dpr = 1;
+
+function fitScale(){
+    return Math.min(canvas.clientWidth, canvas.clientHeight) * 0.86 / state.dial.diameter;
+}
+function scale(){ return fitScale() * view.zoom; }
+
+function resizeCanvas(){
+    dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== Math.round(w*dpr) || canvas.height !== Math.round(h*dpr)){
+        canvas.width = Math.round(w*dpr);
+        canvas.height = Math.round(h*dpr);
+    }
+    drawCanvas();
+}
+
+function drawCanvas(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    const S = scale();
+    const cx = w/2 + view.panX, cy = h/2 + view.panY;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.setTransform(dpr*S, 0, 0, dpr*S, dpr*cx, dpr*cy);
+    const R = state.dial.diameter/2;
+
+    // tarcza
+    const grad = ctx.createRadialGradient(0, -R*0.3, R*0.1, 0, 0, R*1.2);
+    grad.addColorStop(0, "#23262e");
+    grad.addColorStop(1, "#171a20");
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU);
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.lineWidth = Math.max(0.15, 2.2/S);
+    ctx.strokeStyle = "#4d4632"; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, R - Math.max(0.1, 1.2/S), 0, TAU);
+    ctx.lineWidth = 0.8/S; ctx.strokeStyle = "rgba(212,175,90,.35)"; ctx.stroke();
+
+    // prowadnice maski
+    ctx.setLineDash([4/S, 4/S]);
+    ctx.strokeStyle = "rgba(140,150,170,.25)";
+    ctx.lineWidth = 1/S;
+    if (state.dial.r1 > 0.01){
+        ctx.beginPath(); ctx.arc(0, 0, state.dial.r1, 0, TAU); ctx.stroke();
+    }
+    if (Math.abs(state.dial.r2 - R) > 0.05){
+        ctx.beginPath(); ctx.arc(0, 0, state.dial.r2, 0, TAU); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // wzór
+    if (path2d){
+        ctx.lineWidth = Math.max(state.exp.strokeW, 0.8/S);
+        ctx.strokeStyle = "#e6c87c";
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke(path2d);
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+canvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const S0 = scale();
+    const wx = (mx - canvas.clientWidth/2 - view.panX) / S0;
+    const wy = (my - canvas.clientHeight/2 - view.panY) / S0;
+    view.zoom = clamp(view.zoom * Math.exp(-e.deltaY * 0.0012), 0.15, 60);
+    const S1 = scale();
+    view.panX = mx - canvas.clientWidth/2 - wx*S1;
+    view.panY = my - canvas.clientHeight/2 - wy*S1;
+    drawCanvas();
+}, { passive:false });
+
+let dragging = false, lastX = 0, lastY = 0;
+canvas.addEventListener("pointerdown", e => {
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    view.panX += e.clientX - lastX;
+    view.panY += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    drawCanvas();
+});
+canvas.addEventListener("pointerup", () => dragging = false);
+canvas.addEventListener("dblclick", () => {
+    view.zoom = 1; view.panX = 0; view.panY = 0; drawCanvas();
+});
+new ResizeObserver(resizeCanvas).observe($("stage"));
+
+/* ---------------- Eksport SVG ---------------- */
+
+const fmt = v => {
+    const r = Math.round(v * 1000) / 1000;
+    return Object.is(r, -0) ? "0" : String(r);
+};
+
+function buildSVG(){
+    const D = state.dial.diameter, c = D/2;
+    const tol = state.exp.simplify;
+    const parts = [];
+    parts.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+    parts.push(`<!-- Guilloché Atelier · pattern: ${PATTERNS[state.pattern].name} · dial ø${D} mm -->`);
+    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${D}mm" height="${D}mm" viewBox="0 0 ${D} ${D}">`);
+    parts.push(`<g fill="none" stroke="#000000" stroke-width="${state.exp.strokeW}" stroke-linecap="round" stroke-linejoin="round">`);
+    if (state.exp.outline)
+        parts.push(`<circle cx="${fmt(c)}" cy="${fmt(c)}" r="${fmt(c)}"/>`);
+    for (const p of currentPaths){
+        const a = rdp(p.pts, tol);
+        if (a.length < 2) continue;
+        const seg = [`M${fmt(a[0][0]+c)} ${fmt(a[0][1]+c)}`];
+        for (let i = 1; i < a.length; i++)
+            seg.push(`L${fmt(a[i][0]+c)} ${fmt(a[i][1]+c)}`);
+        if (p.closed) seg.push("Z");
+        parts.push(`<path d="${seg.join(" ")}"/>`);
+    }
+    parts.push(`</g>`);
+    parts.push(`</svg>`);
+    return parts.join("\n");
+}
+
+/* DXF R12: POLYLINE/VERTEX — najszerzej czytany przez CAM; jednostki mm ($INSUNITS=4).
+     Oś Y odbita (c-y), bo DXF ma Y w górę, SVG w dół — orientacja jak na ekranie. */
+function buildDXF(){
+    const D = state.dial.diameter, c = D/2;
+    const tol = state.exp.simplify;
+    const L = [];
+    L.push("0","SECTION","2","HEADER","9","$INSUNITS","70","4","0","ENDSEC");
+    L.push("0","SECTION","2","ENTITIES");
+    if (state.exp.outline)
+        L.push("0","CIRCLE","8","0","10",fmt(c),"20",fmt(c),"40",fmt(c));
+    for (const p of currentPaths){
+        const a = rdp(p.pts, tol);
+        if (a.length < 2) continue;
+        L.push("0","POLYLINE","8","0","66","1","70", p.closed ? "1" : "0");
+        for (const [x,y] of a)
+            L.push("0","VERTEX","8","0","10",fmt(x+c),"20",fmt(c-y));
+        L.push("0","SEQEND");
+    }
+    L.push("0","ENDSEC","0","EOF");
+    return L.join("\r\n");
+}
+
+function downloadFile(text, mime, ext){
+    const blob = new Blob([text], { type:mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `guilloche_${state.pattern}_o${state.dial.diameter}mm.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+const downloadSVG = () => downloadFile(buildSVG(), "image/svg+xml", "svg");
+const downloadDXF = () => downloadFile(buildDXF(), "application/dxf", "dxf");
+
+async function copySVG(btn){
+    try {
+        await navigator.clipboard.writeText(buildSVG());
+        const t = btn.textContent;
+        btn.textContent = "Copied ✓";
+        setTimeout(()=> btn.textContent = t, 1400);
+    } catch {
+        btn.textContent = "Error :(";
+    }
+}
+
+/* ---------------- Share / load przez URL ---------------- */
+
+/* base64url przez TextEncoder — bezpieczne dla znaków spoza ASCII */
+const b64url = {
+    enc: s => btoa(String.fromCharCode(...new TextEncoder().encode(s)))
+                            .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
+    dec: s => new TextDecoder().decode(
+                            Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")), c => c.charCodeAt(0))),
+};
+
+function stateToURL(){
+    const payload = {
+        pattern: state.pattern,
+        params: state.params[state.pattern],
+        dial: state.dial,
+        exp: state.exp,
+    };
+    return location.origin + location.pathname + "?p=" + b64url.enc(JSON.stringify(payload));
+}
+
+const numOr = (v, fb) => Number.isFinite(+v) ? +v : fb;
+
+/* Wartości z URL-a są niezaufane i mogą być niepełne (stare linki):
+     brakujące klucze zostają na domyślnych, liczby clampowane do zakresów
+     suwaków, selecty walidowane do listy opcji. */
+function applyState(s){
+    if (s.pattern in PATTERNS) state.pattern = s.pattern;
+    const def = PATTERNS[state.pattern];
+    const vals = state.params[state.pattern];
+    Object.assign(vals, s.params ?? {});
+    for (const p of def.params){
+        if (p.type === "check") vals[p.k] = !!vals[p.k];
+        else if (p.type === "select") vals[p.k] = p.options.some(o => o[0] === vals[p.k]) ? vals[p.k] : p.def;
+        else vals[p.k] = clamp(numOr(vals[p.k], p.def), p.min, p.max);
+    }
+    const d = s.dial ?? {};
+    state.dial.diameter = clamp(numOr(d.diameter, state.dial.diameter), 10, 300);
+    const R = state.dial.diameter / 2;
+    state.dial.r2 = clamp(numOr(d.r2, state.dial.r2), 0.5, R);
+    state.dial.r1 = clamp(numOr(d.r1, state.dial.r1), 0, Math.max(0, state.dial.r2 - 0.2));
+    const e = s.exp ?? {};
+    state.exp.strokeW    = clamp(numOr(e.strokeW,    state.exp.strokeW),    0.05, 1);
+    state.exp.simplify = clamp(numOr(e.simplify, state.exp.simplify), 0.001, 0.05);
+    state.exp.feed         = clamp(numOr(e.feed,         state.exp.feed),         50, 3000);
+    state.exp.outline    = !!(e.outline ?? state.exp.outline);
+}
+
+function loadFromURL(){
+    const p = new URLSearchParams(location.search).get("p");
+    if (!p) return false;
+    try {
+        applyState(JSON.parse(b64url.dec(p)));
+        return true;
+    } catch {
+        return false; // popsuty/niepełny link — zostają domyślne
+    }
+}
+
+async function shareLink(btn){
+    try {
+        await navigator.clipboard.writeText(stateToURL());
+        const t = btn.textContent;
+        btn.textContent = "Link copied ✓";
+        setTimeout(()=> btn.textContent = t, 1400);
+    } catch {
+        btn.textContent = "Error :(";
+    }
+}
+
+/* ---------------- Budowa UI ---------------- */
+
+function makeRangeRow(box, label, get, set, min, max, step, onchange){
+    const wrap = document.createElement("div");
+    wrap.className = "prm";
+    const lab = document.createElement("div");
+    lab.className = "lab";
+    const span = document.createElement("span");
+    span.textContent = label;
+    const num = document.createElement("input");
+    num.type = "number"; num.min = min; num.max = max; num.step = step; num.value = get();
+    lab.append(span, num);
+    const rng = document.createElement("input");
+    rng.type = "range"; rng.min = min; rng.max = max; rng.step = step; rng.value = get();
+    wrap.append(lab, rng);
+    box.appendChild(wrap);
+
+    const apply = v => {
+        v = clamp(parseFloat(v), min, max);
+        if (isNaN(v)) v = get();
+        set(v);
+        rng.value = get(); num.value = get();
+        onchange();
+    };
+    rng.addEventListener("input", () => apply(rng.value));
+    num.addEventListener("change", () => apply(num.value));
+    return { refresh(){ rng.value = get(); num.value = get(); },
+                     setBounds(mn, mx){ min = mn; max = mx; rng.min = num.min = mn; rng.max = num.max = mx; } };
+}
+
+const paramBox = $("paramBox");
+let paramRows = [];
+
+function renderParams(){
+    paramBox.innerHTML = "";
+    paramRows = [];
+    const def = PATTERNS[state.pattern];
+    const vals = state.params[state.pattern];
+    for (const p of def.params){
+        if (p.when && vals[p.when.k] !== p.when.value) continue;
+        if (p.type === "check"){
+            const row = document.createElement("div");
+            row.className = "prm checkrow";
+            const lab = document.createElement("label");
+            lab.textContent = p.l;
+            const cb = document.createElement("input");
+            cb.type = "checkbox"; cb.checked = !!vals[p.k];
+            const cbId = "cb_" + p.k;
+            cb.id = cbId; lab.htmlFor = cbId;
+            cb.addEventListener("change", () => { vals[p.k] = cb.checked; renderParams(); scheduleRegen(); });
+            row.append(lab, cb);
+            paramBox.appendChild(row);
+        } else if (p.type === "select"){
+            const row = document.createElement("div");
+            row.className = "prm selrow";
+            const lab = document.createElement("span");
+            lab.textContent = p.l;
+            const sel = document.createElement("select");
+            for (const [v, t] of p.options){
+                const o = document.createElement("option");
+                o.value = v; o.textContent = t;
+                sel.appendChild(o);
+            }
+            sel.value = vals[p.k];
+            sel.addEventListener("change", () => {
+                vals[p.k] = sel.value;
+                if (p.onchange) p.onchange(vals);
+                renderParams(); scheduleRegen();
+            });
+            row.append(lab, sel);
+            paramBox.appendChild(row);
+        } else {
+            // spirala logarytmiczna: b nieaktywne przy złotej proporcji
+            if (state.pattern === "logspiral" && p.k === "b" && vals.golden){
+                const row = document.createElement("div");
+                row.className = "prm";
+                row.innerHTML = `<div class="lab"><span style="color:var(--mut)">${p.l} — locked (golden ratio: b≈0.306)</span></div>`;
+                paramBox.appendChild(row);
+                continue;
+            }
+            const r = makeRangeRow(paramBox, p.l,
+                () => vals[p.k], v => vals[p.k] = p.snap ? p.snap(v, vals) : v,
+                p.min, p.max, p.step, scheduleRegen);
+            paramRows.push({ def:p, row:r });
+        }
+    }
+}
+
+function renderPatternGrid(){
+    const grid = $("patGrid");
+    grid.innerHTML = "";
+    for (const [id, p] of Object.entries(PATTERNS)){
+        const b = document.createElement("button");
+        b.className = "pat" + (id === state.pattern ? " active" : "");
+        b.textContent = p.name;
+        b.addEventListener("click", () => {
+            state.pattern = id;
+            $("presetSel").value = "";
+            renderPatternGrid();
+            renderParams();
+            $("patDesc").innerHTML = p.desc;
+            scheduleRegen();
+        });
+        grid.appendChild(b);
+    }
+    $("patDesc").innerHTML = PATTERNS[state.pattern].desc;
+}
+
+/* Tarcza i maska */
+let dialRows = {};
+function renderDialBox(){
+    const box = $("dialBox");
+    box.innerHTML = "";
+    dialRows.dia = makeRangeRow(box, "Dial diameter [mm]",
+        () => state.dial.diameter,
+        v => {
+            const oldR = state.dial.diameter/2;
+            const maskWasFullDial = Math.abs(state.dial.r2 - oldR) <= 0.05;
+            state.dial.diameter = v;
+            const R = v/2;
+            state.dial.r2 = maskWasFullDial ? R : Math.min(state.dial.r2, R);
+            state.dial.r1 = Math.min(state.dial.r1, Math.max(0, state.dial.r2 - 0.5));
+            dialRows.r1.setBounds(0, R); dialRows.r2.setBounds(0.5, R);
+            dialRows.r1.refresh(); dialRows.r2.refresh();
+            view.zoom = 1; view.panX = 0; view.panY = 0;
+        },
+        10, 300, 1, scheduleRegen);
+    dialRows.r1 = makeRangeRow(box, "Mask — inner radius [mm]",
+        () => state.dial.r1,
+        v => { state.dial.r1 = clamp(v, 0, Math.max(0, state.dial.r2 - 0.2)); dialRows.r1.refresh(); },
+        0, state.dial.diameter/2, 0.1, scheduleRegen);
+    dialRows.r2 = makeRangeRow(box, "Mask — outer radius [mm]",
+        () => state.dial.r2,
+        v => { state.dial.r2 = clamp(Math.max(v, state.dial.r1 + 0.2), 0.5, state.dial.diameter/2); dialRows.r2.refresh(); },
+        0.5, state.dial.diameter/2, 0.1, scheduleRegen);
+}
+
+/* Eksport */
+function renderExportBox(){
+    const box = $("exportBox");
+    box.innerHTML = "";
+    makeRangeRow(box, "Stroke width [mm]",
+        () => state.exp.strokeW, v => state.exp.strokeW = v,
+        0.05, 1, 0.01, drawCanvas);
+    makeRangeRow(box, "Path simplification [mm]",
+        () => state.exp.simplify, v => state.exp.simplify = v,
+        0.001, 0.05, 0.001, updateStats);
+    makeRangeRow(box, "Feed F [mm/min] (time estimate)",
+        () => state.exp.feed, v => state.exp.feed = v,
+        50, 3000, 10, updateStats);
+    const row = document.createElement("div");
+    row.className = "prm checkrow";
+    row.innerHTML = `<label for="cbOutline">Add dial outline to SVG</label>`;
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.id = "cbOutline"; cb.checked = state.exp.outline;
+    cb.addEventListener("change", () => state.exp.outline = cb.checked);
+    row.appendChild(cb);
+    box.appendChild(row);
+}
+
+/* Presety */
+function renderPresets(){
+    const sel = $("presetSel");
+    PRESETS.forEach((p, i) => {
+        const o = document.createElement("option");
+        o.value = i; o.textContent = p.name;
+        sel.appendChild(o);
+    });
+    sel.addEventListener("change", () => {
+        if (sel.value === "") return;
+        applyPreset(+sel.value);
+    });
+}
+
+function applyPreset(i){
+    const pr = PRESETS[i];
+    if (!pr) return;
+    $("presetSel").value = i;
+    state.pattern = pr.pattern;
+    Object.assign(state.params[pr.pattern], pr.params);
+    state.dial.diameter = 40;
+    state.dial.r1 = pr.mask[0];
+    state.dial.r2 = pr.mask[1];
+    view.zoom = 1; view.panX = 0; view.panY = 0;
+    renderPatternGrid(); renderParams(); renderDialBox();
+    scheduleRegen();
+}
+
+/* Losowanie */
+function randomize(){
+    const def = PATTERNS[state.pattern];
+    const vals = state.params[state.pattern];
+    for (const p of def.params){
+        if (p.type === "check"){ vals[p.k] = Math.random() < 0.5; }
+        else if (p.type === "select"){ vals[p.k] = p.options[Math.floor(Math.random()*p.options.length)][0]; }
+        else {
+            const randomMax = p.randomMax ?? p.max;
+            let v = p.min + Math.random() * (randomMax - p.min);
+            v = Math.round(v / p.step) * p.step;
+            if (p.snap) v = p.snap(v, vals);
+            vals[p.k] = clamp(parseFloat(v.toFixed(4)), p.min, p.max);
+        }
+    }
+    $("presetSel").value = "";
+    renderParams();
+    scheduleRegen();
+}
+
+/* ---------------- Statystyki i ostrzeżenia ---------------- */
+
+function updateStats(){
+    const el = $("stats");
+    const lenM = stats.length / 1000;
+    const timeMin = stats.length / state.exp.feed;
+    el.innerHTML =
+        `<span class="chip">paths: <b>${stats.paths}</b></span>` +
+        `<span class="chip">points: <b>${stats.points.toLocaleString("en-US")}</b></span>` +
+        `<span class="chip">cut length: <b>${lenM >= 1 ? lenM.toFixed(2)+" m" : stats.length.toFixed(0)+" mm"}</b></span>` +
+        `<span class="chip">time @F${state.exp.feed}: <b>${timeMin >= 60 ? (timeMin/60).toFixed(1)+" h" : timeMin.toFixed(1)+" min"}</b></span>`;
+}
+
+function updateWarnings(){
+    const el = $("warns");
+    const w = [];
+    const vals = state.params[state.pattern];
+    if (["waves","barleycorn","moire","vagues"].includes(state.pattern) && vals.A > vals.d/2)
+        w.push("⚠ A &gt; d/2 — adjacent grooves will intersect (sometimes intentional)");
+    if (genCapped)
+        w.push("⚠ Line count capped for performance — increase d or narrow the mask range");
+    el.innerHTML = w.map(t => `<div class="warn">${t}</div>`).join("");
+}
+
+/* ---------------- Start ---------------- */
+
+for (const g of document.querySelectorAll(".expGroup")){
+    g.querySelector(".expMain").addEventListener("click", () => g.classList.toggle("open"));
+    g.querySelector(".expSvg").addEventListener("click", downloadSVG);
+    g.querySelector(".expDxf").addEventListener("click", downloadDXF);
+}
+$("copyBtn").addEventListener("click", e => copySVG(e.currentTarget));
+$("randomBtn").addEventListener("click", randomize);
+
+renderPatternGrid();
+renderParams();
+renderDialBox();
+renderExportBox();
+renderPresets();
+resizeCanvas();
+if (loadFromURL()){
+    renderPatternGrid(); renderParams(); renderDialBox(); renderExportBox();
+} else if (/^#p\d+$/.test(location.hash)) applyPreset(+location.hash.slice(2));
+$("shareBtn").addEventListener("click", e => shareLink(e.currentTarget));
+regenerate();
+
+/* ---------------- Course-interest banner ---------------- */
+
+{
+    const PROMO_KEY = "courseInterestDone";
+    const promo = $("promo"), tab = $("promoTab");
+    const done = () => { try { localStorage.setItem(PROMO_KEY, "1"); } catch {} };
+    let isDone = false;
+    try { isDone = !!localStorage.getItem(PROMO_KEY); } catch {}
+    if (isDone) tab.classList.add("hidden");
+
+    tab.addEventListener("click", () => promo.classList.toggle("hidden"));
+    $("promoClose").addEventListener("click", () => promo.classList.add("hidden"));
+
+    $("promoForm").addEventListener("submit", e => {
+        e.preventDefault();
+        done(); // ponytail: mark done even if fetch fails — never nag twice
+        fetch("/api/interest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: $("promoEmail").value.trim() })
+        }).catch(() => {});
+        promo.innerHTML = '<p style="margin:0">Thanks — talk soon.</p>';
+        setTimeout(() => { promo.classList.add("hidden"); tab.classList.add("hidden"); }, 2500);
+    });
+}
+</script>
+</body>
+</html>

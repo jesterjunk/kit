@@ -149,3 +149,11 @@
             <a href="https://jesterjunk.github.io/kit/json-path-finder/" title="JSON Path Finder" target="_blank">JSON Path Finder</a>
     credit: <a href="https://github.com/joebeachjoebeach/json-path-finder" title="https://github.com/joebeachjoebeach/json-path-finder" target="_blank">https://github.com/joebeachjoebeach/json-path-finder</a>
 </p>
+
+
+<h2><a href="#Color" title="Color" target="_blank">Pattern</a></h2>
+
+<p>‌‌ ‌‌ ‌‌ ‌‌
+            <a href="https://jesterjunk.github.io/kit/guillochegenerator/" title="Guilloché Atelier" target="_blank">Guilloché Atelier</a>
+    credit: <a href="https://guillochegenerator.com/" title="https://guillochegenerator.com/" target="_blank">https://guillochegenerator.com/</a>
+</p>
