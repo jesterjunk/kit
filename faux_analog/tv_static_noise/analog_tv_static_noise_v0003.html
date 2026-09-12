@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Analog TV Static v0003</title>
+<style>
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #6f6f6f;
+  }
+  body { touch-action: none; }
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background: #6f6f6f;
+  }
+</style>
+</head>
+<body>
+<canvas id="noise" aria-hidden="true"></canvas>
+<script>
+(() => {
+  'use strict';
+
+  const canvas = document.getElementById('noise');
+  const FIELD_RATE = 59.94;
+  const SIM_LINES = 486;
+  const SIM_SAMPLES_4_3 = 455;
+
+  function startFallback() {
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d', { alpha: false });
+    let img = null;
+
+    function hash(n) {
+      n ^= n >>> 16;
+      n = Math.imul(n, 0x7feb352d);
+      n ^= n >>> 15;
+      n = Math.imul(n, 0x846ca68b);
+      n ^= n >>> 16;
+      return n >>> 0;
+    }
+
+    function rnd(a, b, c, s) {
+      const n = hash((a | 0) ^ Math.imul((b | 0), 374761393) ^ Math.imul((c | 0), 668265263) ^ (s >>> 0));
+      return (n + 0.5) / 4294967296;
+    }
+
+    function gauss(a, b, c, s) {
+      const u1 = Math.max(1e-7, rnd(a, b, c, s));
+      const u2 = rnd(a, b, c, s ^ 0x9e3779b9);
+      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(6.283185307179586 * u2);
+    }
+
+    function band1D(x, line, field, seed) {
+      const ix = Math.floor(x);
+      const t = x - ix;
+      const g0 = gauss(ix - 1, line, field, seed);
+      const g1 = gauss(ix, line, field, seed);
+      const g2 = gauss(ix + 1, line, field, seed);
+      const g3 = gauss(ix + 2, line, field, seed);
+      const a = 0.25 * g0 + 0.5 * g1 + 0.25 * g2;
+      const b = 0.25 * g1 + 0.5 * g2 + 0.25 * g3;
+      const f = t * t * (3 - 2 * t);
+      return a + (b - a) * f;
+    }
+
+    function signalAt(x, y, fieldIndex) {
+      const line = Math.max(0, Math.min(SIM_LINES - 1, Math.floor(y)));
+      const parity = fieldIndex & 1;
+      const fieldForLine = ((line & 1) === parity) ? fieldIndex : Math.max(0, fieldIndex - 1);
+      const i = band1D(x, line, fieldForLine, 0x243f6a88);
+      const q = band1D(x, line, fieldForLine, 0x13198a2e);
+      const env = Math.hypot(i, q);
+      const gain = 0.97 + (rnd(line, fieldForLine, 0, 0x85ebca6b) - 0.5) * 0.10;
+      let v = env * 0.64 * gain - 0.12;
+      v = Math.max(0, Math.min(1, v));
+      return v;
+    }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(innerWidth * dpr));
+      canvas.height = Math.max(1, Math.round(innerHeight * dpr));
+      off.width = Math.max(1, Math.round(innerWidth * SIM_SAMPLES_4_3 / Math.max(1, innerHeight * 4 / 3)));
+      off.height = SIM_LINES;
+      img = offCtx.createImageData(off.width, off.height);
+      ctx.imageSmoothingEnabled = true;
+    }
+
+    function render(ms) {
+      const fieldIndex = Math.floor(ms * FIELD_RATE / 1000);
+      const d = img.data;
+      const w = off.width;
+      const h = off.height;
+
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const c = signalAt(x, y, fieldIndex);
+          const l = signalAt(x - 0.85, y, fieldIndex);
+          const r = signalAt(x + 0.85, y, fieldIndex);
+          const u = signalAt(x, y - 0.75, fieldIndex);
+          const dwn = signalAt(x, y + 0.75, fieldIndex);
+          const l2 = signalAt(x - 1.7, y, fieldIndex);
+          const r2 = signalAt(x + 1.7, y, fieldIndex);
+
+          let lum = c * 0.36 + (l + r) * 0.19 + (l2 + r2) * 0.07 + (u + dwn) * 0.06;
+          const hot = Math.max(0, Math.min(1, (c - 0.76) / 0.24));
+          lum += hot * hot * ((l2 + r2) * 0.04 + (u + dwn) * 0.015 + c * 0.02);
+          lum = Math.pow(Math.max(0, Math.min(1, lum)), 0.94);
+
+          const v = Math.max(0, Math.min(255, Math.round(lum * 255)));
+          const idx = (y * w + x) * 4;
+          d[idx] = v;
+          d[idx + 1] = v;
+          d[idx + 2] = v;
+          d[idx + 3] = 255;
+        }
+      }
+
+      offCtx.putImageData(img, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
+      requestAnimationFrame(render);
+    }
+
+    addEventListener('resize', resize, { passive: true });
+    addEventListener('orientationchange', resize, { passive: true });
+    resize();
+    requestAnimationFrame(render);
+  }
+
+  const gl = canvas.getContext('webgl2', {
+    alpha: false,
+    antialias: false,
+    depth: false,
+    stencil: false,
+    desynchronized: true,
+    powerPreference: 'high-performance'
+  });
+
+  if (!gl) {
+    startFallback();
+    return;
+  }
+
+  const vs = `#version 300 es
+  precision highp float;
+  const vec2 P[3] = vec2[3](
+    vec2(-1.0, -1.0),
+    vec2( 3.0, -1.0),
+    vec2(-1.0,  3.0)
+  );
+  void main() {
+    gl_Position = vec4(P[gl_VertexID], 0.0, 1.0);
+  }`;
+
+  const fs = `#version 300 es
+  precision highp float;
+  precision highp int;
+
+  uniform float uDpr;
+  uniform vec2 uResolutionCss;
+  uniform uint uField;
+  out vec4 outColor;
+
+  const float PI = 3.141592653589793;
+  const float SIM_LINES = 486.0;
+  const float SIM_SAMPLES_4_3 = 455.0;
+
+  uint hash32(uint x) {
+    x ^= x >> 16;
+    x *= 0x7feb352du;
+    x ^= x >> 15;
+    x *= 0x846ca68bu;
+    x ^= x >> 16;
+    return x;
+  }
+
+  float rnd3(int a, int b, int c, uint seed) {
+    uint x = uint(a) * 0x9e3779b9u;
+    uint y = uint(b) * 0x85ebca6bu;
+    uint z = uint(c) * 0xc2b2ae35u;
+    return float(hash32(x ^ y ^ z ^ seed)) * (1.0 / 4294967295.0);
+  }
+
+  float gaussian3(int a, int b, int c, uint seed) {
+    float u1 = max(rnd3(a, b, c, seed), 1e-7);
+    float u2 = rnd3(a, b, c, seed ^ 0x27d4eb2fu);
+    return sqrt(-2.0 * log(u1)) * cos(2.0 * PI * u2);
+  }
+
+  float bandLimited1D(float x, int line, uint fieldIdx, uint channelSeed) {
+    int ix = int(floor(x));
+    float t = fract(x);
+
+    float g0 = gaussian3(ix - 1, line, int(fieldIdx), channelSeed);
+    float g1 = gaussian3(ix,     line, int(fieldIdx), channelSeed);
+    float g2 = gaussian3(ix + 1, line, int(fieldIdx), channelSeed);
+    float g3 = gaussian3(ix + 2, line, int(fieldIdx), channelSeed);
+
+    float a = 0.25 * g0 + 0.50 * g1 + 0.25 * g2;
+    float b = 0.25 * g1 + 0.50 * g2 + 0.25 * g3;
+    float f = t * t * (3.0 - 2.0 * t);
+    return mix(a, b, f);
+  }
+
+  float signalAt(vec2 raster) {
+    int line = clamp(int(floor(raster.y)), 0, int(SIM_LINES) - 1);
+    uint prevField = (uField == 0u) ? 0u : (uField - 1u);
+    int parity = int(uField & 1u);
+    uint fieldForLine = ((line & 1) == parity) ? uField : prevField;
+
+    float i = bandLimited1D(raster.x, line, fieldForLine, 0x243f6a88u);
+    float q = bandLimited1D(raster.x, line, fieldForLine, 0x13198a2eu);
+    float env = length(vec2(i, q));
+
+    float gain = 0.97 + (rnd3(line, int(fieldForLine), 0, 0x85ebca6bu) - 0.5) * 0.10;
+    float v = env * 0.64 * gain - 0.12;
+    return clamp(v, 0.0, 1.0);
+  }
+
+  void main() {
+    vec2 css = gl_FragCoord.xy / max(uDpr, 1.0);
+    float rasterX = css.x * (SIM_SAMPLES_4_3 / max(1.0, uResolutionCss.y * (4.0 / 3.0)));
+    float rasterY = css.y * (SIM_LINES / max(uResolutionCss.y, 1.0));
+    vec2 r = vec2(rasterX, rasterY);
+
+    float c  = signalAt(r);
+    float l  = signalAt(r + vec2(-0.85, 0.0));
+    float rr = signalAt(r + vec2( 0.85, 0.0));
+    float l2 = signalAt(r + vec2(-1.70, 0.0));
+    float r2 = signalAt(r + vec2( 1.70, 0.0));
+    float u  = signalAt(r + vec2( 0.0, -0.75));
+    float d  = signalAt(r + vec2( 0.0,  0.75));
+
+    float lum = c * 0.36 + (l + rr) * 0.19 + (l2 + r2) * 0.07 + (u + d) * 0.06;
+    float hot = smoothstep(0.76, 1.0, c);
+    lum += hot * hot * ((l2 + r2) * 0.04 + (u + d) * 0.015 + c * 0.02);
+
+    lum = pow(clamp(lum, 0.0, 1.0), 0.94);
+    outColor = vec4(vec3(lum), 1.0);
+  }`;
+
+  function compile(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(shader) || 'Shader compilation failed');
+    }
+    return shader;
+  }
+
+  const program = gl.createProgram();
+  gl.attachShader(program, compile(gl.VERTEX_SHADER, vs));
+  gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    throw new Error(gl.getProgramInfoLog(program) || 'Program linking failed');
+  }
+
+  gl.useProgram(program);
+  gl.bindVertexArray(gl.createVertexArray());
+
+  const dprLoc = gl.getUniformLocation(program, 'uDpr');
+  const resLoc = gl.getUniformLocation(program, 'uResolutionCss');
+  const fieldLoc = gl.getUniformLocation(program, 'uField');
+
+  let dpr = 1;
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2.0);
+    const w = Math.max(1, Math.round(innerWidth * dpr));
+    const h = Math.max(1, Math.round(innerHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+      gl.viewport(0, 0, w, h);
+    }
+    gl.uniform1f(dprLoc, dpr);
+    gl.uniform2f(resLoc, Math.max(innerWidth, 1), Math.max(innerHeight, 1));
+  }
+
+  let lastField = -1;
+  function render(ms) {
+    const field = Math.floor(ms * FIELD_RATE / 1000) >>> 0;
+    if (field !== lastField) {
+      lastField = field;
+      gl.uniform1ui(fieldLoc, field);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    requestAnimationFrame(render);
+  }
+
+  addEventListener('resize', resize, { passive: true });
+  addEventListener('orientationchange', resize, { passive: true });
+  resize();
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
