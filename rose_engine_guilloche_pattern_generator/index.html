@@ -1,0 +1,1917 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seeded Guilloché Pattern Generator</title>
+<style>
+:root{
+  --bg:#0d0f12; --panel:#15191e; --panel2:#1b2027; --ink:#eef3f8;
+  --muted:#9da8b5; --line:#2a323d; --accent:#7bdcff; --accent2:#b7ffca;
+  --danger:#ff9b9b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+body{display:grid;grid-template-columns:minmax(320px,410px) 1fr;overflow:hidden}
+aside{height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--panel);padding:18px}
+main{height:100vh;display:flex;flex-direction:column;min-width:0}
+h1{font-size:20px;margin:0 0 4px}
+.sub{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:16px}
+.group{border:1px solid var(--line);background:var(--panel2);border-radius:12px;margin:0 0 12px;overflow:hidden}
+.group h2{font-size:13px;letter-spacing:.02em;margin:0;padding:10px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.group .body{padding:10px 12px}
+.row{display:grid;grid-template-columns:1fr 124px;gap:10px;align-items:center;margin:8px 0}
+.row.wide{grid-template-columns:1fr}
+label{font-size:12px;color:#d8e0e8}
+small{display:block;color:var(--muted);font-size:10px;line-height:1.35;margin-top:3px}
+input,select,button,textarea{
+  width:100%;border:1px solid #3a4552;background:#101419;color:var(--ink);
+  border-radius:8px;padding:8px 9px;font:inherit;font-size:12px
+}
+input[type=number]{text-align:right}
+input[type=checkbox]{width:auto;accent-color:var(--accent)}
+.rangeRow{display:grid;grid-template-columns:1fr 72px;gap:6px}
+input[type=range]{padding:0}
+button{cursor:pointer;background:#202832;font-weight:650}
+button:hover{border-color:#64788f}
+button.primary{background:#173746;border-color:#286b87;color:#dff7ff}
+button.good{background:#173824;border-color:#2e7650;color:#e8fff0}
+button.danger{background:#391d1d;border-color:#744;color:#ffdede}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns.three{grid-template-columns:1fr 1fr 1fr}
+.badge{font-size:10px;color:#b8c3ce;background:#11161b;border:1px solid var(--line);padding:3px 6px;border-radius:999px}
+#stageWrap{position:relative;flex:1;min-height:0;background:
+ radial-gradient(circle at 50% 45%,#20262d 0,#12161b 55%,#0c0e11 100%);display:flex;align-items:center;justify-content:center;padding:18px}
+#preview{max-width:100%;max-height:100%;width:min(82vh,82vw);height:min(82vh,82vw);background:#f6f4ed;box-shadow:0 18px 60px #0008;border-radius:6px}
+#hud{position:absolute;left:28px;bottom:26px;background:#080b0edb;border:1px solid #33404d;border-radius:9px;padding:8px 10px;color:#b8c3ce;font-size:11px;pointer-events:none}
+#status{height:34px;border-top:1px solid var(--line);background:#101419;padding:8px 14px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+details{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+summary{font-size:11px;color:#b7c2cd;cursor:pointer}
+code{color:#d6f3ff}
+@media (max-width:900px){
+ body{grid-template-columns:1fr;grid-template-rows:auto 1fr;overflow:auto}
+ aside{height:auto;max-height:none;border-right:0;border-bottom:1px solid var(--line)}
+ main{height:68vh}
+ #preview{width:min(88vw,60vh);height:min(88vw,60vh)}
+}
+</style>
+</head>
+<body>
+<aside>
+  <h1>Seeded Guilloché Pattern Generator</h1>
+  <div class="sub">Parametric rose-engine and straight-line patterns with deterministic seed randomization. Export line art, parameters, or a depth-displaced 3D mesh for Cinema 4D.</div>
+
+  <section class="group">
+    <h2>Seed & Preset <span class="badge">deterministic</span></h2>
+    <div class="body">
+      <div class="row">
+        <label for="seed">Seed number<small>Same seed + same generator version = same randomized parameters.</small></label>
+        <input id="seed" type="number" step="1" value="40735">
+      </div>
+      <div class="btns">
+        <button id="randomize" class="primary">Randomize from seed</button>
+        <button id="nextSeed">Next seed</button>
+      </div>
+      <div class="row">
+        <label for="preset">Pattern preset</label>
+        <select id="preset">
+          <option value="rose-concentric">Rose · Concentric</option>
+          <option value="rose-barleycorn" selected>Rose · Barleycorn</option>
+          <option value="rose-pinwheel">Rose · Pinwheel</option>
+          <option value="rose-lightning">Rose · Lightning / Escargot</option>
+          <option value="rose-moire">Rose · Moiré / Sinewave</option>
+          <option value="straight-consecutive">Straight · Consecutive</option>
+          <option value="straight-barleycorn">Straight · Barleycorn</option>
+          <option value="straight-diagonal">Straight · Diagonal</option>
+          <option value="straight-lightning">Straight · Lightning</option>
+        </select>
+      </div>
+      <button id="applyPreset">Apply preset</button>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Workpiece</h2>
+    <div class="body">
+      <div class="row">
+        <label for="width">Width (mm)</label>
+        <input id="width" type="number" min="1" max="1000" step="0.1" value="80">
+      </div>
+      <div class="row">
+        <label for="height">Height (mm)</label>
+        <input id="height" type="number" min="1" max="1000" step="0.1" value="80">
+      </div>
+      <div class="row">
+        <label for="rotation">Pattern rotation (°)</label>
+        <input id="rotation" type="number" step="0.1" value="0">
+      </div>
+      <div class="row">
+        <label for="offsetX">Center / X offset (mm)</label>
+        <input id="offsetX" type="number" step="0.1" value="0">
+      </div>
+      <div class="row">
+        <label for="offsetY">Center / Y offset (mm)</label>
+        <input id="offsetY" type="number" step="0.1" value="0">
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Pattern</h2>
+    <div class="body">
+      <div class="row">
+        <label for="lobes">Rosette lobes / wave count</label>
+        <input id="lobes" type="number" min="1" max="720" step="1" value="24">
+      </div>
+      <div class="row">
+        <label for="amplitude">Amplitude (mm)</label>
+        <input id="amplitude" type="number" min="0" step="0.01" value="0.65">
+      </div>
+      <div class="row">
+        <label for="spacing">Cut spacing (mm)</label>
+        <input id="spacing" type="number" min="0.02" step="0.01" value="1.4">
+      </div>
+      <div class="row">
+        <label for="phaseStep">Phase step per cut (°)</label>
+        <input id="phaseStep" type="number" step="0.01" value="7.5">
+      </div>
+      <div class="row">
+        <label for="reverseEvery">Reverse every N cuts</label>
+        <input id="reverseEvery" type="number" min="1" max="1000" step="1" value="5">
+      </div>
+      <div class="row">
+        <label for="ellipse">Ellipse aspect<small>1.0 = circle. Values &gt; 1 stretch the X axis.</small></label>
+        <input id="ellipse" type="number" min="0.15" max="6" step="0.01" value="1">
+      </div>
+      <div class="row">
+        <label for="outerMargin">Outer margin (mm)</label>
+        <input id="outerMargin" type="number" min="0" step="0.1" value="2">
+      </div>
+      <div class="row">
+        <label for="centerHole">Center clear radius (mm)</label>
+        <input id="centerHole" type="number" min="0" step="0.1" value="2.5">
+      </div>
+      <div class="row">
+        <label for="waveShape">Rosette / bar shape</label>
+        <select id="waveShape">
+          <option value="sine" selected>Sine</option>
+          <option value="triangle">Triangle</option>
+          <option value="softsquare">Soft square</option>
+          <option value="scallop">Scallop</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="mirror">Mirror cut direction</label>
+        <input id="mirror" type="checkbox">
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Straight-line Settings</h2>
+    <div class="body">
+      <div class="row">
+        <label for="wavelength">Wave wavelength (mm)</label>
+        <input id="wavelength" type="number" min="0.1" step="0.1" value="10">
+      </div>
+      <div class="row">
+        <label for="lineAngle">Line angle (°)</label>
+        <input id="lineAngle" type="number" step="0.1" value="0">
+      </div>
+      <div class="row">
+        <label for="diagonal">Diagonal drift<small>Vertical millimeters of drift per horizontal millimeter.</small></label>
+        <input id="diagonal" type="number" step="0.001" value="0">
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>3D Cutter Simulation <span class="badge">Cinema 4D OBJ</span></h2>
+    <div class="body">
+      <div class="row">
+        <label for="depth">Cut depth (mm)<small>Maximum penetration of the cutter tip below the original surface.</small></label>
+        <input id="depth" type="number" min="0" step="0.001" value="0.050">
+      </div>
+      <div class="row">
+        <label for="cutterAngle">Included cutter angle (°)<small>Single-point guilloché cutter edge angle. 155° is the default.</small></label>
+        <input id="cutterAngle" type="number" min="20" max="179" step="0.1" value="155">
+      </div>
+      <div class="row">
+        <label for="rakeAngle">Front rake (°)<small>Used to shear the swept cutter section along the direction of travel, affecting turns and path curvature.</small></label>
+        <input id="rakeAngle" type="number" min="-45" max="45" step="0.1" value="20">
+      </div>
+      <div class="row">
+        <label for="tipRadius">Tip radius (mm)<small>Rounds the theoretical V apex. Small values retain a bright, sharp-looking cut while avoiding a mathematically singular tip.</small></label>
+        <input id="tipRadius" type="number" min="0" step="0.001" value="0.010">
+      </div>
+      <div class="row">
+        <label for="toolTilt">Cross-cut tool tilt (°)<small>Tilts the cutting edge across the groove. Zero gives a symmetric cut. The simulation automatically limits tilt before a cutter flank would become parallel to the surface.</small></label>
+        <input id="toolTilt" type="number" min="-12" max="12" step="0.1" value="0">
+      </div>
+      <div class="row">
+        <label for="grooveWidth">Calculated cut width (mm)<small>Derived from cutter angle, tip radius, depth and tilt; it is no longer an arbitrary groove-width control.</small></label>
+        <input id="grooveWidth" type="number" step="0.0001" value="0.4500" readonly>
+      </div>
+      <div class="row">
+        <label for="profile">Cutter model</label>
+        <select id="profile">
+          <option value="singlepoint" selected>Single-point rounded V cutter</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="cutterQuality">Cutter sweep quality<small>Controls samples across the cutter section and along the toolpath.</small></label>
+        <select id="cutterQuality">
+          <option value="draft">Draft</option>
+          <option value="fine" selected>Fine</option>
+          <option value="production">Production</option>
+          <option value="ultra">Ultra</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="mode3d">Cut direction</label>
+        <select id="mode3d">
+          <option value="engrave" selected>Cut into surface</option>
+          <option value="emboss">Invert as raised relief</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="meshX">Minimum path samples X</label>
+        <input id="meshX" type="number" min="16" max="1200" step="1" value="280">
+      </div>
+      <div class="row">
+        <label for="meshY">Minimum path samples Y</label>
+        <input id="meshY" type="number" min="16" max="1200" step="1" value="280">
+      </div>
+      <div class="row">
+        <label for="baseZ">Original surface depth (mm)</label>
+        <input id="baseZ" type="number" step="0.01" value="0">
+      </div>
+      <div class="row">
+        <label for="objOrientation">OBJ orientation</label>
+        <select id="objOrientation">
+          <option value="c4d" selected>Cinema 4D · XZ plane / Y depth</option>
+          <option value="legacy">Legacy · XY plane / Z depth</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="autoMesh3d">Adaptive toolpath sampling<small>Automatically increases stations along curves so the swept cutter follows the generated toolpath smoothly.</small></label>
+        <input id="autoMesh3d" type="checkbox" checked>
+      </div>
+      <div class="row">
+        <label for="preferPathAligned">Prefer path-aligned topology<small>Uses clean toolpath-following quad strips when cuts do not overlap. When cuts overlap, export automatically switches to an overlap-safe Boolean cutter envelope.</small></label>
+        <input id="preferPathAligned" type="checkbox" checked>
+      </div>
+      <div class="row">
+        <label>Overlapping cuts</label>
+        <div style="font-size:12px;color:#d8e0e8;text-align:right">Boolean material removal</div>
+      </div>
+      <small>The OBJ exporter sweeps a rounded single-point cutter along the actual generated toolpath. Cut width is calculated from cutter geometry and penetration depth. Non-overlapping cuts use path-aligned quad strips; overlapping cuts are combined as Boolean material removal, where the deepest cutter envelope wins at every point on the surface.</small>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Preview</h2>
+    <div class="body">
+      <div class="row">
+        <label for="lineWidth">Preview line width (px)</label>
+        <input id="lineWidth" type="number" min="0.1" max="5" step="0.1" value="0.55">
+      </div>
+      <div class="row">
+        <label for="previewRes">Preview size (px)</label>
+        <select id="previewRes">
+          <option>512</option>
+          <option selected>768</option>
+          <option>1024</option>
+          <option>1536</option>
+          <option>2048</option>
+        </select>
+      </div>
+      <button id="refresh">Refresh preview</button>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Export</h2>
+    <div class="body">
+      <div class="btns">
+        <button id="exportSVG">SVG line art</button>
+        <button id="exportPNG">PNG preview</button>
+      </div>
+      <div style="height:8px"></div>
+      <div class="btns">
+        <button id="exportOBJ" class="good">OBJ 3D mesh</button>
+        <button id="exportJSON">Parameters JSON</button>
+      </div>
+      <div style="height:8px"></div>
+      <button id="loadJSON">Load parameters JSON</button>
+      <input id="jsonFile" type="file" accept=".json,application/json" hidden>
+      <details>
+        <summary>3D export notes</summary>
+        <small style="margin-top:7px">The OBJ is an open surface (a true displaced plane), not a watertight solid. The default Cinema 4D orientation places the design in the XZ plane with depth along Y. The default OBJ mesher follows the toolpath with quad strips rather than cutting grooves through a rectangular grid. Auto-smooth increases sampling along those toolpath-aligned strips. In Cinema 4D you can add Cloth Surface / Extrude / Volume Builder if you need thickness. OBJ units are numeric millimeters; set the import scale accordingly if your Cinema 4D project uses another unit.</small>
+      </details>
+    </div>
+  </section>
+</aside>
+
+<main>
+  <div id="stageWrap">
+    <canvas id="preview" width="768" height="768"></canvas>
+    <div id="hud">—</div>
+  </div>
+  <div id="status">Ready.</div>
+</main>
+
+<script>
+"use strict";
+
+const VERSION = "1.5.1";
+const $ = id => document.getElementById(id);
+const canvas = $("preview");
+const ctx = canvas.getContext("2d", {alpha:false});
+const statusEl = $("status");
+const hud = $("hud");
+
+const ids = [
+  "seed","preset","width","height","rotation","offsetX","offsetY",
+  "lobes","amplitude","spacing","phaseStep","reverseEvery","ellipse",
+  "outerMargin","centerHole","waveShape","mirror","wavelength","lineAngle","diagonal",
+  "depth","cutterAngle","rakeAngle","tipRadius","toolTilt","grooveWidth","profile","cutterQuality","mode3d","meshX","meshY","baseZ","objOrientation","autoMesh3d","preferPathAligned","lineWidth","previewRes"
+];
+
+function num(id){ return Number($(id).value); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function deg(v){ return v*Math.PI/180; }
+function isRose(){ return $("preset").value.startsWith("rose-"); }
+function setStatus(s){ statusEl.textContent = s; }
+
+function getParams(){
+  const p = {};
+  for(const id of ids){
+    const el=$(id);
+    if(el.type==="checkbox") p[id]=el.checked;
+    else if(el.type==="number") p[id]=Number(el.value);
+    else p[id]=el.value;
+  }
+  p.generatorVersion=VERSION;
+  return p;
+}
+
+function applyParams(p){
+  for(const id of ids){
+    if(!(id in p)) continue;
+    const el=$(id);
+    if(el.type==="checkbox") el.checked=!!p[id];
+    else el.value=p[id];
+  }
+  scheduleDraw();
+}
+
+// xmur3 + mulberry32: deterministic seeded random generator.
+function xmur3(str){
+  let h=1779033703 ^ str.length;
+  for(let i=0;i<str.length;i++){
+    h=Math.imul(h ^ str.charCodeAt(i),3432918353);
+    h=h<<13 | h>>>19;
+  }
+  return function(){
+    h=Math.imul(h ^ (h>>>16),2246822507);
+    h=Math.imul(h ^ (h>>>13),3266489909);
+    return (h^=h>>>16)>>>0;
+  };
+}
+function mulberry32(a){
+  return function(){
+    let t=a+=0x6D2B79F5;
+    t=Math.imul(t^t>>>15,t|1);
+    t^=t+Math.imul(t^t>>>7,t|61);
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+function rngFor(seed){
+  const h=xmur3(String(seed))();
+  return mulberry32(h);
+}
+function rint(r,a,b){ return Math.floor(a+r()*(b-a+1)); }
+function rfloat(r,a,b){ return a+r()*(b-a); }
+function pick(r,a){ return a[Math.floor(r()*a.length)]; }
+
+const PRESETS = {
+  "rose-concentric": {lobes:24, amplitude:.55, spacing:1.35, phaseStep:0, reverseEvery:5, ellipse:1, waveShape:"sine", mirror:false},
+  "rose-barleycorn": {lobes:24, amplitude:.58, spacing:1.25, phaseStep:7.5, reverseEvery:5, ellipse:1, waveShape:"sine", mirror:false},
+  "rose-pinwheel": {lobes:12, amplitude:.75, spacing:1.15, phaseStep:1, reverseEvery:7, ellipse:1, waveShape:"sine", mirror:false},
+  "rose-lightning": {lobes:20, amplitude:.72, spacing:1.22, phaseStep:1, reverseEvery:10, ellipse:1, waveShape:"sine", mirror:false},
+  "rose-moire": {lobes:18, amplitude:.62, spacing:1.18, phaseStep:.7, reverseEvery:11, ellipse:1, waveShape:"sine", mirror:false},
+  "straight-consecutive": {lobes:18, amplitude:.55, spacing:1.25, phaseStep:0, reverseEvery:9, waveShape:"sine", wavelength:8, lineAngle:0, diagonal:0},
+  "straight-barleycorn": {lobes:18, amplitude:.65, spacing:1.35, phaseStep:180, reverseEvery:9, waveShape:"sine", wavelength:7.5, lineAngle:0, diagonal:0},
+  "straight-diagonal": {lobes:18, amplitude:.58, spacing:1.25, phaseStep:10, reverseEvery:9, waveShape:"sine", wavelength:8, lineAngle:0, diagonal:.06},
+  "straight-lightning": {lobes:18, amplitude:.68, spacing:1.25, phaseStep:12, reverseEvery:9, waveShape:"triangle", wavelength:8, lineAngle:0, diagonal:0}
+};
+
+function applyPreset(){
+  const name=$("preset").value, p=PRESETS[name];
+  if(!p) return;
+  for(const [k,v] of Object.entries(p)){
+    if($(k)){
+      if($(k).type==="checkbox") $(k).checked=!!v;
+      else $(k).value=v;
+    }
+  }
+  if(name==="rose-barleycorn"){
+    const lobes=Math.max(1,num("lobes"));
+    $("phaseStep").value=(180/lobes).toFixed(4);
+  }
+  scheduleDraw();
+}
+
+function randomizeFromSeed(){
+  const seed=Math.trunc(num("seed"));
+  const r=rngFor(seed);
+  const type=pick(r,[
+    "rose-concentric","rose-barleycorn","rose-pinwheel","rose-lightning","rose-moire",
+    "straight-consecutive","straight-barleycorn","straight-diagonal","straight-lightning"
+  ]);
+  $("preset").value=type;
+  const rose=type.startsWith("rose-");
+  $("lobes").value=rose ? rint(r,8,96) : rint(r,8,36);
+  $("amplitude").value=rfloat(r,.18,1.25).toFixed(3);
+  $("spacing").value=rfloat(r,.65,2.2).toFixed(3);
+  $("reverseEvery").value=rint(r,4,14);
+  $("ellipse").value=rose ? rfloat(r,.72,1.45).toFixed(3) : "1";
+  $("waveShape").value=pick(r,["sine","sine","sine","triangle","scallop","softsquare"]);
+  $("mirror").checked=r()>.5;
+  $("rotation").value=rfloat(r,-45,45).toFixed(2);
+  $("offsetX").value=rfloat(r,-3,3).toFixed(2);
+  $("offsetY").value=rfloat(r,-3,3).toFixed(2);
+  $("outerMargin").value=rfloat(r,1,5).toFixed(2);
+  $("centerHole").value=rose ? rfloat(r,0,7).toFixed(2) : "0";
+  $("wavelength").value=rfloat(r,4,16).toFixed(2);
+  $("lineAngle").value=rfloat(r,-32,32).toFixed(2);
+  $("diagonal").value=rfloat(r,-.11,.11).toFixed(4);
+  $("depth").value=rfloat(r,.015,.10).toFixed(3);
+  $("cutterAngle").value=rfloat(r,148,164).toFixed(1);
+  $("rakeAngle").value=rfloat(r,15,25).toFixed(1);
+  $("tipRadius").value=rfloat(r,.003,.025).toFixed(3);
+  $("toolTilt").value=rfloat(r,-2.0,2.0).toFixed(2);
+  $("profile").value="singlepoint";
+  $("cutterQuality").value=pick(r,["fine","fine","production"]);
+
+  const lobes=num("lobes");
+  if(type==="rose-concentric") $("phaseStep").value="0";
+  else if(type==="rose-barleycorn") $("phaseStep").value=(180/lobes).toFixed(4);
+  else if(type==="rose-pinwheel") $("phaseStep").value=rfloat(r,.35,3.2).toFixed(3);
+  else if(type==="rose-lightning") $("phaseStep").value=rfloat(r,.35,2.7).toFixed(3);
+  else if(type==="rose-moire") $("phaseStep").value=rfloat(r,.12,1.2).toFixed(3);
+  else if(type==="straight-consecutive") $("phaseStep").value="0";
+  else if(type==="straight-barleycorn") $("phaseStep").value="180";
+  else $("phaseStep").value=rfloat(r,4,28).toFixed(3);
+
+  updateCalculatedGrooveWidth();
+  scheduleDraw();
+  setStatus(`Randomized deterministically from seed ${seed}.`);
+}
+
+function wave(x,shape){
+  const s=Math.sin(x);
+  if(shape==="sine") return s;
+  if(shape==="triangle") return (2/Math.PI)*Math.asin(s);
+  if(shape==="softsquare") return Math.tanh(2.6*s)/Math.tanh(2.6);
+  if(shape==="scallop"){
+    // Smooth asymmetric scallop, normalized to [-1,1].
+    const c=Math.cos(x);
+    return 2*Math.sqrt(Math.max(0,(1+c)/2))-1;
+  }
+  return s;
+}
+
+const fibSeq=[1,2,3,5,8,13,8,5,3,2,1];
+
+function phaseForCut(i,p){
+  const base=deg(p.phaseStep);
+  const preset=p.preset;
+  if(preset==="rose-concentric" || preset==="straight-consecutive") return 0;
+  if(preset==="rose-barleycorn") return i*Math.PI; // half rosette pitch in lobe phase
+  if(preset==="straight-barleycorn") return i*Math.PI;
+  if(preset.includes("lightning")){
+    const n=Math.max(1,Math.round(p.reverseEvery));
+    const block=Math.floor(i/n);
+    const local=i%n;
+    // Accumulating saw/triangle-like phase, alternating direction every block.
+    return (block%2===0 ? local : (n-1-local))*base;
+  }
+  if(preset==="rose-moire"){
+    let accum=0;
+    for(let k=0;k<i;k++){
+      const cycle=Math.floor(k/fibSeq.length);
+      const j=k%fibSeq.length;
+      const dir=(cycle%2===0)?1:-1;
+      accum += dir*fibSeq[j];
+    }
+    return accum*base;
+  }
+  return i*base;
+}
+
+function transformXY(x,y,p,extraDeg=0){
+  let xx=x-p.offsetX, yy=y-p.offsetY;
+  const a=deg(p.rotation+extraDeg), c=Math.cos(a), s=Math.sin(a);
+  return [c*xx+s*yy,-s*xx+c*yy];
+}
+
+function roseGeometry(p){
+  const outer=Math.max(.001,Math.min(p.width/(2*Math.max(.001,p.ellipse)),p.height/2)-p.outerMargin);
+  const n=Math.max(1,Math.floor((outer-p.centerHole)/p.spacing)+1);
+  return {outer,n};
+}
+
+function rosePoint(theta,i,p){
+  const {outer}=roseGeometry(p);
+  const ph=phaseForCut(i,p);
+  const sign=p.mirror?-1:1;
+  const rr=(outer-i*p.spacing) + p.amplitude*wave(sign*p.lobes*theta+ph,p.waveShape);
+  // Ellipse stretches X in local pattern coordinates.
+  let x=rr*Math.cos(theta)*p.ellipse;
+  let y=rr*Math.sin(theta);
+  // Inverse local rotation/translation to world.
+  const a=deg(p.rotation), c=Math.cos(a), s=Math.sin(a);
+  const wx=c*x-s*y+p.offsetX;
+  const wy=s*x+c*y+p.offsetY;
+  return [wx,wy];
+}
+
+function straightCutBounds(p){
+  const diag=Math.abs(p.diagonal);
+  const pad=Math.abs(p.amplitude)+diag*p.width+4*p.spacing;
+  const minY=-p.height/2-pad, maxY=p.height/2+pad;
+  const k0=Math.floor(minY/p.spacing)-2, k1=Math.ceil(maxY/p.spacing)+2;
+  return [k0,k1];
+}
+
+function straightPoint(x,k,p){
+  const ph=phaseForCut(k,p);
+  const wav=2*Math.PI*x/Math.max(.001,p.wavelength);
+  let y=k*p.spacing + p.amplitude*wave(wav+ph,p.waveShape) + p.diagonal*x;
+  // Local lineAngle is added to general pattern rotation.
+  const a=deg(p.rotation+p.lineAngle), c=Math.cos(a), s=Math.sin(a);
+  return [c*x-s*y+p.offsetX, s*x+c*y+p.offsetY];
+}
+
+function worldToStraightLocal(x,y,p){
+  let xx=x-p.offsetX, yy=y-p.offsetY;
+  const a=deg(p.rotation+p.lineAngle), c=Math.cos(a), s=Math.sin(a);
+  return [c*xx+s*yy,-s*xx+c*yy];
+}
+
+function render(){
+  updateCalculatedGrooveWidth();
+  const p=getParams();
+  const res=clamp(Math.round(p.previewRes),256,4096);
+  if(canvas.width!==res || canvas.height!==res){ canvas.width=res; canvas.height=res; }
+  ctx.fillStyle="#f7f4ec"; ctx.fillRect(0,0,res,res);
+
+  const sx=res/p.width, sy=res/p.height;
+  const X=x=>(x+p.width/2)*sx;
+  const Y=y=>(p.height/2-y)*sy;
+  ctx.strokeStyle="#17202a";
+  ctx.lineWidth=Math.max(.1,p.lineWidth)*(res/768);
+  ctx.lineJoin="round"; ctx.lineCap="round";
+
+  // Workpiece border.
+  ctx.save();
+  ctx.strokeStyle="#b7b1a5";
+  ctx.lineWidth=Math.max(1,res/1000);
+  ctx.strokeRect(.5,.5,res-1,res-1);
+  ctx.restore();
+
+  let cuts=0;
+  if(isRose()){
+    const {outer,n}=roseGeometry(p);
+    const samples=clamp(Math.ceil(720*Math.max(1,p.lobes/24)),720,6000);
+    for(let i=0;i<n;i++){
+      const nominal=outer-i*p.spacing;
+      if(nominal < p.centerHole) break;
+      ctx.beginPath();
+      for(let j=0;j<=samples;j++){
+        const t=j/samples*Math.PI*2;
+        const [x,y]=rosePoint(t,i,p);
+        if(j===0) ctx.moveTo(X(x),Y(y)); else ctx.lineTo(X(x),Y(y));
+      }
+      ctx.stroke(); cuts++;
+    }
+    if(p.centerHole>0){
+      ctx.save(); ctx.strokeStyle="#aaa49a"; ctx.setLineDash([3,3]); ctx.lineWidth=.7*(res/768);
+      ctx.beginPath();
+      const r=p.centerHole;
+      for(let j=0;j<=180;j++){
+        const t=j/180*Math.PI*2;
+        const [x,y]=rosePoint(t,Math.max(0,n-1),{...p,amplitude:0,spacing:0,centerHole:0,outerMargin:(Math.min(p.width/(2*p.ellipse),p.height/2)-r)});
+        if(j===0)ctx.moveTo(X(x),Y(y));else ctx.lineTo(X(x),Y(y));
+      }
+      ctx.stroke(); ctx.restore();
+    }
+  }else{
+    const [k0,k1]=straightCutBounds(p);
+    const xmin=-p.width*.85, xmax=p.width*.85;
+    const samples=clamp(Math.ceil(p.width/Math.max(.08,p.wavelength/160)),500,5000);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0,0,res,res); ctx.clip();
+    for(let k=k0;k<=k1;k++){
+      ctx.beginPath();
+      for(let j=0;j<=samples;j++){
+        const x=xmin+(xmax-xmin)*j/samples;
+        const [wx,wy]=straightPoint(x,k,p);
+        if(j===0) ctx.moveTo(X(wx),Y(wy)); else ctx.lineTo(X(wx),Y(wy));
+      }
+      ctx.stroke(); cuts++;
+    }
+    ctx.restore();
+  }
+
+  const meshVerts=Math.round(p.meshX)*Math.round(p.meshY);
+  hud.innerHTML = `${isRose()?"Rose engine":"Straight-line"} · ${cuts} cuts<br>${p.width} × ${p.height} mm · mesh ${p.meshX}×${p.meshY} (${meshVerts.toLocaleString()} verts)<br>seed ${p.seed}`;
+  setStatus(`Preview updated. ${cuts} pattern cuts.`);
+}
+
+let raf=0;
+function scheduleDraw(){
+  cancelAnimationFrame(raf);
+  raf=requestAnimationFrame(render);
+}
+
+function svgPathData(p){
+  const paths=[];
+  if(p.preset.startsWith("rose-")){
+    const {outer,n}=roseGeometry(p);
+    const samples=clamp(Math.ceil(900*Math.max(1,p.lobes/24)),900,8000);
+    for(let i=0;i<n;i++){
+      if(outer-i*p.spacing < p.centerHole) break;
+      let d="";
+      for(let j=0;j<=samples;j++){
+        const t=j/samples*Math.PI*2;
+        const [x,y]=rosePoint(t,i,p);
+        d += `${j===0?"M":"L"}${x.toFixed(4)},${(-y).toFixed(4)} `;
+      }
+      d+="Z"; paths.push(d);
+    }
+  }else{
+    const [k0,k1]=straightCutBounds(p);
+    const xmin=-p.width, xmax=p.width;
+    const samples=clamp(Math.ceil(p.width/Math.max(.06,p.wavelength/220)),700,7000);
+    for(let k=k0;k<=k1;k++){
+      let d="";
+      for(let j=0;j<=samples;j++){
+        const x=xmin+(xmax-xmin)*j/samples;
+        const [wx,wy]=straightPoint(x,k,p);
+        d += `${j===0?"M":"L"}${wx.toFixed(4)},${(-wy).toFixed(4)} `;
+      }
+      paths.push(d);
+    }
+  }
+  return paths;
+}
+
+function downloadText(name,text,type="text/plain"){
+  const blob=new Blob([text],{type});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+function exportSVG(){
+  const p=getParams();
+  const paths=svgPathData(p);
+  const vb=`${-p.width/2} ${-p.height/2} ${p.width} ${p.height}`;
+  const sw=Math.max(.01,p.grooveWidth*.15);
+  const meta=escapeXml(JSON.stringify(p));
+  const svg=`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${p.width}mm" height="${p.height}mm" viewBox="${vb}">
+  <metadata>${meta}</metadata>
+  <rect x="${-p.width/2}" y="${-p.height/2}" width="${p.width}" height="${p.height}" fill="white"/>
+  <g fill="none" stroke="black" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">
+${paths.map(d=>`    <path d="${d}"/>`).join("\n")}
+  </g>
+</svg>`;
+  downloadText(`guilloche_${p.seed}.svg`,svg,"image/svg+xml");
+  setStatus("SVG exported.");
+}
+
+function escapeXml(s){
+  return s.replace(/[<>&'"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;","'":"&apos;",'"':"&quot;"}[c]));
+}
+
+function exportPNG(){
+  render();
+  canvas.toBlob(blob=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=`guilloche_${num("seed")}.png`; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    setStatus("PNG exported.");
+  },"image/png");
+}
+
+function cutterHalfAngle(p){
+  return deg(clamp(Number(p.cutterAngle)||155,20,179)/2);
+}
+
+function cutterRiseAtOffset(offset,p){
+  // Cross-section of a V cutter whose theoretical apex has been replaced
+  // with a circular tip radius tangent to both cutter flanks.
+  const x=Math.abs(offset);
+  const alpha=cutterHalfAngle(p);
+  const tanA=Math.tan(alpha);
+  const R=Math.max(0,Number(p.tipRadius)||0);
+
+  if(R<=1e-9) return x/Math.max(1e-9,tanA);
+
+  const xt=R*Math.cos(alpha);
+  const yt=R*(1-Math.sin(alpha));
+
+  if(x<=xt){
+    return R-Math.sqrt(Math.max(0,R*R-x*x));
+  }
+  return yt+(x-xt)/Math.max(1e-9,tanA);
+}
+
+function effectiveToolTiltDeg(p){
+  // A flank must still rise away from the material. If cross-cut tilt reaches
+  // the flank's angle above the original surface, one side would never exit
+  // the stock and the finite groove model would become physically invalid.
+  const alphaDeg=clamp(Number(p.cutterAngle)||155,20,179)/2;
+  const flankAboveSurface=Math.max(.15,90-alphaDeg);
+  const limit=Math.max(.05,flankAboveSurface-.15);
+  return clamp(Number(p.toolTilt)||0,-limit,limit);
+}
+
+function cutterRawRemovalAtOffset(offset,p){
+  // Positive value = material removed below the original surface.
+  // Cross-cut tilt skews the cutter section while preserving a finite
+  // intersection with the original plane.
+  const tilt=deg(effectiveToolTiltDeg(p));
+  return Math.max(0,Number(p.depth)||0)-cutterRiseAtOffset(offset,p)-offset*Math.tan(tilt);
+}
+
+function cutterRemovalAtOffset(offset,p){
+  return Math.max(0,cutterRawRemovalAtOffset(offset,p));
+}
+
+function cutterExtentForSide(side,p){
+  if((Number(p.depth)||0)<=0) return 0;
+  let lo=0;
+  let hi=Math.max(
+    .001,
+    (Number(p.depth)||0)*Math.tan(cutterHalfAngle(p))
+      +2*Math.max(0,Number(p.tipRadius)||0)
+      +Math.abs((Number(p.depth)||0)*Math.tan(deg(Number(p.toolTilt)||0)))
+  );
+
+  // Expand until we are outside the cutter/material intersection.
+  let guard=0;
+  while(cutterRawRemovalAtOffset(side*hi,p)>0 && guard++<40) hi*=1.7;
+
+  for(let i=0;i<60;i++){
+    const mid=(lo+hi)/2;
+    if(cutterRawRemovalAtOffset(side*mid,p)>0) lo=mid;
+    else hi=mid;
+  }
+  return (lo+hi)/2;
+}
+
+function cutterExtents(p){
+  const neg=cutterExtentForSide(-1,p);
+  const pos=cutterExtentForSide(1,p);
+  return {neg,pos,width:neg+pos};
+}
+
+function makeCutterKernel(p){
+  // Fast, immutable cutter evaluator for the overlap-safe Boolean mesher.
+  // Avoids recomputing trigonometry and cutter extents for every grid sample.
+  const depth=Math.max(0,Number(p.depth)||0);
+  const alpha=cutterHalfAngle(p);
+  const tanA=Math.tan(alpha);
+  const R=Math.max(0,Number(p.tipRadius)||0);
+  const tiltTan=Math.tan(deg(effectiveToolTiltDeg(p)));
+  const xt=R>0 ? R*Math.cos(alpha) : 0;
+  const yt=R>0 ? R*(1-Math.sin(alpha)) : 0;
+
+  function rise(offset){
+    const x=Math.abs(offset);
+    if(R<=1e-9) return x/Math.max(1e-9,tanA);
+    if(x<=xt) return R-Math.sqrt(Math.max(0,R*R-x*x));
+    return yt+(x-xt)/Math.max(1e-9,tanA);
+  }
+
+  function raw(offset){
+    return depth-rise(offset)-offset*tiltTan;
+  }
+
+  function removal(offset){
+    return Math.max(0,raw(offset));
+  }
+
+  function extent(side){
+    if(depth<=0) return 0;
+    let lo=0;
+    let hi=Math.max(
+      .001,
+      depth*tanA+2*R+Math.abs(depth*tiltTan)
+    );
+    let guard=0;
+    while(raw(side*hi)>0 && guard++<40) hi*=1.7;
+    for(let i=0;i<48;i++){
+      const mid=(lo+hi)/2;
+      if(raw(side*mid)>0) lo=mid;
+      else hi=mid;
+    }
+    return (lo+hi)/2;
+  }
+
+  const neg=extent(-1);
+  const pos=extent(1);
+  return {depth,alpha,tanA,R,tiltTan,neg,pos,width:neg+pos,removal};
+}
+
+function cutterQualitySettings(p){
+  switch(p.cutterQuality){
+    case "draft": return {across:9, pathFactor:.70};
+    case "production": return {across:25, pathFactor:.28};
+    case "ultra": return {across:41, pathFactor:.18};
+    default: return {across:17, pathFactor:.42};
+  }
+}
+
+function cutterSectionSamples(p){
+  const ext=cutterExtents(p);
+  const q=cutterQualitySettings(p);
+  const vals=[];
+
+  // Cosine distribution clusters samples toward the rounded tip while
+  // retaining exact surface-edge samples.
+  for(let i=0;i<q.across;i++){
+    const u=i/(q.across-1);
+    const s=.5-.5*Math.cos(Math.PI*u);
+    vals.push(-ext.neg+(ext.width)*s);
+  }
+
+  vals.push(-ext.neg,0,ext.pos);
+
+  // Preserve the exact circle/flank tangent points when they lie inside the cut.
+  const R=Math.max(0,Number(p.tipRadius)||0);
+  if(R>0){
+    const xt=R*Math.cos(cutterHalfAngle(p));
+    if(xt<ext.neg) vals.push(-xt);
+    if(xt<ext.pos) vals.push(xt);
+  }
+
+  vals.sort((a,b)=>a-b);
+  const out=[];
+  for(const s of vals){
+    if(!out.length || Math.abs(s-out[out.length-1])>1e-8) out.push(s);
+  }
+
+  const rakeTan=Math.tan(deg(clamp(Number(p.rakeAngle)||0,-45,45)));
+  return out.map(offset=>{
+    const removal=cutterRemovalAtOffset(offset,p);
+    // The rake face shears shallower portions of the section along travel.
+    // It has no effect on an infinite straight cut, but changes the cutter
+    // envelope through turns and curved toolpaths.
+    const longitudinalShift=((Number(p.depth)||0)-removal)*rakeTan;
+    return {offset,removal,longitudinalShift};
+  });
+}
+
+function updateCalculatedGrooveWidth(){
+  if(!$("grooveWidth")) return;
+  const p=getParams();
+  const ext=cutterExtents(p);
+  $("grooveWidth").value=ext.width.toFixed(4);
+}
+
+function grooveProfile(dist,p){
+  // Compatibility function used only by the explicitly enabled legacy
+  // height-field fallback. The primary OBJ mesher uses cutterSectionSamples().
+  const d=Math.max(1e-12,Number(p.depth)||0);
+  return cutterRemovalAtOffset(dist,p)/d;
+}
+
+function pointSegmentDistance(px,py,ax,ay,bx,by){
+  const vx=bx-ax, vy=by-ay;
+  const wx=px-ax, wy=py-ay;
+  const vv=vx*vx+vy*vy;
+  if(vv<=1e-20) return Math.hypot(px-ax,py-ay);
+  const t=clamp((wx*vx+wy*vy)/vv,0,1);
+  const qx=ax+t*vx, qy=ay+t*vy;
+  return Math.hypot(px-qx,py-qy);
+}
+
+// Enumerate the SAME geometry used by the 2D preview as short line segments.
+// This is intentionally the single source of truth for the 3D imprint.
+function forEachPatternSegment(p,stepHint,callback){
+  stepHint=Math.max(.005,stepHint);
+
+  if(p.preset.startsWith("rose-")){
+    const {outer,n}=roseGeometry(p);
+    for(let cut=0;cut<n;cut++){
+      const nominal=outer-cut*p.spacing;
+      if(nominal<p.centerHole) break;
+
+      // Approximate curve length conservatively. High-lobe / high-amplitude
+      // rosettes need extra angular samples even when the output mesh is coarse.
+      const baseCirc=2*Math.PI*Math.max(.001,nominal)*Math.max(1,p.ellipse);
+      const waveExtra=2*Math.PI*Math.abs(p.amplitude)*Math.max(1,p.lobes);
+      const samples=clamp(
+        Math.ceil((baseCirc+waveExtra)/stepHint),
+        Math.max(180,p.lobes*32),
+        18000
+      );
+
+      let prev=rosePoint(0,cut,p);
+      for(let j=1;j<=samples;j++){
+        const t=j/samples*Math.PI*2;
+        const cur=rosePoint(t,cut,p);
+        callback(prev[0],prev[1],cur[0],cur[1]);
+        prev=cur;
+      }
+    }
+    return;
+  }
+
+  const [k0,k1]=straightCutBounds(p);
+  // Cover the rotated workpiece even when line angle approaches +/- 90 degrees.
+  const halfSpan=.65*Math.hypot(p.width,p.height)
+    + Math.abs(p.offsetX)+Math.abs(p.offsetY)
+    + Math.abs(p.amplitude)+Math.abs(p.diagonal)*Math.hypot(p.width,p.height)
+    + 4*p.spacing;
+
+  const samples=clamp(
+    Math.ceil((2*halfSpan)/Math.min(stepHint,Math.max(.01,p.wavelength/80))),
+    400,
+    18000
+  );
+
+  for(let k=k0;k<=k1;k++){
+    let prev=straightPoint(-halfSpan,k,p);
+    for(let j=1;j<=samples;j++){
+      const x=-halfSpan+(2*halfSpan)*j/samples;
+      const cur=straightPoint(x,k,p);
+      callback(prev[0],prev[1],cur[0],cur[1]);
+      prev=cur;
+    }
+  }
+}
+
+function resolvedMeshResolution(p){
+  let nx=clamp(Math.round(p.meshX),16,1200);
+  let ny=clamp(Math.round(p.meshY),16,1200);
+
+  if(p.autoMesh3d){
+    // v1.1 only guaranteed that a groove would touch at least one vertex.
+    // That prevents missing lines, but it still allows visible faceting /
+    // "chatter" because too few vertices describe the groove profile.
+    //
+    // Here we target several samples across the groove width so the profile
+    // is interpolated smoothly by the receiving DCC / renderer.
+    const targetStep=Math.max(.005,p.grooveWidth/4); // ~4 intervals / about 5 vertices across full groove width
+    nx=Math.max(nx,Math.ceil(p.width/targetStep)+1);
+    ny=Math.max(ny,Math.ceil(p.height/targetStep)+1);
+    nx=clamp(nx,16,1200);
+    ny=clamp(ny,16,1200);
+  }
+  return [nx,ny];
+}
+
+function buildPatternHeightField(p,nx,ny){
+  const field=new Float32Array(nx*ny);
+  const dx=p.width/(nx-1), dy=p.height/(ny-1);
+  const half=Math.max(.000001,p.grooveWidth/2);
+  const xmin=-p.width/2, ymin=-p.height/2;
+
+  function stampSegment(ax,ay,bx,by){
+    if(Math.max(ax,bx)+half<xmin || Math.min(ax,bx)-half>p.width/2 ||
+       Math.max(ay,by)+half<ymin || Math.min(ay,by)-half>p.height/2) return;
+
+    let i0=Math.floor((Math.min(ax,bx)-half-xmin)/dx);
+    let i1=Math.ceil ((Math.max(ax,bx)+half-xmin)/dx);
+    let j0=Math.floor((Math.min(ay,by)-half-ymin)/dy);
+    let j1=Math.ceil ((Math.max(ay,by)+half-ymin)/dy);
+    i0=clamp(i0,0,nx-1); i1=clamp(i1,0,nx-1);
+    j0=clamp(j0,0,ny-1); j1=clamp(j1,0,ny-1);
+
+    for(let j=j0;j<=j1;j++){
+      const y=ymin+j*dy;
+      const row=j*nx;
+      for(let i=i0;i<=i1;i++){
+        const x=xmin+i*dx;
+        const d=pointSegmentDistance(x,y,ax,ay,bx,by);
+        if(d>=half) continue;
+        const g=grooveProfile(d,p);
+        const idx=row+i;
+        if(g>field[idx]) field[idx]=g;
+      }
+    }
+  }
+
+  const stepHint=Math.max(.005,Math.min(dx,dy,p.grooveWidth)*.30);
+  forEachPatternSegment(p,stepHint,stampSegment);
+  return field;
+}
+
+function smoothHeightField(field,nx,ny,passes=1){
+  let src=field;
+  for(let pass=0; pass<passes; pass++){
+    const dst=new Float32Array(src.length);
+    for(let j=0;j<ny;j++){
+      for(let i=0;i<nx;i++){
+        const idx=j*nx+i;
+        // Keep untouched base plane exactly flat.
+        if(src[idx]===0){
+          dst[idx]=0;
+          continue;
+        }
+        let sum=0, wsum=0;
+        for(let dj=-1; dj<=1; dj++){
+          const y=clamp(j+dj,0,ny-1);
+          for(let di=-1; di<=1; di++){
+            const x=clamp(i+di,0,nx-1);
+            const nidx=y*nx+x;
+            const w=(di===0 && dj===0) ? 4 : ((di===0 || dj===0) ? 2 : 1);
+            sum += src[nidx]*w;
+            wsum += w;
+          }
+        }
+        // Very mild blur: smooths vertex-to-vertex chatter without washing out the groove.
+        dst[idx]=sum/wsum;
+      }
+    }
+    src=dst;
+  }
+  return src;
+}
+
+function computeVertexNormals(field,p,nx,ny){
+  const normals=new Float32Array(nx*ny*3);
+  const dx=p.width/(nx-1), dy=p.height/(ny-1);
+  const sign=p.mode3d==="engrave" ? -1 : 1;
+  const scale=sign*p.depth;
+
+  function h(i,j){
+    return p.baseZ + scale*field[clamp(j,0,ny-1)*nx + clamp(i,0,nx-1)];
+  }
+
+  for(let j=0;j<ny;j++){
+    for(let i=0;i<nx;i++){
+      const dzdx=(h(i+1,j)-h(i-1,j))/((i>0 && i<nx-1) ? 2*dx : dx);
+      const dzdy=(h(i,j+1)-h(i,j-1))/((j>0 && j<ny-1) ? 2*dy : dy);
+
+      let nxv, nyv, nzv;
+      if(p.objOrientation==="c4d"){
+        // P(x,yparam) = [x, height, -yparam]
+        nxv = -dzdx;
+        nyv = 1;
+        nzv = dzdy;
+      }else{
+        // P(x,yparam) = [x, yparam, height]
+        nxv = -dzdx;
+        nyv = -dzdy;
+        nzv = 1;
+      }
+      const inv=1/Math.max(1e-20,Math.hypot(nxv,nyv,nzv));
+      const k=(j*nx+i)*3;
+      normals[k]=nxv*inv;
+      normals[k+1]=nyv*inv;
+      normals[k+2]=nzv*inv;
+    }
+  }
+  return normals;
+}
+
+
+function finalPositionFromWorld(wx,wy,height,p){
+  if(p.objOrientation==="c4d"){
+    return [wx,height,-wy];
+  }
+  return [wx,wy,height];
+}
+
+function addSurfaceVertex(mesh,wx,wy,height,p){
+  const pos=finalPositionFromWorld(wx,wy,height,p);
+  const u=(wx+p.width/2)/p.width;
+  const v=(wy+p.height/2)/p.height;
+  const idx=mesh.vertices.length;
+  mesh.vertices.push(pos);
+  mesh.uvs.push([u,v]);
+  return idx;
+}
+
+function triangleAreaSquared(a,b,c){
+  const abx=b[0]-a[0], aby=b[1]-a[1], abz=b[2]-a[2];
+  const acx=c[0]-a[0], acy=c[1]-a[1], acz=c[2]-a[2];
+  const cx=aby*acz-abz*acy;
+  const cy=abz*acx-abx*acz;
+  const cz=abx*acy-aby*acx;
+  return cx*cx+cy*cy+cz*cz;
+}
+
+function addFaceIfValid(mesh,indices){
+  // Skip collapsed faces created where path strips taper exactly into a workpiece edge.
+  if(indices.length<3) return;
+  const a=mesh.vertices[indices[0]];
+  let valid=false;
+  for(let i=1;i<indices.length-1;i++){
+    if(triangleAreaSquared(a,mesh.vertices[indices[i]],mesh.vertices[indices[i+1]])>1e-18){
+      valid=true; break;
+    }
+  }
+  if(valid) mesh.faces.push(indices);
+}
+
+function computeMeshNormals(mesh,p){
+  const n=mesh.vertices.length;
+  const sums=Array.from({length:n},()=>[0,0,0]);
+
+  function addTri(i0,i1,i2){
+    const a=mesh.vertices[i0], b=mesh.vertices[i1], c=mesh.vertices[i2];
+    const abx=b[0]-a[0], aby=b[1]-a[1], abz=b[2]-a[2];
+    const acx=c[0]-a[0], acy=c[1]-a[1], acz=c[2]-a[2];
+    const nx=aby*acz-abz*acy;
+    const ny=abz*acx-abx*acz;
+    const nz=abx*acy-aby*acx;
+    const len2=nx*nx+ny*ny+nz*nz;
+    if(len2<1e-24) return;
+    for(const i of [i0,i1,i2]){
+      sums[i][0]+=nx; sums[i][1]+=ny; sums[i][2]+=nz;
+    }
+  }
+
+  for(const f of mesh.faces){
+    for(let i=1;i<f.length-1;i++) addTri(f[0],f[i],f[i+1]);
+  }
+
+  mesh.normals=sums.map(v=>{
+    const L=Math.hypot(v[0],v[1],v[2]);
+    if(L<1e-20){
+      return p.objOrientation==="c4d" ? [0,1,0] : [0,0,1];
+    }
+    return [v[0]/L,v[1]/L,v[2]/L];
+  });
+}
+
+function straightLocalY(x,k,p){
+  const ph=phaseForCut(k,p);
+  const wav=2*Math.PI*x/Math.max(.001,p.wavelength);
+  return k*p.spacing + p.amplitude*wave(wav+ph,p.waveShape) + p.diagonal*x;
+}
+
+function straightLocalSlope(x,k,p){
+  const eps=Math.max(1e-5,Math.min(.01,p.wavelength/3000));
+  return (straightLocalY(x+eps,k,p)-straightLocalY(x-eps,k,p))/(2*eps);
+}
+
+function straightLocalToWorld(x,y,p){
+  const a=deg(p.rotation+p.lineAngle), c=Math.cos(a), s=Math.sin(a);
+  return [c*x-s*y+p.offsetX, s*x+c*y+p.offsetY];
+}
+
+function workpieceCornersWorld(p){
+  return [
+    [-p.width/2,-p.height/2],
+    [ p.width/2,-p.height/2],
+    [ p.width/2, p.height/2],
+    [-p.width/2, p.height/2]
+  ];
+}
+
+function polygonVerticalBounds(poly,x){
+  const ys=[];
+  const eps=1e-10;
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i], b=poly[(i+1)%poly.length];
+    const minx=Math.min(a[0],b[0]), maxx=Math.max(a[0],b[0]);
+    if(x<minx-eps || x>maxx+eps) continue;
+    const dx=b[0]-a[0];
+    if(Math.abs(dx)<eps){
+      if(Math.abs(x-a[0])<eps){ ys.push(a[1],b[1]); }
+      continue;
+    }
+    const t=(x-a[0])/dx;
+    if(t>=-eps && t<=1+eps) ys.push(a[1]+t*(b[1]-a[1]));
+  }
+  if(ys.length<2) return null;
+  return [Math.min(...ys),Math.max(...ys)];
+}
+
+function makeSampleAxis(minV,maxV,minCount,targetStep,extras=[]){
+  const count=clamp(
+    Math.max(Math.round(minCount),Math.ceil((maxV-minV)/Math.max(.002,targetStep))+1),
+    16,2600
+  );
+  const vals=[];
+  for(let i=0;i<count;i++) vals.push(minV+(maxV-minV)*i/(count-1));
+  for(const x of extras){
+    if(x>minV+1e-9 && x<maxV-1e-9) vals.push(x);
+  }
+  vals.sort((a,b)=>a-b);
+  const out=[];
+  for(const x of vals){
+    if(!out.length || Math.abs(x-out[out.length-1])>1e-8) out.push(x);
+  }
+  return out;
+}
+
+function pathProfileSamples(p){
+  return cutterSectionSamples(p);
+}
+
+function buildStraightAlignedMesh(p){
+  const poly=workpieceCornersWorld(p).map(([x,y])=>worldToStraightLocal(x,y,p));
+  const xsPoly=poly.map(q=>q[0]), ysPoly=poly.map(q=>q[1]);
+  const minX=Math.min(...xsPoly), maxX=Math.max(...xsPoly);
+  const minY=Math.min(...ysPoly), maxY=Math.max(...ysPoly);
+  const cutter=cutterSectionSamples(p);
+  const ext=cutterExtents(p);
+  const q=cutterQualitySettings(p);
+
+  const targetStep=p.autoMesh3d
+    ? Math.max(.008,Math.min(
+        Math.max(.01,ext.width)*q.pathFactor,
+        Math.max(.02,p.wavelength*q.pathFactor/18),
+        Math.max(.02,p.spacing*q.pathFactor/3)
+      ))
+    : Math.max(.01,(maxX-minX)/Math.max(16,p.meshX-1));
+
+  const xs=makeSampleAxis(
+    minX,maxX,Math.max(p.meshX,p.meshY),targetStep,xsPoly
+  );
+
+  const maxAbsX=Math.max(Math.abs(minX),Math.abs(maxX));
+  const margin=Math.abs(p.amplitude)+Math.abs(p.diagonal)*maxAbsX+ext.width*2;
+  const k0=Math.floor((minY-margin)/p.spacing)-2;
+  const k1=Math.ceil((maxY+margin)/p.spacing)+2;
+  const ks=[];
+  for(let k=k0;k<=k1;k++) ks.push(k);
+
+  const mesh={vertices:[],uvs:[],faces:[],normals:[],mesher:"swept single-point cutter · straight-line quads"};
+  const columns=[];
+  const cutSign=p.mode3d==="engrave"?-1:1;
+  let overlap=false;
+
+  for(const stationX of xs){
+    const bounds=polygonVerticalBounds(poly,stationX);
+    if(!bounds) continue;
+    const [vmin,vmax]=bounds;
+    const col=[];
+    col.push(addSurfaceVertex(mesh,...straightLocalToWorld(stationX,vmin,p),p.baseZ,p));
+
+    let previousUpper=-Infinity;
+
+    for(const k of ks){
+      const centerY=straightLocalY(stationX,k,p);
+      const slope=straightLocalSlope(stationX,k,p);
+      const tangentNorm=Math.sqrt(1+slope*slope);
+
+      // The cutter edge positions projected into this local cross-section.
+      const lower=centerY-ext.neg*tangentNorm;
+      const upper=centerY+ext.pos*tangentNorm;
+      if(lower<previousUpper-1e-6 && upper>vmin && lower<vmax) overlap=true;
+      previousUpper=Math.max(previousUpper,upper);
+
+      for(const cs of cutter){
+        const normalOffsetY=cs.offset*tangentNorm;
+        const alongX=cs.longitudinalShift/tangentNorm;
+        const alongY=cs.longitudinalShift*slope/tangentNorm;
+
+        const rawX=stationX+alongX;
+        const rawY=centerY+normalOffsetY+alongY;
+        let x=rawX, y=rawY;
+        let removal=cs.removal;
+
+        // Clip cutter strip back to the actual workpiece boundary.
+        const b2=polygonVerticalBounds(poly,x);
+        if(!b2){
+          x=stationX;
+          y=clamp(rawY,vmin,vmax);
+          removal=0;
+        }else{
+          if(y<=b2[0]){ y=b2[0]; removal=0; }
+          else if(y>=b2[1]){ y=b2[1]; removal=0; }
+        }
+
+        const h=p.baseZ+cutSign*removal;
+        col.push(addSurfaceVertex(mesh,...straightLocalToWorld(x,y,p),h,p));
+      }
+    }
+
+    col.push(addSurfaceVertex(mesh,...straightLocalToWorld(stationX,vmax,p),p.baseZ,p));
+    columns.push(col);
+  }
+
+  if(overlap){
+    return {ok:false,reason:"The simulated cutter envelopes of neighboring straight-line cuts overlap at the selected depth/angle."};
+  }
+  if(columns.length<2) return {ok:false,reason:"Not enough valid swept-cutter stations were generated."};
+
+  const rowCount=columns[0].length;
+  for(let c=0;c<columns.length-1;c++){
+    const A=columns[c], B=columns[c+1];
+    for(let r=0;r<rowCount-1;r++){
+      addFaceIfValid(mesh,[A[r],B[r],B[r+1],A[r+1]]);
+    }
+  }
+
+  computeMeshNormals(mesh,p);
+  return {ok:true,mesh};
+}
+
+function worldToRoseNormalized(wx,wy,p){
+  const xx=wx-p.offsetX, yy=wy-p.offsetY;
+  const a=deg(p.rotation), c=Math.cos(a), s=Math.sin(a);
+  const lx=c*xx+s*yy;
+  const ly=-s*xx+c*yy;
+  return [lx/Math.max(.001,p.ellipse),ly];
+}
+
+function roseNormalizedToWorld(u,v,p){
+  const lx=u*p.ellipse, ly=v;
+  const a=deg(p.rotation), c=Math.cos(a), s=Math.sin(a);
+  return [c*lx-s*ly+p.offsetX, s*lx+c*ly+p.offsetY];
+}
+
+function pointInConvexPolygon(poly,x=0,y=0){
+  let sign=0;
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i], b=poly[(i+1)%poly.length];
+    const cross=(b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]);
+    if(Math.abs(cross)<1e-9) continue;
+    const s=Math.sign(cross);
+    if(sign===0) sign=s;
+    else if(s!==sign) return false;
+  }
+  return true;
+}
+
+function rayPolygonRadius(poly,theta){
+  const dx=Math.cos(theta), dy=Math.sin(theta);
+  let best=Infinity;
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i], b=poly[(i+1)%poly.length];
+    const ex=b[0]-a[0], ey=b[1]-a[1];
+    const den=dx*ey-dy*ex;
+    if(Math.abs(den)<1e-12) continue;
+    const t=(a[0]*ey-a[1]*ex)/den;
+    const u=(a[0]*dy-a[1]*dx)/den;
+    if(t>=-1e-10 && u>=-1e-10 && u<=1+1e-10) best=Math.min(best,Math.max(0,t));
+  }
+  return Number.isFinite(best)?best:null;
+}
+
+function roseRadiusAt(theta,cut,p){
+  const {outer}=roseGeometry(p);
+  const ph=phaseForCut(cut,p);
+  const sign=p.mirror?-1:1;
+  return (outer-cut*p.spacing)+p.amplitude*wave(sign*p.lobes*theta+ph,p.waveShape);
+}
+
+function roseRadialHalfWidth(theta,cut,p){
+  const r=Math.max(.001,roseRadiusAt(theta,cut,p));
+  const eps=1e-5;
+  const dr=(roseRadiusAt(theta+eps,cut,p)-roseRadiusAt(theta-eps,cut,p))/(2*eps);
+  const ct=Math.cos(theta), st=Math.sin(theta), e=Math.max(.001,p.ellipse);
+  const tx=e*(dr*ct-r*st);
+  const ty=dr*st+r*ct;
+  const tangent=Math.hypot(tx,ty);
+  // Cross(radialDerivative,tangent) = ellipse*r.
+  return (p.grooveWidth/2)*tangent/Math.max(1e-8,e*r);
+}
+
+function roseWorldFrame(theta,cut,p){
+  const eps=Math.max(1e-6,1/(Math.max(24,p.lobes)*5000));
+  const c=rosePoint(theta,cut,p);
+  const a=rosePoint(theta-eps,cut,p);
+  const b=rosePoint(theta+eps,cut,p);
+  let tx=b[0]-a[0], ty=b[1]-a[1];
+  const L=Math.max(1e-12,Math.hypot(tx,ty));
+  tx/=L; ty/=L;
+
+  // For the normal CCW rose path, the right-hand normal points outward.
+  let nx=ty, ny=-tx;
+  const radialX=c[0]-p.offsetX, radialY=c[1]-p.offsetY;
+  if(nx*radialX+ny*radialY<0){ nx=-nx; ny=-ny; }
+
+  return {x:c[0],y:c[1],tx,ty,nx,ny};
+}
+
+function buildRoseAlignedMesh(p){
+  const poly=workpieceCornersWorld(p).map(([x,y])=>worldToRoseNormalized(x,y,p));
+  if(!pointInConvexPolygon(poly,0,0)){
+    return {ok:false,reason:"The rose-engine center lies outside the workpiece, so a clean swept radial partition is not valid."};
+  }
+
+  const {outer,n}=roseGeometry(p);
+  const physicalOuter=outer*Math.max(1,p.ellipse);
+  const cutter=cutterSectionSamples(p);
+  const ext=cutterExtents(p);
+  const q=cutterQualitySettings(p);
+
+  const targetStep=p.autoMesh3d
+    ? Math.max(.008,Math.min(
+        Math.max(.01,ext.width)*q.pathFactor,
+        Math.max(.02,p.spacing*q.pathFactor/3),
+        Math.max(.02,physicalOuter*Math.PI/Math.max(180,p.lobes*45))*q.pathFactor
+      ))
+    : Math.max(.01,2*Math.PI*Math.max(1,physicalOuter)/Math.max(180,Math.max(p.meshX,p.meshY)));
+
+  const baseCount=clamp(
+    Math.max(Math.max(p.meshX,p.meshY),Math.ceil(2*Math.PI*Math.max(1,physicalOuter)/targetStep)),
+    Math.max(180,p.lobes*48),3200
+  );
+
+  const thetas=[];
+  for(let i=0;i<baseCount;i++) thetas.push(2*Math.PI*i/baseCount);
+  for(const v of poly){
+    let a=Math.atan2(v[1],v[0]);
+    if(a<0) a+=2*Math.PI;
+    thetas.push(a);
+  }
+  thetas.sort((a,b)=>a-b);
+  const th=[];
+  for(const a of thetas){
+    if(!th.length || Math.abs(a-th[th.length-1])>1e-8) th.push(a);
+  }
+
+  const cuts=[];
+  for(let i=n-1;i>=0;i--){
+    if(outer-i*p.spacing>=p.centerHole-1e-9) cuts.push(i);
+  }
+
+  const mesh={vertices:[],uvs:[],faces:[],normals:[],mesher:"swept single-point cutter · rose radial quads"};
+  const columns=[];
+  const cutSign=p.mode3d==="engrave"?-1:1;
+  let overlap=false;
+  const innerRing=Math.max(.0001,Math.min(.02,p.spacing/30,Math.max(.0001,ext.width/30)));
+
+  for(const theta of th){
+    const R=rayPolygonRadius(poly,theta);
+    if(R===null || R<=innerRing) return {ok:false,reason:"Could not resolve the workpiece boundary for the rose cutter sweep."};
+
+    const col=[];
+    const [wx0,wy0]=roseNormalizedToWorld(innerRing*Math.cos(theta),innerRing*Math.sin(theta),p);
+    col.push(addSurfaceVertex(mesh,wx0,wy0,p.baseZ,p));
+
+    let previousUpper=-Infinity;
+
+    for(const cut of cuts){
+      const centerR=roseRadiusAt(theta,cut,p);
+      const frame=roseWorldFrame(theta,cut,p);
+
+      // Convert physical normal extents to approximate radial ordering only
+      // for overlap detection. Actual vertices use the true world-space normal.
+      const scaleNeg=roseRadialHalfWidth(theta,cut,{...p,grooveWidth:2*ext.neg}) || ext.neg;
+      const scalePos=roseRadialHalfWidth(theta,cut,{...p,grooveWidth:2*ext.pos}) || ext.pos;
+      const lower=centerR-scaleNeg;
+      const upper=centerR+scalePos;
+      if(lower<previousUpper-1e-6 && upper>innerRing && lower<R) overlap=true;
+      previousUpper=Math.max(previousUpper,upper);
+
+      for(const cs of cutter){
+        let wx=frame.x + frame.nx*cs.offset + frame.tx*cs.longitudinalShift;
+        let wy=frame.y + frame.ny*cs.offset + frame.ty*cs.longitudinalShift;
+        let removal=cs.removal;
+
+        // If the swept point falls outside the workpiece, clamp it to the ray
+        // boundary and return that vertex to the untouched surface.
+        const [nu,nv]=worldToRoseNormalized(wx,wy,p);
+        let rr=Math.hypot(nu,nv);
+        if(rr>R){
+          const [bw,bh]=roseNormalizedToWorld(R*Math.cos(theta),R*Math.sin(theta),p);
+          wx=bw; wy=bh; removal=0;
+        }else if(rr<innerRing){
+          const [iw,ih]=roseNormalizedToWorld(innerRing*Math.cos(theta),innerRing*Math.sin(theta),p);
+          wx=iw; wy=ih; removal=0;
+        }
+
+        col.push(addSurfaceVertex(mesh,wx,wy,p.baseZ+cutSign*removal,p));
+      }
+    }
+
+    const [wxo,wyo]=roseNormalizedToWorld(R*Math.cos(theta),R*Math.sin(theta),p);
+    col.push(addSurfaceVertex(mesh,wxo,wyo,p.baseZ,p));
+    columns.push(col);
+  }
+
+  if(overlap){
+    return {ok:false,reason:"The simulated cutter envelopes of neighboring rose-engine cuts overlap at the selected depth/angle."};
+  }
+
+  const rowCount=columns[0].length;
+  for(let c=0;c<columns.length;c++){
+    const A=columns[c], B=columns[(c+1)%columns.length];
+    for(let r=0;r<rowCount-1;r++){
+      addFaceIfValid(mesh,[A[r],A[r+1],B[r+1],B[r]]);
+    }
+  }
+
+  const [cwx,cwy]=roseNormalizedToWorld(0,0,p);
+  const centerIdx=addSurfaceVertex(mesh,cwx,cwy,p.baseZ,p);
+  for(let c=0;c<columns.length;c++){
+    const a=columns[c][0], b=columns[(c+1)%columns.length][0];
+    addFaceIfValid(mesh,[centerIdx,a,b]);
+  }
+
+  computeMeshNormals(mesh,p);
+  return {ok:true,mesh};
+}
+
+
+function cutterBooleanResolution(p){
+  const ext=makeCutterKernel(p);
+  const q=cutterQualitySettings(p);
+  const width=Math.max(.002,ext.width);
+
+  // Number of surface intervals targeted across the full cutter width.
+  const across = p.cutterQuality==="draft" ? 3.0
+    : p.cutterQuality==="production" ? 6.0
+    : p.cutterQuality==="ultra" ? 8.0
+    : 4.5;
+
+  const targetStep=Math.max(.01,width/across);
+  let nx=Math.max(Math.round(p.meshX),Math.ceil(p.width/targetStep)+1);
+  let ny=Math.max(Math.round(p.meshY),Math.ceil(p.height/targetStep)+1);
+
+  // Keep browser/OBJ sizes bounded. The exporter reports when this cap
+  // prevents the preferred samples-across-cut target.
+  const cap = p.cutterQuality==="ultra" ? 1600 : 1400;
+  nx=clamp(nx,16,cap);
+  ny=clamp(ny,16,cap);
+  return [nx,ny,targetStep,cap];
+}
+
+function stampCutterSegmentIntoField(field,p,nx,ny,kernel,ax,ay,bx,by){
+  const dx=p.width/(nx-1), dy=p.height/(ny-1);
+  const xmin=-p.width/2, ymin=-p.height/2;
+  const reach=Math.max(kernel.neg,kernel.pos)+Math.hypot(dx,dy)*.75;
+
+  const sx=bx-ax, sy=by-ay;
+  const L2=sx*sx+sy*sy;
+  if(L2<1e-18) return;
+  const L=Math.sqrt(L2);
+  const tx=sx/L, ty=sy/L;
+  // Right-hand normal. This is consistent with the generated path direction:
+  // outward for rose-engine curves and one consistent side for straight cuts.
+  const nxv=ty, nyv=-tx;
+
+  let i0=Math.floor((Math.min(ax,bx)-reach-xmin)/dx);
+  let i1=Math.ceil ((Math.max(ax,bx)+reach-xmin)/dx);
+  let j0=Math.floor((Math.min(ay,by)-reach-ymin)/dy);
+  let j1=Math.ceil ((Math.max(ay,by)+reach-ymin)/dy);
+  i0=clamp(i0,0,nx-1); i1=clamp(i1,0,nx-1);
+  j0=clamp(j0,0,ny-1); j1=clamp(j1,0,ny-1);
+
+  // A small station overlap closes numerical gaps where consecutive
+  // polyline segments meet, without extending a cut by a visible amount.
+  const alongPad=Math.max(dx,dy)*.9/L;
+
+  for(let j=j0;j<=j1;j++){
+    const y=ymin+j*dy;
+    const row=j*nx;
+    for(let i=i0;i<=i1;i++){
+      const x=xmin+i*dx;
+      const px=x-ax, py=y-ay;
+      const t=(px*sx+py*sy)/L2;
+      if(t < -alongPad || t > 1+alongPad) continue;
+
+      const tc=clamp(t,0,1);
+      const qx=ax+tc*sx, qy=ay+tc*sy;
+      const ox=x-qx, oy=y-qy;
+
+      // Signed cross-cut coordinate in the cutter's local normal direction.
+      const signedOffset=ox*nxv+oy*nyv;
+
+      // When projection is outside an endpoint, include the tangential
+      // separation in the effective offset. This makes segment joins behave
+      // as a continuous swept envelope rather than rectangular strip caps.
+      const tangentOffset=ox*tx+oy*ty;
+      let effectiveOffset=signedOffset;
+      if(t<0 || t>1){
+        const sgn=signedOffset<0?-1:1;
+        effectiveOffset=sgn*Math.hypot(signedOffset,tangentOffset);
+      }
+
+      const removal=kernel.removal(effectiveOffset);
+      if(removal<=0) continue;
+
+      const idx=row+i;
+      if(removal>field[idx]) field[idx]=removal;
+    }
+  }
+}
+
+function buildOverlapCutterField(p,nx,ny){
+  const field=new Float32Array(nx*ny);
+  const dx=p.width/(nx-1), dy=p.height/(ny-1);
+  const kernel=makeCutterKernel(p);
+  const ext=kernel;
+  const q=cutterQualitySettings(p);
+
+  // Toolpath segments are shorter than the mesh spacing and cutter width,
+  // so curved paths do not become visibly faceted before being rasterized
+  // into the Boolean removal envelope.
+  const stepHint=Math.max(.006,Math.min(
+    dx*.55,dy*.55,
+    Math.max(.008,ext.width*q.pathFactor*.5)
+  ));
+
+  forEachPatternSegment(p,stepHint,(ax,ay,bx,by)=>{
+    stampCutterSegmentIntoField(field,p,nx,ny,kernel,ax,ay,bx,by);
+  });
+  return field;
+}
+
+function buildBooleanCutterEnvelopeMesh(p){
+  const [nx,ny,targetStep,cap]=cutterBooleanResolution(p);
+  const field=buildOverlapCutterField(p,nx,ny);
+  const mesh={
+    vertices:[],uvs:[],faces:[],normals:[],
+    mesher:"overlap-safe Boolean swept-cutter envelope · quad height surface"
+  };
+  const cutSign=p.mode3d==="engrave"?-1:1;
+
+  for(let j=0;j<ny;j++){
+    const wy=-p.height/2+p.height*j/(ny-1);
+    for(let i=0;i<nx;i++){
+      const wx=-p.width/2+p.width*i/(nx-1);
+      const removal=field[j*nx+i];
+      addSurfaceVertex(mesh,wx,wy,p.baseZ+cutSign*removal,p);
+    }
+  }
+
+  // Export quads rather than alternating triangles. Cinema 4D can retain
+  // these as quads, avoiding the sawtooth triangle pattern visible in older
+  // grid-based exports.
+  for(let j=0;j<ny-1;j++){
+    for(let i=0;i<nx-1;i++){
+      const a=j*nx+i, b=a+1, c=a+nx, d=c+1;
+      addFaceIfValid(mesh,[a,b,d,c]);
+    }
+  }
+
+  computeMeshNormals(mesh,p);
+
+  const ext=makeCutterKernel(p);
+  const dx=p.width/(nx-1), dy=p.height/(ny-1);
+  const achievedAcross=ext.width/Math.max(dx,dy);
+
+  return {
+    mesh,nx,ny,targetStep,cap,
+    achievedAcross,
+    cutterWidth:ext.width
+  };
+}
+
+function meshToOBJ(mesh,p,extraMeta={}){
+  const lines=[];
+  lines.push(`# Seeded Guilloche Pattern Generator v${VERSION}`);
+  lines.push(`# seed ${p.seed}`);
+  lines.push(`# units: millimeters`);
+  lines.push(`# mesher: ${mesh.mesher||"surface mesh"}`);
+  lines.push(`# cutter model: rounded single-point V`);
+  lines.push(`# cutter included angle deg: ${p.cutterAngle}`);
+  lines.push(`# cutter front rake deg: ${p.rakeAngle}`);
+  lines.push(`# cutter tip radius mm: ${p.tipRadius}`);
+  lines.push(`# cutter requested cross-cut tilt deg: ${p.toolTilt}`);
+  lines.push(`# cutter effective cross-cut tilt deg: ${effectiveToolTiltDeg(p).toFixed(6)}`);
+  lines.push(`# calculated cut width mm: ${p.grooveWidth}`);
+  lines.push(`# orientation: ${p.objOrientation==="c4d" ? "Cinema 4D XZ plane, Y depth" : "XY plane, Z depth"}`);
+  lines.push(`# ${JSON.stringify({...p,...extraMeta})}`);
+  lines.push(`o Guilloche_Carved_Surface`);
+
+  for(const v of mesh.vertices){
+    lines.push(`v ${v[0].toFixed(6)} ${v[1].toFixed(6)} ${v[2].toFixed(6)}`);
+  }
+  for(const uv of mesh.uvs){
+    lines.push(`vt ${uv[0].toFixed(6)} ${uv[1].toFixed(6)}`);
+  }
+  for(const n of mesh.normals){
+    lines.push(`vn ${n[0].toFixed(6)} ${n[1].toFixed(6)} ${n[2].toFixed(6)}`);
+  }
+
+  lines.push(`s 1`);
+  for(const f of mesh.faces){
+    const refs=f.map(i=>`${i+1}/${i+1}/${i+1}`);
+    lines.push(`f ${refs.join(" ")}`);
+  }
+  return lines.join("\n");
+}
+
+function buildFallbackGridMesh(p,nx,ny){
+  let field=buildPatternHeightField(p,nx,ny);
+  field=smoothHeightField(field,nx,ny,1);
+  const mesh={vertices:[],uvs:[],faces:[],normals:[],mesher:"regular-grid fallback quads"};
+  const sign=p.mode3d==="engrave"?-1:1;
+
+  for(let j=0;j<ny;j++){
+    const wy=-p.height/2+p.height*j/(ny-1);
+    for(let i=0;i<nx;i++){
+      const wx=-p.width/2+p.width*i/(nx-1);
+      const h=p.baseZ+sign*p.depth*field[j*nx+i];
+      addSurfaceVertex(mesh,wx,wy,h,p);
+    }
+  }
+  for(let j=0;j<ny-1;j++){
+    for(let i=0;i<nx-1;i++){
+      const a=j*nx+i, b=a+1, c=a+nx, d=c+1;
+      addFaceIfValid(mesh,[a,b,d,c]);
+    }
+  }
+  computeMeshNormals(mesh,p);
+  return mesh;
+}
+
+function exportOBJ(){
+  updateCalculatedGrooveWidth();
+  const p=getParams();
+
+  setStatus(`Building swept-cutter OBJ surface…`);
+
+  setTimeout(()=>{
+    let mesh;
+    let method="";
+    let overlapReason=null;
+    let booleanInfo=null;
+
+    if(p.preferPathAligned){
+      const aligned=p.preset.startsWith("rose-")
+        ? buildRoseAlignedMesh(p)
+        : buildStraightAlignedMesh(p);
+
+      if(aligned.ok){
+        mesh=aligned.mesh;
+        method="path-aligned swept cutter";
+      }else{
+        overlapReason=aligned.reason||"Path-aligned topology was not valid for this cut arrangement.";
+      }
+    }
+
+    // Overlaps are normal in guilloché. They are not treated as an error.
+    // The final machined surface is the Boolean union of cutter sweeps:
+    // at each point, the deepest removal produced by any pass wins.
+    if(!mesh){
+      booleanInfo=buildBooleanCutterEnvelopeMesh(p);
+      mesh=booleanInfo.mesh;
+      method="Boolean cutter envelope";
+    }
+
+    if(booleanInfo && booleanInfo.achievedAcross<2.5){
+      const ok=confirm(
+        `The overlapping-cut Boolean mesh reached ${booleanInfo.nx}×${booleanInfo.ny} samples, `+
+        `but the current cutter width is represented by only ${booleanInfo.achievedAcross.toFixed(2)} `+
+        `grid intervals on the coarser axis. The cut is geometrically correct, but very fine edge `+
+        `detail may still be polygon-limited. Continue exporting?`
+      );
+      if(!ok){ setStatus("OBJ export cancelled."); return; }
+    }
+
+    if(mesh.vertices.length>1400000){
+      const ok=confirm(
+        `This OBJ will contain ${mesh.vertices.length.toLocaleString()} vertices and `+
+        `${mesh.faces.length.toLocaleString()} faces. Continue?`
+      );
+      if(!ok){ setStatus("OBJ export cancelled."); return; }
+    }
+
+    const obj=meshToOBJ(mesh,p,{
+      topologyMethod:method,
+      overlappingCuts:"Boolean material removal; deepest cutter envelope wins",
+      pathAlignedFallbackReason:overlapReason,
+      booleanMeshX:booleanInfo?booleanInfo.nx:null,
+      booleanMeshY:booleanInfo?booleanInfo.ny:null,
+      booleanIntervalsAcrossCutter:booleanInfo?Number(booleanInfo.achievedAcross.toFixed(4)):null,
+      exportedVertices:mesh.vertices.length,
+      exportedFaces:mesh.faces.length
+    });
+
+    downloadText(`guilloche_${p.seed}_C4D.obj`,obj,"text/plain");
+    setStatus(
+      `OBJ exported: ${mesh.vertices.length.toLocaleString()} vertices, `+
+      `${mesh.faces.length.toLocaleString()} faces · ${method}`+
+      (overlapReason?` · overlap-safe envelope used`:"")
+    );
+  },30);
+}
+
+function exportJSON(){
+  const p=getParams();
+  downloadText(`guilloche_${p.seed}_params.json`,JSON.stringify(p,null,2),"application/json");
+  setStatus("Parameter JSON exported.");
+}
+
+function loadJSONFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const p=JSON.parse(reader.result);
+      applyParams(p);
+      setStatus(`Loaded parameter JSON${p.generatorVersion?` from generator v${p.generatorVersion}`:""}.`);
+    }catch(e){ alert("Could not parse JSON: "+e.message); }
+  };
+  reader.readAsText(file);
+}
+
+$("randomize").addEventListener("click",randomizeFromSeed);
+$("nextSeed").addEventListener("click",()=>{ $("seed").value=Math.trunc(num("seed"))+1; randomizeFromSeed(); });
+$("applyPreset").addEventListener("click",applyPreset);
+$("refresh").addEventListener("click",render);
+$("exportSVG").addEventListener("click",exportSVG);
+$("exportPNG").addEventListener("click",exportPNG);
+$("exportOBJ").addEventListener("click",exportOBJ);
+$("exportJSON").addEventListener("click",exportJSON);
+$("loadJSON").addEventListener("click",()=>$("jsonFile").click());
+$("jsonFile").addEventListener("change",e=>{ if(e.target.files[0]) loadJSONFile(e.target.files[0]); });
+
+for(const id of ids){
+  $(id).addEventListener("input",scheduleDraw);
+  $(id).addEventListener("change",scheduleDraw);
+}
+for(const id of ["depth","cutterAngle","tipRadius","toolTilt"]){
+  $(id).addEventListener("input",()=>{ updateCalculatedGrooveWidth(); scheduleDraw(); });
+  $(id).addEventListener("change",()=>{ updateCalculatedGrooveWidth(); scheduleDraw(); });
+}
+$("preset").addEventListener("change",()=>{ applyPreset(); });
+
+async function runInternalSelfTest(){
+  try{
+    const p=getParams();
+
+    const tool={
+      ...p,
+      depth:.04,
+      cutterAngle:155,
+      rakeAngle:20,
+      tipRadius:.008,
+      toolTilt:0,
+      cutterQuality:"draft",
+      grooveWidth:.35
+    };
+    const ext=cutterExtents(tool);
+    if(!(ext.width>0 && ext.width<5)) throw new Error("cutter width calculation failed");
+    if(Math.abs(cutterRemovalAtOffset(0,tool)-tool.depth)>1e-9) throw new Error("cutter tip depth failed");
+    if(cutterRemovalAtOffset(ext.pos*1.01,tool)>1e-6) throw new Error("cutter positive edge failed");
+
+    const straight={
+      ...tool,preset:"straight-lightning",
+      width:24,height:18,spacing:1.4,amplitude:.35,wavelength:7,
+      meshX:80,meshY:80,offsetX:0,offsetY:0,rotation:0,lineAngle:0
+    };
+    straight.grooveWidth=cutterExtents(straight).width;
+    const s=buildStraightAlignedMesh(straight);
+    if(!s.ok || s.mesh.vertices.length<100 || s.mesh.faces.length<100) throw new Error("straight swept cutter mesh failed");
+
+    const rose={
+      ...tool,preset:"rose-barleycorn",
+      width:24,height:24,spacing:1.2,amplitude:.18,lobes:18,
+      phaseStep:10,centerHole:2,offsetX:0,offsetY:0,ellipse:1,
+      meshX:80,meshY:80
+    };
+    rose.grooveWidth=cutterExtents(rose).width;
+    const r=buildRoseAlignedMesh(rose);
+    if(!r.ok || r.mesh.vertices.length<100 || r.mesh.faces.length<100) throw new Error("rose swept cutter mesh failed");
+
+    const overlap={
+      ...tool,preset:"straight-consecutive",
+      width:6,height:5,spacing:.22,amplitude:.08,wavelength:3.5,
+      depth:.05,cutterAngle:155,tipRadius:.006,
+      meshX:32,meshY:32,offsetX:0,offsetY:0,rotation:0,lineAngle:0
+    };
+    overlap.grooveWidth=cutterExtents(overlap).width;
+    const b=buildBooleanCutterEnvelopeMesh(overlap);
+    if(!b.mesh || b.mesh.vertices.length<100 || b.mesh.faces.length<100) throw new Error("overlap Boolean cutter mesh failed");
+    let deepest=0;
+    for(const v of b.mesh.vertices){
+      const h=overlap.objOrientation==="c4d" ? v[1] : v[2];
+      deepest=Math.max(deepest,Math.abs(h-overlap.baseZ));
+    }
+    if(deepest<overlap.depth*.5) throw new Error("overlap Boolean removal depth failed");
+
+    const sobj=meshToOBJ(s.mesh,straight,{selfTest:true});
+    if(!sobj.includes("\nv ") || !sobj.includes("\nvt ") || !sobj.includes("\nvn ") || !sobj.includes("\nf ")) throw new Error("OBJ serialization failed");
+    if(!sobj.includes("cutter included angle")) throw new Error("cutter metadata missing");
+
+    document.documentElement.setAttribute("data-selftest","PASS");
+    document.documentElement.setAttribute("data-selftest-cutter-width",ext.width.toFixed(6));
+    document.documentElement.setAttribute("data-selftest-straight",`${s.mesh.vertices.length}/${s.mesh.faces.length}`);
+    document.documentElement.setAttribute("data-selftest-rose",`${r.mesh.vertices.length}/${r.mesh.faces.length}`);
+    document.documentElement.setAttribute("data-selftest-overlap",`${b.mesh.vertices.length}/${b.mesh.faces.length}`);
+  }catch(err){
+    document.documentElement.setAttribute("data-selftest","FAIL");
+    document.documentElement.setAttribute("data-selftest-error",String(err && err.message || err));
+  }
+}
+const SELFTEST_MODE=new URLSearchParams(location.search).get("selftest")==="1";
+applyPreset();
+updateCalculatedGrooveWidth();
+
+if(SELFTEST_MODE){
+  setTimeout(runInternalSelfTest,20);
+}else{
+  render();
+}
+</script>
+</body>
+</html>
