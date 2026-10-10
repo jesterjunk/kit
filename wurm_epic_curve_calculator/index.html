@@ -1,11 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="preload" style="background:#17130f;color-scheme:dark;">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#17130f">
 <title>Wurm Curve Calculator</title>
 <style>
+  /* Keep the browser's very first paint in the Ironwood palette. */
+  html {
+    background: #17130f;
+    color-scheme: dark;
+    scrollbar-gutter: stable both-edges;
+  }
+
+  /* Prevent any partially parsed/unformatted UI from being painted. */
+  html.preload body {
+    visibility: hidden;
+  }
+
   :root {
     color-scheme: dark;
     --bg: #17130f;
@@ -29,8 +41,7 @@
   body {
     margin: 0;
     min-height: 100vh;
-    display: grid;
-    place-items: center;
+    min-height: 100dvh;
     padding: 24px;
     background:
       radial-gradient(circle at 50% -10%, rgba(128, 92, 49, .16), transparent 38%),
@@ -41,9 +52,9 @@
 
   .calculator {
     width: min(680px, 100%);
+    margin: 0 auto;
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 12px;
     box-shadow: var(--shadow);
     overflow: hidden;
   }
@@ -105,7 +116,6 @@
     height: 46px;
     padding: 0 12px;
     border: 1px solid var(--line);
-    border-radius: 8px;
     outline: none;
     background: #191510;
     color: #f0dfbc;
@@ -174,7 +184,6 @@
     height: auto;
     overflow: visible;
     touch-action: none;
-    border-radius: 6px;
   }
 
   svg:focus-visible {
@@ -220,7 +229,6 @@
 
   button {
     border: 1px solid transparent;
-    border-radius: 7px;
     padding: 7px 10px;
     background: transparent;
     color: var(--accent-bright);
@@ -236,7 +244,7 @@
   button:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
 
   @media (max-width: 520px) {
-    body { padding: 12px; place-items: start center; }
+    body { padding: 12px; }
     .calculator { border-radius: 10px; }
     header, main { padding-left: 18px; padding-right: 18px; }
     footer { padding-left: 18px; padding-right: 18px; }
@@ -245,6 +253,11 @@
     .summary { justify-content: space-between; gap: 10px; }
   }
 </style>
+<noscript>
+  <style>
+    html.preload body { visibility: visible; }
+  </style>
+</noscript>
 </head>
 <body>
   <section class="calculator" aria-labelledby="title">
@@ -481,6 +494,11 @@
   rawInput.value = '50.00';
   effectiveInput.value = '75.00';
   render(50);
+
+  // Reveal only after all first-frame layout and graph work is complete.
+  requestAnimationFrame(() => {
+    document.documentElement.classList.remove('preload');
+  });
 })();
 </script>
 </body>
