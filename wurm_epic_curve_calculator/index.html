@@ -111,26 +111,116 @@
     letter-spacing: .05em;
   }
 
-  input[type="number"] {
+  .input-shell {
+    position: relative;
+  }
+
+  .input-spinner {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    bottom: 1px;
+    width: 28px;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    border-left: 1px solid var(--line-soft);
+    overflow: hidden;
+  }
+
+  .spin-button {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #211a14;
+    color: var(--muted);
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .spin-button + .spin-button {
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .spin-button:hover {
+    border-color: transparent;
+    background: #2b221a;
+    color: var(--accent-bright);
+  }
+
+  .spin-button:active {
+    background: #191510;
+    color: #f0dfbc;
+  }
+
+  .spin-button:focus-visible {
+    outline: 1px solid var(--accent-bright);
+    outline-offset: -2px;
+  }
+
+  .spin-button svg {
+    width: 10px;
+    height: 6px;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .spin-button path {
+    fill: currentColor;
+  }
+
+  .number-input {
     width: 100%;
     height: 46px;
-    padding: 0 12px;
+    padding: 0 38px 0 12px;
     border: 1px solid var(--line);
     outline: none;
     background: #191510;
     color: #f0dfbc;
+    caret-color: transparent;
     font: 500 1.25rem/1 Arial, Helvetica, sans-serif;
     font-variant-numeric: tabular-nums;
     box-shadow: inset 0 1px 4px rgba(0,0,0,.35);
-    transition: border-color .15s, box-shadow .15s, background .15s;
+    transition: border-color .15s;
   }
 
-  input[type="number"]:hover { border-color: #70583a; }
+  .number-input:hover { border-color: #70583a; }
 
-  input[type="number"]:focus {
-    border-color: var(--accent-bright);
-    background: #1d1812;
-    box-shadow: 0 0 0 3px var(--accent-soft), inset 0 1px 4px rgba(0,0,0,.35);
+  .number-input:focus {
+    border-color: var(--line);
+    background: #191510;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,.35);
+  }
+
+  .number-input::selection {
+    background: transparent;
+    color: inherit;
+  }
+
+  .caret-measure {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    visibility: hidden;
+    white-space: pre;
+    font: 500 1.25rem/1 Arial, Helvetica, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .custom-caret {
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 23px;
+    border-radius: 1px;
+    background: var(--accent-bright);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%);
+    will-change: opacity;
   }
 
   .arrow {
@@ -184,11 +274,15 @@
     height: auto;
     overflow: visible;
     touch-action: none;
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
-  svg:focus-visible {
-    outline: 2px solid var(--accent-bright);
-    outline-offset: 4px;
+  svg *,
+  .graph-wrap {
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .axis-label {
@@ -217,7 +311,7 @@
 
   footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 12px;
     padding: 12px 24px;
@@ -265,8 +359,8 @@
       <h1 id="title">Wurm Curve Calculator</h1>
       <div class="formula">
         The Curve's formula is y = 2x-(x/10)^2, where y is the &quot;effective skill&quot; and x is the raw skill number. For example, at 50 raw skill in mining, one can get 75 max. ql of ore, since their effective skill is 2*50-(50/10)^2, which equals 75 effective skill. The reverse formula for this equation is -10*((100-y)^(1/2)-10) = x.
-        <br><br>
-        — <a href="https://www.wurmpedia.com/index.php/The_curve" target="_blank" rel="noopener noreferrer">https://www.wurmpedia.com/index.php/The_curve</a>
+        <br>
+        <div style="padding-top: 12px;">—&nbsp;&nbsp;<a href="https://www.wurmpedia.com/index.php/The_curve" target="_blank" rel="noopener noreferrer">https://www.wurmpedia.com/index.php/The_curve</a></div>
       </div>
     </header>
 
@@ -274,12 +368,36 @@
       <div class="values">
         <div class="field">
           <label for="rawInput">Raw skill</label>
-          <input id="rawInput" type="number" min="0" max="100" step="0.01" inputmode="decimal" value="50" aria-describedby="rawHelp">
+          <div class="input-shell">
+            <input id="rawInput" class="number-input" type="text" inputmode="decimal" value="50" autocomplete="off" spellcheck="false" aria-describedby="rawHelp">
+            <span class="caret-measure" aria-hidden="true"></span>
+            <span class="custom-caret" aria-hidden="true"></span>
+            <span class="input-spinner" aria-hidden="false">
+              <button class="spin-button spin-up" type="button" tabindex="-1" aria-label="Increase raw skill">
+                <svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 5 5 1l4 4z"/></svg>
+              </button>
+              <button class="spin-button spin-down" type="button" tabindex="-1" aria-label="Decrease raw skill">
+                <svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4z"/></svg>
+              </button>
+            </span>
+          </div>
         </div>
         <div class="arrow" aria-hidden="true">→</div>
         <div class="field">
           <label for="effectiveInput">Effective skill</label>
-          <input id="effectiveInput" type="number" min="0" max="100" step="0.01" inputmode="decimal" value="75">
+          <div class="input-shell">
+            <input id="effectiveInput" class="number-input" type="text" inputmode="decimal" value="75" autocomplete="off" spellcheck="false">
+            <span class="caret-measure" aria-hidden="true"></span>
+            <span class="custom-caret" aria-hidden="true"></span>
+            <span class="input-spinner" aria-hidden="false">
+              <button class="spin-button spin-up" type="button" tabindex="-1" aria-label="Increase effective skill">
+                <svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 5 5 1l4 4z"/></svg>
+              </button>
+              <button class="spin-button spin-down" type="button" tabindex="-1" aria-label="Decrease effective skill">
+                <svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4z"/></svg>
+              </button>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -309,7 +427,6 @@
     </main>
 
     <footer>
-      <span>0–100 Wurm curve</span>
       <button id="resetButton" type="button">Reset</button>
     </footer>
   </section>
@@ -332,6 +449,101 @@
   const verticalGuide = document.getElementById('verticalGuide');
   const horizontalGuide = document.getElementById('horizontalGuide');
 
+  const inputShells = [...document.querySelectorAll('.input-shell')];
+  let caretAnimationFrame = 0;
+  let caretAnimationStart = 0;
+
+  function animateCaret(timestamp) {
+    const activeInput =
+      document.activeElement === rawInput ? rawInput :
+      document.activeElement === effectiveInput ? effectiveInput :
+      null;
+
+    if (!activeInput) {
+      caretAnimationFrame = 0;
+      return;
+    }
+
+    const shell = activeInput.closest('.input-shell');
+    const caret = shell.querySelector('.custom-caret');
+
+    if (!shell.classList.contains('caret-active')) {
+      caret.style.opacity = '0';
+    } else {
+      if (!caretAnimationStart) caretAnimationStart = timestamp;
+
+      // Smooth Sublime-style breathing cycle:
+      // ~1.4 seconds from dim -> bright -> dim.
+      const elapsed = (timestamp - caretAnimationStart) % 1400;
+      const phase = elapsed / 1400;
+      const opacity = 0.12 + 0.88 * (0.5 - 0.5 * Math.cos(phase * Math.PI * 2));
+      caret.style.opacity = opacity.toFixed(3);
+    }
+
+    caretAnimationFrame = requestAnimationFrame(animateCaret);
+  }
+
+  function ensureCaretAnimation() {
+    if (!caretAnimationFrame) {
+      caretAnimationStart = 0;
+      caretAnimationFrame = requestAnimationFrame(animateCaret);
+    }
+  }
+
+  function updateCustomCaret(input) {
+    const shell = input.closest('.input-shell');
+    const measure = shell.querySelector('.caret-measure');
+    const caret = shell.querySelector('.custom-caret');
+
+    if (document.activeElement !== input) {
+      shell.classList.remove('caret-active');
+      caret.style.opacity = '0';
+      return;
+    }
+
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+
+    // Hide our caret while a range is selected.
+    if (start !== end) {
+      shell.classList.remove('caret-active');
+      caret.style.opacity = '0';
+      return;
+    }
+
+    measure.textContent = input.value.slice(0, start) || '';
+    const left = 12 + measure.getBoundingClientRect().width - input.scrollLeft;
+    caret.style.left = `${Math.max(12, left)}px`;
+    shell.classList.add('caret-active');
+    ensureCaretAnimation();
+  }
+
+  function bindCustomCaret(input) {
+    const refresh = () => requestAnimationFrame(() => updateCustomCaret(input));
+
+    input.addEventListener('focus', refresh);
+    input.addEventListener('blur', () => {
+      const shell = input.closest('.input-shell');
+      shell.classList.remove('caret-active');
+      shell.querySelector('.custom-caret').style.opacity = '0';
+      caretAnimationStart = 0;
+    });
+    input.addEventListener('input', refresh);
+    input.addEventListener('keyup', refresh);
+    input.addEventListener('click', refresh);
+    input.addEventListener('select', refresh);
+    input.addEventListener('scroll', refresh);
+    input.addEventListener('pointerup', refresh);
+  }
+
+  [rawInput, effectiveInput].forEach(bindCustomCaret);
+
+  document.addEventListener('selectionchange', () => {
+    if (document.activeElement === rawInput || document.activeElement === effectiveInput) {
+      updateCustomCaret(document.activeElement);
+    }
+  });
+
   const W = 620;
   const H = 280;
   const margin = { left: 42, right: 16, top: 14, bottom: 30 };
@@ -344,6 +556,149 @@
   const xScale = raw => margin.left + (raw / 100) * plotW;
   const yScale = effective => margin.top + plotH - (effective / 100) * plotH;
   const format = value => Number(value).toFixed(2);
+
+  const INPUT_STEP = 0.01;
+
+  function currentRawValue() {
+    const parsed = Number(rawInput.value);
+    return Number.isFinite(parsed) ? clamp(parsed) : Number(slider.value);
+  }
+
+  function currentEffectiveValue() {
+    const parsed = Number(effectiveInput.value);
+    return Number.isFinite(parsed) ? clamp(parsed) : forward(Number(slider.value));
+  }
+
+  function setCaretToEnd(input) {
+    requestAnimationFrame(() => {
+      if (document.activeElement === input) {
+        const end = input.value.length;
+        input.setSelectionRange(end, end);
+        updateCustomCaret(input);
+      }
+    });
+  }
+
+  function stepInput(input, direction) {
+    if (input === rawInput) {
+      const raw = clamp(currentRawValue() + direction * INPUT_STEP);
+      render(raw);
+      setCaretToEnd(rawInput);
+    } else {
+      const effective = clamp(currentEffectiveValue() + direction * INPUT_STEP);
+      render(inverse(effective));
+      setCaretToEnd(effectiveInput);
+    }
+  }
+
+  function bindStepper(input) {
+    const shell = input.closest('.input-shell');
+    const up = shell.querySelector('.spin-up');
+    const down = shell.querySelector('.spin-down');
+
+    let holdTimeout = 0;
+    let holdInterval = 0;
+    let accelerationTimer = 0;
+    let holdStartedAt = 0;
+    let currentDelay = 110;
+    let holdDirection = 0;
+
+    function stopHold() {
+      clearTimeout(holdTimeout);
+      clearInterval(holdInterval);
+      clearInterval(accelerationTimer);
+      holdTimeout = 0;
+      holdInterval = 0;
+      accelerationTimer = 0;
+      holdDirection = 0;
+      currentDelay = 110;
+    }
+
+    function restartRepeatInterval() {
+      clearInterval(holdInterval);
+      holdInterval = setInterval(() => {
+        stepInput(input, holdDirection);
+      }, currentDelay);
+    }
+
+    function startHold(direction, event) {
+      event.preventDefault();
+      stopHold();
+
+      holdDirection = direction;
+      holdStartedAt = performance.now();
+
+      // Apply one step immediately on press.
+      stepInput(input, direction);
+
+      // Then begin repeating after a short intentional pause.
+      holdTimeout = setTimeout(() => {
+        restartRepeatInterval();
+
+        // Every 500 ms, speed up the repeat rate slightly.
+        accelerationTimer = setInterval(() => {
+          currentDelay = Math.max(28, currentDelay - 14);
+          restartRepeatInterval();
+        }, 500);
+      }, 320);
+    }
+
+    function bindButton(button, direction) {
+      button.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+        button.setPointerCapture?.(event.pointerId);
+        startHold(direction, event);
+      });
+
+      button.addEventListener('pointerup', event => {
+        stopHold();
+        if (button.hasPointerCapture?.(event.pointerId)) {
+          button.releasePointerCapture(event.pointerId);
+        }
+      });
+
+      button.addEventListener('pointercancel', stopHold);
+      button.addEventListener('lostpointercapture', stopHold);
+      button.addEventListener('contextmenu', event => event.preventDefault());
+
+      // Keyboard activation on the spinner itself.
+      button.addEventListener('keydown', event => {
+        if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) {
+          startHold(direction, event);
+        }
+      });
+
+      button.addEventListener('keyup', event => {
+        if (event.key === ' ' || event.key === 'Enter') {
+          event.preventDefault();
+          stopHold();
+        }
+      });
+    }
+
+    bindButton(up, 1);
+    bindButton(down, -1);
+
+    shell.addEventListener('wheel', event => {
+      if (event.deltaY === 0) return;
+      event.preventDefault();
+      stepInput(input, event.deltaY < 0 ? 1 : -1);
+    }, { passive: false });
+
+    input.addEventListener('keydown', event => {
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        stepInput(input, 1);
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        stepInput(input, -1);
+      }
+    });
+
+    window.addEventListener('blur', stopHold);
+  }
+
+  [rawInput, effectiveInput].forEach(bindStepper);
 
   function drawStaticGraph() {
     const ns = 'http://www.w3.org/2000/svg';
@@ -390,7 +745,7 @@
     curve.setAttribute('d', d.trim());
   }
 
-  function render(raw, source = 'raw') {
+  function render(raw, source = 'external') {
     raw = clamp(Number.isFinite(raw) ? raw : 0);
     const effective = forward(raw);
     const bonus = effective - raw;
@@ -415,6 +770,9 @@
     horizontalGuide.setAttribute('x2', x);
     horizontalGuide.setAttribute('y1', y);
     horizontalGuide.setAttribute('y2', y);
+
+    if (document.activeElement === rawInput) updateCustomCaret(rawInput);
+    if (document.activeElement === effectiveInput) updateCustomCaret(effectiveInput);
   }
 
   rawInput.addEventListener('input', () => {
@@ -424,9 +782,11 @@
   });
 
   rawInput.addEventListener('change', () => {
-    const value = clamp(Number(rawInput.value));
+    const parsed = Number(rawInput.value);
+    const value = Number.isFinite(parsed) ? clamp(parsed) : Number(slider.value);
     rawInput.value = format(value);
     render(value, 'raw');
+    updateCustomCaret(rawInput);
   });
 
   effectiveInput.addEventListener('input', () => {
@@ -436,9 +796,12 @@
   });
 
   effectiveInput.addEventListener('change', () => {
-    const effective = clamp(Number(effectiveInput.value));
+    const parsed = Number(effectiveInput.value);
+    const currentRaw = Number(slider.value);
+    const effective = Number.isFinite(parsed) ? clamp(parsed) : forward(currentRaw);
     effectiveInput.value = format(effective);
     render(inverse(effective), 'effective');
+    updateCustomCaret(effectiveInput);
   });
 
   slider.addEventListener('input', () => render(Number(slider.value)));
@@ -452,6 +815,7 @@
 
   let dragging = false;
   svg.addEventListener('pointerdown', event => {
+    event.preventDefault();
     dragging = true;
     svg.setPointerCapture(event.pointerId);
     setFromPointer(event);
@@ -484,10 +848,7 @@
   });
 
   resetButton.addEventListener('click', () => {
-    rawInput.value = '50.00';
-    render(50, 'raw');
-    rawInput.focus();
-    rawInput.select();
+    render(50);
   });
 
   drawStaticGraph();
