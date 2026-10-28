@@ -1,2 +1,29 @@
-20260914T203048252804800Z155ca643fb7b4f7386009c31cc14b911    351.0 lbs
-20261028T001617717657300Z1d5176bcc7ca44c5aa9565047b6a4e60    339.2 lbs
+20260914T203048252804800Z155ca643fb7b4f7386009c31cc14b911    351.0 lbs    2026 09 14 T 20 30 48 252804800 Z 155ca643fb7b4f7386009c31cc14b911
+20261028T001617717657300Z1d5176bcc7ca44c5aa9565047b6a4e60    339.2 lbs    2026 10 28 T 00 16 17 717657300 Z 1d5176bcc7ca44c5aa9565047b6a4e60
+
+
+
+
+iso8601basic + uuid
+
+YYYYMMDDTHHMMSSnnnnnnnnnZuuid
+
+4     YYYY         Year (4 digits)
+2     MM           Month (2 digits, 01-12)
+2     DD           Day of the month (2 digits, 01-31)
+1     T            Separator between date and time
+2     HH           Hour (2 digits, 00-24)
+2     MM           Minutes (2 digits, 00-59)
+2     SS           Seconds (2 digits, 00-60)
+9     nnnnnnnnn    Nanoseconds (9 digits)
+1     Z            Time zone designator (Z for UTC, +/-HHMM for offset from UTC)
+32    uuid         128-bit UUID (Universal Unique Identifier)
+
+Example output:
+20231220T092700921579500Z6a598740ac3e4f75b32ed23f096bcbc2
+
+╭─    iso8601basic      ╮
+YYYYMMDDTHHMMSSnnnnnnnnnZ              uuid
+╭──╮╭╮╭╮│╭╮╭╮╭╮╭───────╮│╭──────────────────────────────╮    weight       YYYY MM DD T HH MM SS nnnnnnnnn Z uuid
+20260914T203048252804800Z155ca643fb7b4f7386009c31cc14b911    351.0 lbs    2026 09 14 T 20 30 48 252804800 Z 155ca643fb7b4f7386009c31cc14b911
+20261028T001617717657300Z1d5176bcc7ca44c5aa9565047b6a4e60    339.2 lbs    2026 10 28 T 00 16 17 717657300 Z 1d5176bcc7ca44c5aa9565047b6a4e60
