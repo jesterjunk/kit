@@ -1,0 +1,83 @@
+
+<!DOCTYPE HTML>
+<html lang="en" style="background: hsl(70, 8%, 15%); overflow-y: scroll;">
+<head>
+    <meta charset="UTF-8">
+    <title>untitled</title>
+    <style>
+    @font-face {
+        font-family: 'PragmataPro-Regular';
+        src: url('ppr.ttf') format('truetype');
+    }
+    body {
+        margin: 20px;
+        color: hsl(60, 30%, 96%);
+        font-family: 'PragmataPro-Regular', monospace;
+        white-space: pre;
+    }
+    </style>
+</head>
+<body>
+<script>
+function format_timestamp(timestamp) {
+    var match = timestamp.match(
+        /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(\d{9})Z$/
+    );
+
+    if (!match) return timestamp;
+
+    var iso = match[1] + "-" + match[2] + "-" + match[3] +
+        "T" + match[4] + ":" + match[5] + ":" + match[6] +
+        "." + match[7].slice(0, 3) + "Z";
+
+    var date = new Date(iso);
+
+    if (isNaN(date.getTime())) return timestamp;
+
+    var formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Chicago",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+        timeZoneName: "short"
+    });
+
+    var parts = {};
+
+    formatter.formatToParts(date).forEach(function(part) {
+        parts[part.type] = part.value;
+    });
+
+    var hour = parts.hour.padStart(2, " ");
+
+    return parts.month + " " + parts.day + ", " + parts.year +
+        ", " + hour + ":" + parts.minute + ":" + parts.second +
+        " " + parts.dayPeriod + " " + parts.timeZoneName;
+}
+
+function transform_text(input) {
+    var pattern = /^(\d{8}T\d{6}\d{9}Z[0-9a-fA-F]{32}[ \t]+\d+(?:\.\d+)?[ \t]*lbs[ \t]+)(\d{8}T\d{6}\d{9}Z)(?=[ \t]|$)/gm;
+
+    return input.replace(pattern, function(match, prefix, timestamp) {
+        return prefix + format_timestamp(timestamp);
+    });
+}
+
+fetch("self.txt")
+    .then(function(response) {
+        if (!response.ok) throw new Error("Cannot read self.txt");
+        return response.text();
+    })
+    .then(function(input) {
+        document.body.textContent = transform_text(input);
+    })
+    .catch(function(error) {
+        document.body.textContent = error.message;
+    });
+</script>
+</body>
+</html>
