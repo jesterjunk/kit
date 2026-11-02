@@ -3,7 +3,7 @@
 <html lang="en" style="background: hsl(70, 8%, 15%); overflow-y: scroll;">
 <head>
     <meta charset="UTF-8">
-    <title>untitled</title>
+    <title>self</title>
     <style>
     @font-face {
         font-family: 'PragmataPro-Regular';
@@ -52,9 +52,10 @@ function format_timestamp(timestamp) {
         parts[part.type] = part.value;
     });
 
+    var day = parts.day.padStart(2, " ");
     var hour = parts.hour.padStart(2, " ");
 
-    return parts.month + " " + parts.day + ", " + parts.year +
+    return parts.month + " " + day + ", " + parts.year +
         ", " + hour + ":" + parts.minute + ":" + parts.second +
         " " + parts.dayPeriod + " " + parts.timeZoneName;
 }
