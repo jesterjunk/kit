@@ -36,6 +36,7 @@ function format_timestamp(timestamp) {
 
     var formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: "America/Chicago",
+        weekday: "long",
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -52,10 +53,12 @@ function format_timestamp(timestamp) {
         parts[part.type] = part.value;
     });
 
+    var weekday = parts.weekday.padStart(9, " ");
     var day = parts.day.padStart(2, " ");
     var hour = parts.hour.padStart(2, " ");
 
-    return parts.month + " " + day + ", " + parts.year +
+    return weekday + " - " +
+        parts.month + " " + day + ", " + parts.year +
         ", " + hour + ":" + parts.minute + ":" + parts.second +
         " " + parts.dayPeriod + " " + parts.timeZoneName;
 }
