@@ -19,12 +19,12 @@
 </head>
 <body>
 <script>
-function format_timestamp(timestamp) {
+function parse_timestamp(timestamp) {
     var match = timestamp.match(
         /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(\d{9})Z$/
     );
 
-    if (!match) return timestamp;
+    if (!match) return null;
 
     var iso = match[1] + "-" + match[2] + "-" + match[3] +
         "T" + match[4] + ":" + match[5] + ":" + match[6] +
@@ -32,7 +32,13 @@ function format_timestamp(timestamp) {
 
     var date = new Date(iso);
 
-    if (isNaN(date.getTime())) return timestamp;
+    return isNaN(date.getTime()) ? null : date;
+}
+
+function format_timestamp(timestamp) {
+    var date = parse_timestamp(timestamp);
+
+    if (!date) return timestamp;
 
     var formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: "America/Chicago",
@@ -63,12 +69,76 @@ function format_timestamp(timestamp) {
         " " + parts.dayPeriod + " " + parts.timeZoneName;
 }
 
-function transform_text(input) {
-    var pattern = /^(\d{8}T\d{6}\d{9}Z[0-9a-fA-F]{32}[ \t]+\d+(?:\.\d+)?[ \t]*lbs[ \t]+)(\d{8}T\d{6}\d{9}Z)(?=[ \t]|$)/gm;
+function get_week_start(timestamp) {
+    var date = parse_timestamp(timestamp);
 
-    return input.replace(pattern, function(match, prefix, timestamp) {
-        return prefix + format_timestamp(timestamp);
+    if (!date) return null;
+
+    var formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Chicago",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
     });
+
+    var parts = {};
+
+    formatter.formatToParts(date).forEach(function(part) {
+        parts[part.type] = part.value;
+    });
+
+    var local_date = new Date(Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day)
+    ));
+
+    var days_since_monday = (local_date.getUTCDay() + 6) % 7;
+
+    local_date.setUTCDate(local_date.getUTCDate() - days_since_monday);
+
+    return local_date.toISOString().slice(0, 10);
+}
+
+function transform_text(input) {
+    var pattern = /^(\d{8}T\d{6}\d{9}Z[0-9a-fA-F]{32}[ \t]+\d+(?:\.\d+)?[ \t]*lbs[ \t]+)(\d{8}T\d{6}\d{9}Z)(?=[ \t]|$)/;
+
+    var lines = input.split(/\r?\n/);
+    var output = [];
+    var previous_week = null;
+    var divider = "-".repeat(166);
+
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var match = line.match(pattern);
+
+        if (match) {
+            var week = get_week_start(match[2]);
+
+            if (previous_week !== null && week !== previous_week) {
+                output.push(divider);
+            }
+
+            output.push(line.replace(pattern, function(match, prefix, timestamp) {
+                return prefix + format_timestamp(timestamp);
+            }));
+
+            previous_week = week;
+        } else {
+            // Ignore existing dividers between weight records
+            if (/^-{20,}$/.test(line) &&
+                previous_week !== null &&
+                i + 1 < lines.length &&
+                pattern.test(lines[i + 1])) {
+                continue;
+            }
+
+            output.push(line);
+            previous_week = null;
+        }
+    }
+
+    return output.join("\n");
 }
 
 fetch("self.txt")
