@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gorton — Letterform Demo (v3)</title>
+<style>
+  :root { color-scheme: dark; --bg:#11191d; --panel:#1c262b; --line:#334047; --text:#f5f2e9; --muted:#a3afb1; --accent:#d9a966; --paper:#f5f0e5; --ink:#273139; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .app { max-width:1480px; margin:auto; padding:28px clamp(16px,3vw,48px) 40px; }
+  .mast { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:24px; }
+  .eyebrow { color:var(--accent); letter-spacing:.19em; text-transform:uppercase; font-size:11px; font-weight:750; }
+  h1 { font-size:clamp(33px,4.6vw,60px); letter-spacing:-.065em; line-height:1.05; margin:5px 0 9px; font-weight:770; }
+  h1 span { color:#a5adb0; font-weight:400; }
+  .sub { color:var(--muted); max-width:590px; margin:0; }
+  .mast-right { font-size:11px; text-align:right; letter-spacing:.13em; text-transform:uppercase; white-space:nowrap; margin-top:6px; color:#abb7b6; }
+  .mast-right strong { display:block; font-size:13px; color:var(--accent); letter-spacing:.05em; }
+  .layout { display:grid; grid-template-columns:330px minmax(0,1fr); grid-template-areas:"compose preview" "export preview"; gap:18px 22px; align-items:start; }
+  .compose-panel { grid-area:compose; }
+  .export-panel { grid-area:export; }
+  .preview-shell { grid-area:preview; }
+  .controls { background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:24px; box-shadow:0 15px 60px rgba(0,0,0,.11); }
+  .section-title { margin:0 0 18px; font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); }
+  .field { margin:0 0 22px; }
+  .field-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:9px; }
+  label { color:#e6e7e1; font-weight:680; font-size:13px; }
+  .value { color:var(--accent); font-size:13px; font-weight:720; font-variant-numeric:tabular-nums; }
+  input[type=text],input[type=number],select { width:100%; min-width:0; border:1px solid #47545b; background:#10191d; color:white; border-radius:9px; font:inherit; padding:12px 13px; outline:0; }
+  input:focus-visible,button:focus-visible,select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  input[type=range] { width:100%; min-height:44px; cursor:pointer; accent-color:var(--accent); }
+  .tiny { color:#afbcbe; font-size:12px; line-height:1.5; margin-top:6px; }
+  .field-warning { min-height:0; color:#ffc5ad; font-size:12px; line-height:1.5; margin:7px 0 0; }
+  .field-warning:empty { display:none; }
+  input[aria-invalid="true"] { border-color:#f0a589; }
+  .fitted-info { color:#f3c88b; }
+  .fitted-info:empty { display:none; }
+  .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .toggle { position:relative; display:inline-block; width:48px; height:44px; flex:0 0 48px; }
+  .toggle input { position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+  .toggle .track { display:block; position:absolute; width:100%; height:28px; top:8px; border-radius:20px; background:#606b72; transition:background .2s; pointer-events:none; }
+  .toggle .track:after { content:""; position:absolute; top:4px; left:4px; width:20px; height:20px; background:white; border-radius:50%; transition:transform .2s; }
+  .toggle input:checked + .track { background:var(--accent); }
+  .toggle input:checked + .track:after { transform:translateX(21px); }
+  .toggle input:focus-visible + .track { outline:2px solid white; outline-offset:3px; }
+  .replay { min-height:44px; background:transparent; color:#e6d6b8; border:0; padding:10px 12px; margin-left:-12px; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .replay:disabled { opacity:.45; cursor:not-allowed; text-decoration:none; }
+  .rule { height:1px; background:var(--line); margin:22px 0; }
+  .two-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .resolution { border:1px solid #405056; border-radius:11px; background:#131d21; padding:13px 14px; margin:16px 0 17px; }
+  .resolution .resolution-heading { font-size:12px; color:#aab4b4; text-transform:uppercase; letter-spacing:.13em; margin-bottom:2px; }
+  .resolution .dimensions { font-size:23px; line-height:1.3; font-weight:650; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+  .resolution .print { color:var(--muted); font-size:12px; }
+  .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  button.download { min-height:44px; border-radius:9px; padding:13px 10px; font:inherit; font-weight:700; font-size:12.5px; cursor:pointer; border:1px solid var(--accent); background:var(--accent); color:#1b2327; }
+  button.download.alt { background:transparent; border-color:#647076; color:#fff; }
+  button.download:hover { filter:brightness(1.1); }
+  button.download:disabled { opacity:.45; cursor:not-allowed; }
+  .hint { color:var(--muted); font-size:12px; line-height:1.55; margin:14px 0 0; }
+  .resource-hint { color:#f3c88b; margin:8px 0 12px; line-height:1.5; font-size:12px; }
+  .resource-hint:empty { display:none; }
+  .count-detail { color:#afbcbe; font-size:12px; margin:5px 0 0; }
+  .count-detail[data-warning="true"] { color:#ffc5ad; }
+  .render-warning { font-size:12px; color:#d7b36f; }
+  .render-warning:empty { display:none; }
+  .preview-shell { border:1px solid #394447; border-radius:15px; overflow:hidden; background:#1a2226; box-shadow:0 18px 70px rgba(0,0,0,.1); }
+  .preview-header { padding:15px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .preview-header b { letter-spacing:.11em; text-transform:uppercase; font-size:11px; }
+  .live { color:#b9beba; letter-spacing:.06em; text-transform:uppercase; font-size:10px; }
+  .live:before { display:inline-block; content:""; width:7px; height:7px; border-radius:50%; background:#a4c69c; margin-right:7px; }
+  .artboard { background:var(--paper); position:relative; }
+  svg#preview { display:block; width:100%; height:auto; aspect-ratio:2/1; background:var(--paper); }
+  .artboard-bottom { position:absolute; right:17px; bottom:11px; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:#7b817e; pointer-events:none; }
+  .preview-footer { display:flex; gap:15px; padding:13px 20px; justify-content:space-between; font-size:12px; color:#acb6b6; }
+  .preview-footer em { color:var(--accent); font-style:normal; }
+  .status { color:var(--accent); min-height:1.5em; margin:10px 0 0; font-size:12px; }
+  .status[data-kind="error"] { color:#ffc5ad; }
+  .status[data-kind="success"] { color:#bfe1b3; }
+  footer { border-top:1px solid #354044; padding-top:18px; margin-top:25px; font-size:12px; color:#9aa7a9; }
+  footer a { color:#dfb87a; }
+  @media(max-width:920px) {
+    .layout { grid-template-columns:minmax(0,1fr); grid-template-areas:"compose" "preview" "export"; }
+    .compose-panel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 24px; }
+    .compose-panel > .section-title { grid-column:1/-1; }
+  }
+  @media(max-width:580px) {
+    .app { padding:19px 13px 25px; }
+    .mast { margin-bottom:18px; }
+    .mast-right { display:none; }
+    .controls { padding:18px; }
+    .compose-panel { display:block; }
+    .preview-header { padding:12px 14px; }
+    .preview-footer { padding:12px 14px; flex-direction:column; gap:2px; }
+    .resolution .dimensions { font-size:21px; }
+  }
+  @media(prefers-reduced-motion:reduce) { *, *::before, *::after{animation:none!important;transition:none!important;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="mast">
+    <div>
+      <div class="eyebrow">Interactive type specimen / No. 01</div>
+      <h1>GORTON <span>letterforms</span></h1>
+      <p class="sub">A standalone Gorton-inspired monoline lettering demo. Type, resize, animate, and export vector or print-ready raster artwork.</p>
+    </div>
+    <div class="mast-right">Engraving style<strong>Classic shapes</strong></div>
+  </header>
+
+  <main class="layout">
+    <section class="controls compose-panel" aria-label="Lettering controls">
+      <h2 class="section-title">01 / Compose</h2>
+      <div class="field">
+        <div class="field-head"><label for="phrase">Your text</label><span class="value" id="charCount">6 characters</span></div>
+        <input type="text" id="phrase" value="GORTON" autocomplete="off" spellcheck="false" aria-describedby="textHint textError">
+        <div class="tiny" id="textHint">Up to 90 input code points and 120 normalized output characters. Text becomes uppercase; spaces collapse. Unsupported symbols are flagged and cannot be exported.</div>
+        <p class="count-detail" id="normalizedCount" aria-live="polite">6 normalized characters (limit 120)</p>
+        <p class="field-warning" id="textError" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <div class="field-head"><label for="fontSize">Letter size</label><output class="value" id="fontSizeOut" for="fontSize">190 units</output></div>
+        <input type="range" id="fontSize" min="55" max="340" step="5" value="190" aria-describedby="sizeHint fitInfo">
+        <div class="tiny" id="sizeHint">Maximum size in logical artboard units; lettering shrinks automatically if needed.</div>
+        <div class="tiny fitted-info" id="fitInfo" aria-live="polite"></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="toggle-row"><label for="animate">Draw-on animation</label><span class="toggle"><input id="animate" type="checkbox" checked><span class="track"></span></span></div>
+        <button class="replay" id="replay" type="button">↻ Replay animation</button>
+      </div>
+
+    </section>
+
+    <section class="preview-shell" aria-label="Live lettering preview">
+      <div class="preview-header"><b>Live preview</b><span class="live">Vector rendering</span></div>
+      <div class="artboard">
+        <svg id="preview" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-labelledby="previewTitle previewDesc">
+          <title id="previewTitle">Gorton-style lettering: GORTON</title>
+          <desc id="previewDesc">Six vector glyphs fitted within the artboard.</desc>
+          <rect x="0" y="0" width="1200" height="600" fill="#f5f0e5" />
+          <g id="lettering" fill="none" stroke="#273139" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"></g>
+        </svg>
+        <div class="artboard-bottom">Monoline / Gorton-style</div>
+      </div>
+      <div class="preview-footer"><span>1200 × 600 logical canvas / 2:1 ratio</span><span id="layoutInfo">Live <em>SVG</em> paths</span></div>
+    </section>
+    <section class="controls export-panel" aria-label="Export controls">
+      <div class="output-group">
+        <h2 class="section-title">02 / Export</h2>
+        <div class="two-cols">
+          <div class="field" style="margin-bottom:10px">
+            <div class="field-head"><label for="widthIn">Width</label></div>
+            <select id="widthIn" aria-label="Export width in inches">
+              <option value="4">4 in</option><option value="6">6 in</option><option value="8" selected>8 in</option><option value="10">10 in</option><option value="12">12 in</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <div class="field-head"><label for="dpi">PNG DPI</label></div>
+            <input type="number" id="dpi" value="300" min="72" max="600" step="1" inputmode="numeric" aria-describedby="dpiError">
+          </div>
+        </div>
+        <p class="field-warning" id="dpiError" aria-live="polite"></p>
+        <div class="resolution" aria-live="polite">
+          <div class="resolution-heading">PNG export resolution</div>
+          <div class="dimensions" id="resolution">2,400 × 1,200 px</div>
+          <div class="print" id="printSize">8 × 4 inches · 300 DPI</div>
+        </div>
+        <div class="buttons">
+          <button class="download alt" id="downloadSvg" type="button">↓ Download SVG</button>
+          <button class="download" id="downloadPng" type="button">↓ Download PNG</button>
+        </div>
+        <p class="resource-hint" id="resourceHint" aria-live="polite"></p>
+        <p class="hint">SVG exports editable centerline vector strokes (not converted filled outlines). PNG uses the shown pixel dimensions and embeds real DPI metadata. Animation is preview-only.</p>
+        <p class="status" id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+    </section>
+
+  </main>
+  <footer>Letter shapes are a new, Gorton-inspired SVG reconstruction—not a copy of the site's external <code>LetterDemo</code> script. Historical reference: <a href="https://aresluna.org/the-hardest-working-font-in-manhattan/" target="_blank" rel="noopener noreferrer">The hardest working font in Manhattan</a> by Marcin Wichary.</footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 1200, H = 600, INK = '#273139', PAPER = '#f5f0e5';
+  // Single-line skeletons inspired by the eccentric, monoline Gorton engraving alphabet.
+  // Every outline is a real vector stroke, not text dependent on any installed font.
+  const G = {
+    'A':[81,'M4 100 L40 4 L77 100 M17 70 L64 70'],
+    'B':[78,'M10 3 L10 100 M10 4 L44 4 C84 4 85 43 44 49 L10 49 M44 49 C91 49 91 100 42 100 L10 100'],
+    'C':[82,'M74 13 L62 7 C43 -3 17 5 9 27 C3 44 5 68 14 85 C26 108 57 106 75 91 L79 86'],
+    'D':[85,'M10 3 L10 100 L36 100 C94 100 95 3 35 3 Z'],
+    'E':[75,'M70 4 L9 4 L9 100 L70 100 M9 51 L63 51'],
+    'F':[76,'M10 100 L10 4 L70 4 M10 51 L62 51'],
+    'G':[86,'M76 14 C63 3 50 1 39 4 C17 8 9 26 9 52 C9 80 23 102 47 102 C62 102 74 94 78 83 L78 55 L49 55'],
+    'H':[83,'M9 4 L9 100 M75 4 L75 100 M9 51 L75 51'],
+    'I':[28,'M14 4 L14 100'],
+    'J':[72,'M64 4 L64 72 C64 110 18 114 7 87'],
+    'K':[84,'M10 4 L10 100 M74 4 L10 59 M36 37 L78 100'],
+    'L':[70,'M10 4 L10 100 L65 100'],
+    'M':[106,'M8 100 L8 4 L53 68 L98 4 L98 100'],
+    'N':[87,'M9 100 L9 4 L78 100 L78 4'],
+    'O':[86,'M43 3 C19 3 8 20 8 51 C8 82 19 102 43 102 C68 102 79 82 79 51 C79 20 68 3 43 3 Z'],
+    'P':[84,'M10 100 L10 4 L43 4 C90 4 91 55 43 55 L10 55'],
+    'Q':[92,'M44 3 C19 3 8 21 8 51 C8 81 19 101 44 101 C68 101 80 82 80 51 C80 20 69 3 44 3 Z M54 79 C64 91 71 97 84 104 C91 107 91 113 84 116'],
+    'R':[88,'M10 100 L10 4 L45 4 C91 4 89 54 45 54 L10 54 M43 54 L83 100'],
+    'S':[81,'M72 13 C61 4 43 0 28 6 C9 14 6 36 24 46 C37 54 58 54 68 65 C89 88 58 110 31 100 L9 89'],
+    'T':[80,'M4 4 L76 4 M40 4 L40 100'],
+    'U':[84,'M9 4 L9 65 C9 116 75 116 75 65 L75 4'],
+    'V':[83,'M4 4 L41 100 L79 4'],
+    'W':[110,'M5 4 L25 100 L56 35 L86 100 L106 4'],
+    'X':[83,'M8 4 L76 100 M76 4 L8 100'],
+    'Y':[82,'M4 4 L41 54 L78 4 M41 54 L41 100'],
+    'Z':[81,'M7 4 L74 4 L7 100 L74 100'],
+    '0':[86,'M43 3 C18 3 7 21 7 51 C7 81 18 102 43 102 C68 102 79 81 79 51 C79 21 68 3 43 3 Z'],
+    '1':[31,'M15 4 L15 100'],
+    '2':[80,'M9 24 C10 4 57 -8 71 18 C89 48 45 73 9 100 L76 100'],
+    '3':[81,'M11 4 L69 4 C60 17 42 31 33 46 C54 44 72 51 73 73 C76 95 55 104 35 102 C22 102 15 97 8 90'],
+    '4':[83,'M62 100 L62 4 L6 73 L78 73'],
+    '5':[81,'M74 4 L15 4 L13 48 C27 41 44 41 58 48 C85 62 77 98 49 102 C32 104 16 99 7 87'],
+    '6':[83,'M66 5 C39 16 13 39 12 67 C11 92 26 104 47 102 C70 100 80 80 71 62 C61 43 35 41 19 58'],
+    '7':[82,'M6 4 L75 4 C55 34 35 68 30 100'],
+    '8':[83,'M41 50 C15 50 11 34 13 21 C17 0 67 -3 71 21 C74 36 64 50 41 50 Z M41 50 C11 50 6 69 14 87 C21 108 64 107 71 87 C79 66 70 50 41 50 Z'],
+    '9':[83,'M64 46 C49 61 23 59 14 40 C3 20 17 2 40 3 C64 3 75 18 74 40 C73 68 46 90 19 101'],
+    '?':[77,'M9 24 C8 4 66 -6 69 23 C71 42 39 51 39 70 M39 97 L39 100'],
+    '!':[31,'M15 4 L15 71 M15 98 L15 100'],
+    '.':[28,'M14 98 L14 100'],
+    ',':[29,'M16 95 Q19 105 11 115'],
+    ':':[30,'M15 29 L15 31 M15 97 L15 99'],
+    ';':[31,'M15 29 L15 31 M16 96 Q19 106 10 116'],
+    '-':[54,'M5 54 L49 54'],
+    '_':[75,'M5 105 L70 105'],
+    '+':[67,'M6 52 L61 52 M34 23 L34 80'],
+    '=':[66,'M6 39 L61 39 M6 69 L61 69'],
+    '/':[68,'M5 103 L63 3'],
+    '\\':[68,'M5 3 L63 103'],
+    '&':[91,'M77 79 C65 96 53 103 35 102 C-5 100 0 60 38 45 C66 33 60 -1 39 3 C22 6 19 23 30 43 L79 100 M51 54 L83 54'],
+    '@':[111,'M77 82 C66 97 48 107 29 98 C3 87 4 42 19 24 C40 -1 87 0 98 33 C106 56 88 79 74 71 C64 64 74 32 61 31 C37 23 28 61 42 74 C52 83 67 65 73 47'],
+    '#':[87,'M26 4 L17 100 M66 4 L57 100 M5 34 L81 34 M4 70 L80 70'],
+    '(':[43,'M35 0 C3 23 3 80 35 109'],
+    ')':[43,'M8 0 C40 23 40 80 8 109'],
+    '[':[44,'M36 3 L10 3 L10 105 L36 105'],
+    ']':[44,'M8 3 L34 3 L34 105 L8 105'],
+    '\u2019':[28,'M15 4 Q19 15 10 22'],
+    "'": [28,'M15 4 Q19 15 10 22'],
+    '"':[49,'M12 4 L12 24 M36 4 L36 24'],
+    '*':[70,'M35 7 L35 78 M6 25 L64 60 M64 25 L6 60'],
+    ' ': [46,''],
+  };
+  const CONTROL_IDS = [
+    'phrase','fontSize','fontSizeOut','charCount','normalizedCount','textError','fitInfo',
+    'animate','replay','widthIn','dpi','dpiError','resolution','printSize',
+    'resourceHint','downloadSvg','downloadPng','preview','previewTitle','previewDesc',
+    'lettering','layoutInfo','status'
+  ];
+  const els = Object.fromEntries(CONTROL_IDS.map(id => [id, document.getElementById(id)]));
+  const hasGlyph = ch => Object.prototype.hasOwnProperty.call(G, ch);
+  const nice = n => n.toLocaleString('en-US');
+  const SVG_STROKE = 9;
+  const STROKE_RADIUS = SVG_STROKE / 2;
+  const WRAP_PADDING = 48;
+  const ART_PADDING = 24;
+  const MAX_CODEPOINTS = 90;
+  const MAX_RENDERED_GLYPHS = 120;
+  const MAX_PNG_PIXELS = 26_000_000;
+  const lowMemory = Number(navigator.deviceMemory) > 0 && Number(navigator.deviceMemory) <= 2;
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  const DEVICE_PNG_LIMIT = lowMemory ? 8_000_000 : coarsePointer ? 12_000_000 : MAX_PNG_PIXELS;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const MAX_FIT_STEPS = 20;
+  const SPACE_ADVANCE = G[' '][0] + 8;
+  let renderState = null;
+  let pngBusy = false;
+  let composing = false;
+  let uiRevision = 0;
+  let exportSequence = 0;
+  let pendingFrame = 0;
+
+  class ExpectedExportError extends Error {}
+  function exportMessage(error, type) {
+    if (error instanceof ExpectedExportError) return error.message;
+    console.error(type + ' export error', error);
+    return `${type} creation failed. Try a smaller export or a newer browser.`;
+  }
+
+  function updateExportStatus(message = '', kind = '') {
+    els.status.textContent = message;
+    els.status.dataset.kind = kind;
+  }
+
+  function markUiEdited() {
+    uiRevision++;
+    updateExportStatus();
+  }
+
+  function shouldReport(job) {
+    return job.revision === uiRevision && job.sequence === exportSequence;
+  }
+
+  function makeSvgElement(name, attrs = {}) {
+    const node = document.createElementNS(NS, name);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    return node;
+  }
+
+  // Measure each path once; placement and wrapping never query the live DOM again.
+  // getBBox excludes strokes, so the resulting bounds are expanded by the stroke radius.
+  const glyphMetrics = {};
+  for (const [character, [, d]] of Object.entries(G)) {
+    if (!d) { glyphMetrics[character] = null; continue; }
+    const path = makeSvgElement('path', {d});
+    els.lettering.appendChild(path);
+    const bounds = path.getBBox();
+    glyphMetrics[character] = {
+      minX: bounds.x, minY: bounds.y,
+      maxX: bounds.x + bounds.width, maxY: bounds.y + bounds.height
+    };
+    path.remove();
+  }
+
+  function normalizeText(value) {
+    return value.normalize('NFC').toUpperCase().replace(/\s+/gu, ' ').trim();
+  }
+
+  function invalidGlyphs(value) {
+    return [...new Set([...value].filter(char => !hasGlyph(char)))];
+  }
+
+  // Precompute unscaled widths just once per edit, not at each fit iteration.
+  const glyphAdvance = char => (G[char] || G['?'])[0] + 8;
+  function prepareLayout(text) {
+    return text.split(' ').map(word => {
+      const chars = [...word];
+      return {chars, text:word, units:chars.reduce((total, char) => total + glyphAdvance(char), 0)};
+    });
+  }
+
+  function lineAdvance(line) {
+    let total = 0;
+    for (const char of line) total += glyphAdvance(char);
+    return total;
+  }
+
+  function wrappedLines(words, scale) {
+    if (!words.length || (words.length === 1 && !words[0].text)) return [];
+    const maxUnits = (W - WRAP_PADDING * 2) / scale;
+    const lines = [];
+    let line = '', units = 0;
+    for (const word of words) {
+      const candidateUnits = units + (line ? SPACE_ADVANCE : 0) + word.units;
+      if (candidateUnits <= maxUnits) {
+        if (line) { line += ' '; units += SPACE_ADVANCE; }
+        line += word.text;
+        units += word.units;
+        continue;
+      }
+      if (line) { lines.push(line); line = ''; units = 0; }
+      for (const char of word.chars) {
+        const nextUnits = glyphAdvance(char);
+        if (line && units + nextUnits > maxUnits) {
+          lines.push(line);
+          line = '';
+          units = 0;
+        }
+        line += char;
+        units += nextUnits;
+      }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  // Pure, deterministic geometry calculation shared by the preview and both exports.
+  function layoutAtScale(words, scale) {
+    const lines = wrappedLines(words, scale);
+    const size = 110 * scale;
+    const lineHeight = size * 1.2;
+    const blockHeight = lines.length ? size + (lines.length - 1) * lineHeight : 0;
+    const firstY = (H - blockHeight) / 2 + (size - 100 * scale) / 2;
+    const outlines = [];
+    const bounds = {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity};
+    for (const [index, line] of lines.entries()) {
+      let x = (W - lineAdvance(line) * scale) / 2;
+      const y = firstY + index * lineHeight;
+      for (const char of line) {
+        const [width, d] = G[char] || G['?'];
+        if (d) {
+          outlines.push({d, x, y, scale});
+          const local = glyphMetrics[char] || glyphMetrics['?'];
+          const radius = STROKE_RADIUS * scale;
+          bounds.minX = Math.min(bounds.minX, x + scale * local.minX - radius);
+          bounds.maxX = Math.max(bounds.maxX, x + scale * local.maxX + radius);
+          bounds.minY = Math.min(bounds.minY, y + scale * local.minY - radius);
+          bounds.maxY = Math.max(bounds.maxY, y + scale * local.maxY + radius);
+        }
+        x += (width + 8) * scale;
+      }
+    }
+    const fits = outlines.length > 0 &&
+      bounds.minX >= ART_PADDING && bounds.maxX <= W - ART_PADDING &&
+      bounds.minY >= ART_PADDING && bounds.maxY <= H - ART_PADDING;
+    return {lines, outlines, bounds, fits, size};
+  }
+
+  function fitLayout(text, requestedSize) {
+    const words = prepareLayout(text);
+    const requestedScale = requestedSize / 110;
+    const initial = layoutAtScale(words, requestedScale);
+    if (initial.fits || !text) return {...initial, wasFitted:false};
+    let low = 0, high = requestedScale, best = null;
+    for (let i = 0; i < MAX_FIT_STEPS; i++) {
+      const middle = (low + high) / 2;
+      const candidate = layoutAtScale(words, middle);
+      if (candidate.fits) { low = middle; best = candidate; }
+      else high = middle;
+    }
+    if (!best) return {...initial, wasFitted:false};
+    return {...best, wasFitted:best.size < requestedSize - 0.01};
+  }
+
+  function readDpi() {
+    const raw = els.dpi.value.trim();
+    if (!/^\d+$/.test(raw)) return null;
+    const dpi = Number(raw);
+    return Number.isSafeInteger(dpi) && dpi >= 72 && dpi <= 600 ? dpi : null;
+  }
+
+  function dimensions() {
+    const inch = Number(els.widthIn.value);
+    const dpi = readDpi();
+    if (![4, 6, 8, 10, 12].includes(inch) || dpi === null) return null;
+    return {inch, dpi, w:Math.round(inch * dpi), h:Math.round(inch * dpi / 2)};
+  }
+
+  function updateResolution() {
+    const dim = dimensions();
+    const dpiValid = readDpi() !== null;
+    els.dpi.setAttribute('aria-invalid', String(!dpiValid));
+    els.dpiError.textContent = dpiValid ? '' : 'Enter a whole-number DPI from 72 to 600.';
+    els.resolution.textContent = dim ? `${nice(dim.w)} × ${nice(dim.h)} px` : '— × — px';
+    els.printSize.textContent = dim
+      ? `${dim.inch} × ${dim.inch / 2} inches · ${dim.dpi} DPI`
+      : 'PNG resolution unavailable until DPI is valid.';
+    const pixels = dim ? dim.w * dim.h : 0;
+    const memory = Math.ceil(pixels * 4 / 1048576);
+    if (pixels > DEVICE_PNG_LIMIT) {
+      els.resourceHint.textContent = `PNG export exceeds this device's ${nice(DEVICE_PNG_LIMIT)}-pixel limit. Reduce the width or DPI. SVG is still available.`;
+    } else if (pixels > 8_000_000) {
+      els.resourceHint.textContent = `Large export (${(pixels / 1e6).toFixed(1)} MP): one uncompressed image buffer uses about ${memory} MiB; actual peak memory may be much higher.`;
+    } else {
+      els.resourceHint.textContent = '';
+    }
+    updateButtons();
+  }
+
+  function updateButtons() {
+    const validText = Boolean(!composing && renderState?.valid && renderState.layout.fits);
+    const dim = dimensions();
+    els.downloadSvg.disabled = !validText;
+    els.downloadPng.disabled = !validText || pngBusy || !dim || dim.w * dim.h > DEVICE_PNG_LIMIT;
+  }
+
+  function render({playAnimation = false} = {}) {
+    if (composing) return;
+    const input = els.phrase.value;
+    const normalized = normalizeText(input);
+    const normalizedCharacters = [...normalized];
+    const tooMany = normalizedCharacters.length > MAX_RENDERED_GLYPHS;
+    const unsupported = invalidGlyphs(normalized);
+    // Invalid oversized input remains visible in the field but does not produce unbounded SVG paths.
+    const previewText = normalizedCharacters.slice(0, MAX_RENDERED_GLYPHS)
+      .map(char => hasGlyph(char) ? char : '?').join('');
+    const requestedSize = Number(els.fontSize.value);
+    const layout = fitLayout(previewText, requestedSize);
+    const valid = normalizedCharacters.length > 0 && !tooMany && unsupported.length === 0 && layout.fits;
+    renderState = {input, normalized, valid, tooMany, unsupported, layout};
+
+    const rawCount = [...input].length;
+    els.fontSizeOut.textContent = `${requestedSize} units`;
+    els.charCount.textContent = `${rawCount} / ${MAX_CODEPOINTS}`;
+    els.normalizedCount.textContent = `${normalizedCharacters.length} normalized characters (limit ${MAX_RENDERED_GLYPHS})${tooMany ? '; preview shows first 120 only' : ''}`;
+    els.normalizedCount.dataset.warning = String(tooMany);
+    els.fitInfo.textContent = layout.wasFitted
+      ? `Automatically fitted to ${layout.size.toFixed(1)} units so all glyphs fit inside the artboard.`
+      : '';
+    if (!normalized) {
+      els.textError.textContent = 'Enter some text before exporting.';
+    } else if (tooMany) {
+      els.textError.textContent = `${normalizedCharacters.length} normalized characters exceed the ${MAX_RENDERED_GLYPHS}-character output limit. Shorten the input before exporting.`;
+    } else if (unsupported.length) {
+      const shown = unsupported.slice(0, 8).map(ch => JSON.stringify(ch)).join(', ');
+      els.textError.textContent = `Unsupported character${unsupported.length === 1 ? '' : 's'}: ${shown}${unsupported.length > 8 ? '…' : ''}. Preview uses ? placeholders; exports are disabled.`;
+    } else if (!layout.fits) {
+      els.textError.textContent = 'The content cannot fit inside the artboard; adjust the text.';
+    } else {
+      els.textError.textContent = '';
+    }
+    els.phrase.setAttribute('aria-invalid', String(!valid));
+    els.layoutInfo.textContent = `${layout.lines.length} line${layout.lines.length === 1 ? '' : 's'} · ${layout.outlines.length} vector paths`;
+    els.previewTitle.textContent = `Gorton-style lettering: ${normalized || '(empty)'}`;
+    els.previewDesc.textContent = tooMany
+      ? `Input exceeds the ${MAX_RENDERED_GLYPHS}-character normalized output limit. Preview is incomplete; exports are disabled.`
+      : unsupported.length
+        ? 'Unsupported characters are shown as question marks. Downloads are unavailable.'
+        : `${layout.outlines.length} vector paths across ${layout.lines.length} lines.${layout.wasFitted ? ' Auto-fitted to the artboard.' : ''}`;
+
+    els.lettering.replaceChildren();
+    const animate = playAnimation && els.animate.checked && !prefersReducedMotion.matches;
+    const glyphCount = layout.outlines.length;
+    for (const [i, outline] of layout.outlines.entries()) {
+      const path = makeSvgElement('path', {
+        d:outline.d,
+        transform:`translate(${outline.x.toFixed(6)} ${outline.y.toFixed(6)}) scale(${outline.scale.toFixed(9)})`
+      });
+      els.lettering.appendChild(path);
+      if (animate && typeof path.animate === 'function') {
+        const length = path.getTotalLength();
+        const delay = Math.min(2600, i / Math.max(1, glyphCount) * 2600);
+        path.style.strokeDasharray = String(length);
+        path.style.strokeDashoffset = String(length);
+        const animation = path.animate(
+          [{strokeDashoffset:length}, {strokeDashoffset:0}],
+          {duration:900, delay, easing:'ease-in-out', fill:'forwards'}
+        );
+        animation.onfinish = () => {
+          path.style.strokeDasharray = 'none';
+          path.style.strokeDashoffset = '0';
+          animation.cancel();
+        };
+      }
+    }
+    els.replay.disabled = !els.animate.checked || prefersReducedMotion.matches || !layout.outlines.length || typeof els.lettering.animate !== 'function';
+    updateButtons();
+  }
+
+  function scheduleRender() {
+    if (pendingFrame) return;
+    pendingFrame = requestAnimationFrame(() => { pendingFrame = 0; render(); });
+  }
+
+  // The exported SVG always has the complete text and an accessible description.
+  function vectorSVG(outlines, inches, text, lineCount) {
+    const root = makeSvgElement('svg', {
+      xmlns:NS, viewBox:`0 0 ${W} ${H}`,
+      width:`${inches}in`, height:`${inches / 2}in`,
+      role:'img', 'aria-labelledby':'exportTitle exportDesc'
+    });
+    root.appendChild(makeSvgElement('title', {id:'exportTitle'})).textContent = `Gorton-inspired lettering: ${text}`;
+    root.appendChild(makeSvgElement('desc', {id:'exportDesc'})).textContent =
+      `${outlines.length} vector centerline paths arranged in ${lineCount} line${lineCount === 1 ? '' : 's'}. Text: ${text}`;
+    root.appendChild(makeSvgElement('rect', {x:0, y:0, width:W, height:H, fill:PAPER}));
+    for (const outline of outlines) {
+      root.appendChild(makeSvgElement('path', {
+        d:outline.d,
+        transform:`translate(${outline.x.toFixed(6)} ${outline.y.toFixed(6)}) scale(${outline.scale.toFixed(9)})`,
+        fill:'none', stroke:INK, 'stroke-width':SVG_STROKE,
+        'stroke-linecap':'round', 'stroke-linejoin':'round'
+      }));
+    }
+    return new XMLSerializer().serializeToString(root);
+  }
+
+  // Stable FNV-1a suffix distinguishes phrases that sanitize to the same ASCII name.
+  function contentHash(text) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < text.length; i++) {
+      h ^= text.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0');
+  }
+
+  function exportFilename(text, extension) {
+    const short = text.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '').slice(0, 30) || 'lettering';
+    return `gorton-${short}-${contentHash(text)}.${extension}`;
+  }
+
+  function captureExport(extension) {
+    // Flush a pending input frame, so the snapshot never uses an outdated layout.
+    if (pendingFrame) { cancelAnimationFrame(pendingFrame); pendingFrame = 0; render(); }
+    if (composing || !renderState?.valid || !renderState.layout.fits) {
+      throw new ExpectedExportError('Correct the text before exporting.');
+    }
+    const {normalized, layout} = renderState;
+    const inch = Number(els.widthIn.value);
+    return Object.freeze({
+      filename:exportFilename(normalized, extension),
+      revision:uiRevision,
+      sequence:++exportSequence,
+      svg:vectorSVG(layout.outlines, inch, normalized, layout.lines.length),
+      dimensions:dimensions()
+    });
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    try { link.click(); }
+    finally {
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    }
+  }
+
+  function withDpiMetadata(bytes, dpi) {
+    const read32 = (b, p) => ((b[p] * 0x1000000) + (b[p+1] << 16) + (b[p+2] << 8) + b[p+3]) >>> 0;
+    const write32 = (b, p, n) => {
+      b[p] = (n >>> 24) & 255; b[p+1] = (n >>> 16) & 255;
+      b[p+2] = (n >>> 8) & 255; b[p+3] = n & 255;
+    };
+    const signature = [137,80,78,71,13,10,26,10];
+    if (bytes.length < 33 || signature.some((value, i) => bytes[i] !== value)) {
+      throw new ExpectedExportError('The browser returned an invalid PNG. Try a newer browser.');
+    }
+    const chunks = [];
+    let pos = 8, sawHeader = false, sawEnd = false;
+    while (pos < bytes.length) {
+      if (pos + 12 > bytes.length) throw new ExpectedExportError('The generated PNG is incomplete.');
+      const length = read32(bytes, pos);
+      const next = pos + 12 + length;
+      if (!Number.isSafeInteger(next) || next > bytes.length) throw new ExpectedExportError('Invalid PNG data.');
+      const type = String.fromCharCode(...bytes.subarray(pos + 4, pos + 8));
+      if (!sawHeader && (type !== 'IHDR' || length !== 13)) throw new ExpectedExportError('Missing PNG header.');
+      if (type === 'IHDR') {
+        if (sawHeader) throw new ExpectedExportError('Duplicate PNG header.');
+        sawHeader = true;
+      }
+      if (type === 'IEND') {
+        if (length !== 0 || next !== bytes.length) throw new ExpectedExportError('Invalid PNG ending.');
+        sawEnd = true;
+      }
+      if (type !== 'pHYs') chunks.push(bytes.subarray(pos, next));
+      pos = next;
+    }
+    if (!sawHeader || !sawEnd) throw new ExpectedExportError('Incomplete PNG image.');
+    const ppu = Math.round(dpi / 0.0254);
+    const density = new Uint8Array(21);
+    write32(density, 0, 9);
+    density.set([112,72,89,115], 4); // pHYs
+    write32(density, 8, ppu);
+    write32(density, 12, ppu);
+    density[16] = 1;
+    let crc = 0xffffffff;
+    for (let i = 4; i < 17; i++) {
+      crc ^= density[i];
+      for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+    write32(density, 17, (crc ^ 0xffffffff) >>> 0);
+    const pieces = [bytes.subarray(0, 8), chunks[0], density, ...chunks.slice(1)];
+    const result = new Uint8Array(pieces.reduce((sum, part) => sum + part.length, 0));
+    let offset = 0;
+    for (const part of pieces) { result.set(part, offset); offset += part.length; }
+    return result;
+  }
+
+  // Image.decode and Canvas.toBlob have event-based/dataURL fallbacks for older engines.
+  async function imageFromUrl(url) {
+    const image = new Image();
+    image.src = url;
+    if (typeof image.decode === 'function') {
+      try { await image.decode(); return image; }
+      catch (error) { if (image.complete && image.naturalWidth > 0) return image; }
+    }
+    return new Promise((resolve, reject) => {
+      const fallback = new Image();
+      fallback.onload = () => resolve(fallback);
+      fallback.onerror = () => reject(new ExpectedExportError('This browser could not decode the SVG image.'));
+      fallback.src = url;
+    });
+  }
+
+  async function encodePng(canvas) {
+    if (typeof canvas.toBlob === 'function') {
+      return new Promise((resolve, reject) => canvas.toBlob(
+        blob => blob ? resolve(blob) : reject(new ExpectedExportError('PNG encoding failed. Try a smaller export.')),
+        'image/png'
+      ));
+    }
+    if (canvas.width * canvas.height > 4_000_000) {
+      throw new ExpectedExportError('This browser only supports small PNG exports. Lower the width or DPI.');
+    }
+    const base64 = canvas.toDataURL('image/png').split(',')[1];
+    const binary = atob(base64);
+    const buffer = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) buffer[i] = binary.charCodeAt(i);
+    return new Blob([buffer], {type:'image/png'});
+  }
+
+  async function readBlobBytes(blob) {
+    if (typeof blob.arrayBuffer === 'function') return new Uint8Array(await blob.arrayBuffer());
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(new Uint8Array(reader.result));
+      reader.onerror = () => reject(new ExpectedExportError('Could not read the generated PNG.'));
+      reader.readAsArrayBuffer(blob);
+    });
+  }
+
+  els.downloadSvg.addEventListener('click', () => {
+    let job;
+    try {
+      job = captureExport('svg');
+      downloadBlob(new Blob([job.svg], {type:'image/svg+xml;charset=utf-8'}), job.filename);
+      if (shouldReport(job)) updateExportStatus('SVG download started: editable vector centerline paths.', 'success');
+    } catch (error) {
+      updateExportStatus('SVG export failed: ' + exportMessage(error, 'SVG'), 'error');
+    }
+  });
+
+  els.downloadPng.addEventListener('click', async () => {
+    if (pngBusy) return;
+    let job;
+    try {
+      job = captureExport('png');
+      const dim = job.dimensions;
+      if (!dim) throw new ExpectedExportError('Enter a valid whole-number DPI (72–600).');
+      if (dim.w * dim.h > DEVICE_PNG_LIMIT) throw new ExpectedExportError('This image is too large for the device limit.');
+    } catch (error) {
+      updateExportStatus('PNG export failed: ' + exportMessage(error, 'PNG'), 'error');
+      return;
+    }
+    pngBusy = true;
+    updateButtons();
+    if (shouldReport(job)) updateExportStatus('Rendering PNG…');
+    let url, canvas, image;
+    try {
+      const {w, h, dpi} = job.dimensions;
+      url = URL.createObjectURL(new Blob([job.svg], {type:'image/svg+xml;charset=utf-8'}));
+      image = await imageFromUrl(url);
+      canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', {alpha:false});
+      if (!ctx) throw new ExpectedExportError('Canvas is unavailable; try another browser.');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(image, 0, 0, w, h);
+      const png = await encodePng(canvas);
+      const corrected = withDpiMetadata(await readBlobBytes(png), dpi);
+      downloadBlob(new Blob([corrected], {type:'image/png'}), job.filename);
+      if (shouldReport(job)) updateExportStatus(
+        `PNG download started: ${job.filename} — ${nice(w)} × ${nice(h)} pixels at ${dpi} DPI.`, 'success'
+      );
+    } catch (error) {
+      if (shouldReport(job)) updateExportStatus('PNG export failed: ' + exportMessage(error, 'PNG'), 'error');
+      else console.warn('An older PNG export failed:', error);
+    } finally {
+      if (canvas) { canvas.width = 0; canvas.height = 0; }
+      if (image) image.src = '';
+      if (url) URL.revokeObjectURL(url);
+      pngBusy = false;
+      updateButtons();
+    }
+  });
+
+  function limitSourceInput() {
+    const points = [...els.phrase.value];
+    if (points.length > MAX_CODEPOINTS) {
+      els.phrase.value = points.slice(0, MAX_CODEPOINTS).join('');
+    }
+  }
+
+  els.phrase.addEventListener('compositionstart', () => {
+    composing = true;
+    markUiEdited();
+    updateButtons();
+  });
+  els.phrase.addEventListener('compositionend', () => {
+    composing = false;
+    limitSourceInput();
+    markUiEdited();
+    if (pendingFrame) cancelAnimationFrame(pendingFrame);
+    pendingFrame = 0;
+    render();
+  });
+  els.phrase.addEventListener('input', event => {
+    if (composing || event.isComposing) { updateButtons(); return; }
+    limitSourceInput();
+    markUiEdited();
+    scheduleRender();
+  });
+  els.fontSize.addEventListener('input', () => { markUiEdited(); scheduleRender(); });
+  els.animate.addEventListener('change', () => {
+    if (pendingFrame) cancelAnimationFrame(pendingFrame);
+    pendingFrame = 0;
+    render({playAnimation:els.animate.checked});
+  });
+  els.replay.addEventListener('click', () => {
+    if (pendingFrame) cancelAnimationFrame(pendingFrame);
+    pendingFrame = 0;
+    render({playAnimation:true});
+  });
+  els.widthIn.addEventListener('change', () => { markUiEdited(); updateResolution(); });
+  els.dpi.addEventListener('input', () => { markUiEdited(); updateResolution(); });
+  const onMotionChange = () => render();
+  if (typeof prefersReducedMotion.addEventListener === 'function') {
+    prefersReducedMotion.addEventListener('change', onMotionChange);
+  } else if (typeof prefersReducedMotion.addListener === 'function') {
+    prefersReducedMotion.addListener(onMotionChange);
+  }
+  updateResolution();
+  render({playAnimation:true});
+})();
+</script>
+</body>
+</html>
