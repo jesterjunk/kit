@@ -1,3 +1,4 @@
+20261127T170221428845900Ze064c5da31e549a9b210255da801fbff    328.0 lbs    20261127T170221428845900Z    scale at home
 20261127T053948198041600Zfad39bf9e67d4c0788454758c9942d1c    330.4 lbs    20261127T053948198041600Z    scale at home
 20261126T051449798946900Z67c0dbea80744e72bc1926b0b8067ee2    328.0 lbs    20261126T051449798946900Z    scale at home
 20261125T051715005297900Zc018a2a2b33c4cf6be184bc6aa935dd8    327.4 lbs    20261125T051715005297900Z    scale at home
@@ -33,6 +34,11 @@
 
 
 all weights recorded are after weighing multiple times to get a consistent weight reading
+
+all weights recorded after waking up and going to the bathroom with the exception of the first two recordings
+
+20261028T001617717657300Z1d5176bcc7ca44c5aa9565047b6a4e60
+20260914T203048252804800Z155ca643fb7b4f7386009c31cc14b911
 
 
 
